@@ -1,7 +1,6 @@
 package app.daybreak;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Instrumentation;
 import android.app.NotificationManager;
 import android.app.Notification;
@@ -16,7 +15,7 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.Button;
 import org.json.JSONObject;
 
-/** Synthetic alarm: a short tap has an explicit exit; a swipe cannot stop or snooze it. */
+/** Synthetic alarm: a short tap gives in-button guidance; a swipe cannot stop or snooze it. */
 public final class RingGuidanceTest extends Instrumentation {
     @Override public void onCreate(Bundle args){super.onCreate(args);start();}
     @Override public void onStart(){
@@ -36,14 +35,9 @@ public final class RingGuidanceTest extends Instrumentation {
             ViewGroup layout=(ViewGroup)((ViewGroup)screen.findViewById(android.R.id.content)).getChildAt(0);
             Button awake=(Button)layout.getChildAt(1);RingActivity ring=screen;
             runOnMainSync(awake::performClick);
-            AlertDialog dialog=screen.holdInstructionsDialog();
-            if(!screen.holdInstructionsShowing()||dialog.getButton(AlertDialog.BUTTON_POSITIVE)==null||
-                !"OK, keep ringing".contentEquals(dialog.getButton(AlertDialog.BUTTON_POSITIVE).getText()))
-                throw new Exception("Short-tap guidance lacks an OK button");
-            runOnMainSync(()->dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick());
-            deadline=SystemClock.elapsedRealtime()+1_000L;
-            while(screen.holdInstructionsShowing()&&SystemClock.elapsedRealtime()<deadline)Thread.sleep(20);
-            if(screen.holdInstructionsShowing())throw new Exception("OK did not close guidance");
+            if(layout.getChildCount()!=2||!awake.getText().toString().contains("Press and hold for 2 seconds")||
+                !Store.object(c,"ringing").has(id))
+                throw new Exception("Short tap did not show hold guidance on the large button");
             runOnMainSync(()->{
                 long now=SystemClock.uptimeMillis();float y=awake.getHeight()/2f;
                 for(int action:new int[]{MotionEvent.ACTION_DOWN,MotionEvent.ACTION_MOVE,MotionEvent.ACTION_UP}){
@@ -63,7 +57,7 @@ public final class RingGuidanceTest extends Instrumentation {
             for(StatusBarNotification notification:c.getSystemService(NotificationManager.class).getActiveNotifications())
                 if(notification.getId()==1&&(notification.getNotification().flags&Notification.FLAG_ONGOING_EVENT)!=0)ongoing=true;
             if(!ongoing)throw new Exception("Ringing notification disappeared after leaving the screen");
-            result.putString("summary","Short-tap OK, swipe, Back, background ring, and ongoing notification passed");finish(Activity.RESULT_OK,result);
+            result.putString("summary","In-button hold guidance, swipe, Back, background ring, and ongoing notification passed");finish(Activity.RESULT_OK,result);
         }catch(Throwable error){result.putString("error",error.toString());finish(Activity.RESULT_CANCELED,result);}
         finally{c.startService(new Intent(c,AlarmService.class).setAction("STOP"));if(screen!=null&&!screen.isFinishing()){RingActivity last=screen;runOnMainSync(last::finish);}}
     }

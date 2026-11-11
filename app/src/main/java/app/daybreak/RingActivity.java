@@ -17,12 +17,13 @@ import android.widget.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 public class RingActivity extends Activity {
-    private LinearLayout root;private Button snooze,awake;private AlertDialog accessibilityDismissDialog,holdInstructionsDialog;private boolean receiverRegistered;
+    private LinearLayout root;private Button snooze,awake;private boolean receiverRegistered,assistiveArmed;
     private final Handler ui=new Handler(Looper.getMainLooper());
     private static final long DISMISS_HOLD_MS=2_000L;
     private long dismissHoldBegan;
     private boolean dismissHoldFinished,testAlarmScreen;
-    private CharSequence awakeLabel;
+    private CharSequence awakeLabel,armedAwakeLabel,shortTapAwakeLabel;
+    private String awakeDescription;
     private Runnable clockTick;
     private final Runnable dismissHoldProgress=new Runnable(){public void run(){
         if(awake==null||dismissHoldFinished||dismissHoldBegan==0)return;
@@ -60,14 +61,26 @@ public class RingActivity extends Activity {
         SpannableString snoozeLabel=snoozeLabel(time,title,minutes);
         snooze=button(snoozeLabel,"SNOOZE",Appearance.current(this).surface,Appearance.current(this).text);snooze.setContentDescription("Snooze for "+minutes+" minutes. "+time+". "+title);
         boolean assistiveSelection=usesAssistiveSelection(this);
-        String dismissHint=assistiveSelection?"Select to confirm dismissal":"Hold 2 seconds to dismiss";
-        SpannableString initialAwakeLabel=new SpannableString("I’m up\n\nStart my day\n\n"+dismissHint);size(initialAwakeLabel,"I’m up",44);size(initialAwakeLabel,"Start my day",18);size(initialAwakeLabel,dismissHint,15);awakeLabel=initialAwakeLabel;
+        AccessibilityManager accessibility=(AccessibilityManager)getSystemService(Context.ACCESSIBILITY_SERVICE);
+        boolean talkback=assistiveSelection&&accessibility!=null&&accessibility.isTouchExplorationEnabled();
+        String dismissHint=assistiveSelection?(talkback?"Activate twice to stop":"Blue box = focus\nNext switch moves · Select switch chooses\nNo screen tap needed\nSelect I’m up twice to stop"):"Hold 2 seconds to dismiss";
+        awakeLabel=awakeText(dismissHint);
+        armedAwakeLabel=awakeText("Select again to stop");
+        shortTapAwakeLabel=awakeText("Press and hold for 2 seconds to stop");
         awake=button(awakeLabel,"",Appearance.current(this).action,Appearance.current(this).onAction);
-        awake.setContentDescription(assistiveSelection?"I’m up. Activate to confirm dismissal.":"I’m up. Hold for two seconds to dismiss.");
+        awakeDescription=assistiveSelection?(talkback?"I’m up. Activate once to prepare dismissal. Activate again to stop the alarm.":"I’m up. Blue outline means focus. Next switch moves the outline. Select switch activates the highlighted button. Select I’m up twice to stop the alarm."):"I’m up. Hold for two seconds to dismiss.";
+        awake.setContentDescription(awakeDescription);
+        snooze.setOnClickListener(v->{resetAssistiveSelection();act("SNOOZE");});
         if(testOnly){awake.setText("Stop test alarm");awake.setContentDescription("Stop test alarm");awake.setOnClickListener(v->act("STOP_TEST"));}
         if(!testOnly)awake.setOnClickListener(v->{
-            if(usesAssistiveSelection(this))showAccessibleDismissConfirmation();
-            else showHoldInstructions();
+            if(usesAssistiveSelection(this)){
+                if(assistiveArmed)act("STOP");
+                else{
+                    assistiveArmed=true;awake.setText(armedAwakeLabel);
+                    awake.setContentDescription("I’m up. Select again to stop this alarm. Snooze remains available.");
+                    awake.announceForAccessibility("Dismiss ready. Select I’m up again to stop the alarm.");
+                }
+            }else showShortTapGuidance();
         });
         if(!testOnly)awake.setOnLongClickListener(v->{dismissHoldBegan=SystemClock.elapsedRealtime()-DISMISS_HOLD_MS;completeDismissHold();return true;});
         if(!testOnly)awake.setAccessibilityDelegate(new View.AccessibilityDelegate(){
@@ -99,87 +112,21 @@ public class RingActivity extends Activity {
     }
     private void applyPalette(){
         Appearance p=Appearance.current(this);root.setBackgroundColor(p.background);tint(snooze,p.surface,p.text);tint(awake,p.action,p.onAction);
-        if(accessibilityDismissDialog!=null&&accessibilityDismissDialog.isShowing())styleAlarmDialog(accessibilityDismissDialog);
-        if(holdInstructionsDialog!=null&&holdInstructionsDialog.isShowing())styleAlarmDialog(holdInstructionsDialog);
         int mask=View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         int bars=(Appearance.light(p.surface)?View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR:0)|(Appearance.light(p.action)?View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR:0);
         if(Build.VERSION.SDK_INT>=30)getWindow().getInsetsController().setSystemBarsAppearance((Appearance.light(p.surface)?WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS:0)|(Appearance.light(p.action)?WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS:0),WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
         else getWindow().getDecorView().setSystemUiVisibility((getWindow().getDecorView().getSystemUiVisibility()&~mask)|bars);
     }
     private void completeDismissHold(){if(dismissHoldBegan==0||dismissHoldFinished)return;dismissHoldFinished=true;ui.removeCallbacks(dismissHoldProgress);awake.setPressed(false);awake.setText(awakeLabel);act("STOP");}
-    private void showAccessibleDismissConfirmation(){
-        if(accessibilityDismissDialog!=null&&accessibilityDismissDialog.isShowing())return;
-        AlertDialog dialog=new AlertDialog.Builder(this)
-            .setTitle("Dismiss this alarm?")
-            .setMessage("Choose Dismiss alarm to stop it, or Keep ringing to return to the alarm.")
-            .setNegativeButton("Keep ringing",(d,which)->{})
-            .setPositiveButton("Dismiss alarm",(d,which)->act("STOP"))
-            .create();
-        accessibilityDismissDialog=dialog;
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setOnDismissListener(d->{if(accessibilityDismissDialog==dialog)accessibilityDismissDialog=null;});
-        dialog.show();
-        styleAlarmDialog(dialog);
+    private void showShortTapGuidance(){
+        awake.setText(shortTapAwakeLabel);
+        awake.setContentDescription("I’m up. Press and hold for two seconds to stop the alarm.");
     }
-    private void showHoldInstructions(){
-        if(holdInstructionsDialog!=null&&holdInstructionsDialog.isShowing())return;
-        AlertDialog dialog=new AlertDialog.Builder(this)
-            .setTitle("Hold I’m up to stop the alarm")
-            .setMessage("Press and hold the I’m up button for 2 seconds. The alarm keeps ringing until the hold completes.")
-            .setPositiveButton("OK, keep ringing",(d,which)->{})
-            .create();
-        holdInstructionsDialog=dialog;
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setOnDismissListener(d->{if(holdInstructionsDialog==dialog)holdInstructionsDialog=null;});
-        dialog.show();
-        styleAlarmDialog(dialog);
+    private void resetAssistiveSelection(){
+        assistiveArmed=false;
+        if(awake!=null&&!testAlarmScreen){awake.setText(awakeLabel);awake.setContentDescription(awakeDescription);}
     }
-    private void styleAlarmDialog(AlertDialog dialog){
-        Appearance palette=Appearance.current(this);
-        int surface=palette.surface,ink=readable(palette.text,surface);
-        GradientDrawable panel=new GradientDrawable();panel.setColor(surface);panel.setCornerRadius(dp(24));
-        Window window=dialog.getWindow();if(window!=null)window.setBackgroundDrawable(panel);
-        TextView message=dialog.findViewById(android.R.id.message);
-        if(message!=null){message.setTextColor(ink);message.setTextSize(18);message.setLineSpacing(dp(3),1f);}
-        styleDialogButton(dialog.getButton(AlertDialog.BUTTON_NEGATIVE),surface,ink,ink);
-        int action=palette.action,actionInk=readable(palette.onAction,action);
-        styleDialogButton(dialog.getButton(AlertDialog.BUTTON_POSITIVE),action,actionInk,ink);
-    }
-    private void styleDialogButton(Button button,int background,int text,int outline){
-        if(button==null)return;
-        button.setAllCaps(false);button.setTextColor(text);button.setTextSize(20);
-        button.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));
-        button.setSingleLine(false);button.setMaxLines(2);button.setGravity(Gravity.CENTER);
-        button.setMinimumHeight(dp(64));button.setPadding(dp(12),dp(10),dp(12),dp(10));
-        GradientDrawable shape=new GradientDrawable();shape.setColor(background);shape.setCornerRadius(dp(14));shape.setStroke(dp(2),outline);
-        button.setBackground(new RippleDrawable(ColorStateList.valueOf((outline&0x00ffffff)|0x33000000),shape,null));
-    }
-    private int readable(int preferred,int background){
-        double contrast=contrast(preferred,background);
-        if(contrast>=7)return preferred;
-        int black=Color.BLACK,white=Color.WHITE;
-        return contrast(black,background)>=contrast(white,background)?black:white;
-    }
-    private double contrast(int first,int second){
-        double a=luminance(first),b=luminance(second);
-        return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
-    }
-    private double luminance(int color){
-        int[] channels={Color.red(color),Color.green(color),Color.blue(color)};
-        double[] weights={.2126,.7152,.0722};double value=0;
-        for(int index=0;index<channels.length;index++){
-            double channel=channels[index]/255.0;
-            value+=weights[index]*(channel<=.04045?channel/12.92:Math.pow((channel+.055)/1.055,2.4));
-        }
-        return value;
-    }
-    boolean holdInstructionsShowing(){return holdInstructionsDialog!=null&&holdInstructionsDialog.isShowing();}
-    AlertDialog holdInstructionsDialog(){return holdInstructionsDialog;}
-    boolean dismissConfirmationShowing(){return accessibilityDismissDialog!=null&&accessibilityDismissDialog.isShowing();}
-    AlertDialog dismissConfirmationDialog(){return accessibilityDismissDialog;}
-    private void cancelDismissHold(){ui.removeCallbacks(dismissHoldProgress);dismissHoldBegan=0;if(awake!=null){awake.setPressed(false);if(!dismissHoldFinished&&!testAlarmScreen)awake.setText(awakeLabel);}}
+    private void cancelDismissHold(){ui.removeCallbacks(dismissHoldProgress);dismissHoldBegan=0;if(awake!=null){awake.setPressed(false);if(!dismissHoldFinished&&!testAlarmScreen)awake.setText(assistiveArmed?armedAwakeLabel:awakeLabel);}}
     private void tint(Button button,int background,int text){
         button.setTextColor(text);GradientDrawable color=new GradientDrawable();color.setColor(background);
         button.setBackground(new RippleDrawable(ColorStateList.valueOf((Appearance.current(this).accent&0x00ffffff)|0x33000000),color,null));
@@ -187,6 +134,11 @@ public class RingActivity extends Activity {
     private SpannableString snoozeLabel(String time,String title,int minutes){
         int percent=AlarmService.playbackPercent();String volume=percent<0?"Phone alarm volume":"Phone alarm volume · about "+percent+"%";
         SpannableString label=new SpannableString("Rouse\n\n"+time+"\n"+title+"\n\nSnooze\n"+minutes+" minutes\n"+volume);size(label,"Rouse",14);size(label,time,56);size(label,title,18);size(label,"Snooze",38);size(label,minutes+" minutes",16);size(label,volume,13);return label;
+    }
+    private SpannableString awakeText(String hint){
+        SpannableString label=new SpannableString("I’m up\n\nStart my day\n\n"+hint);
+        size(label,"I’m up",44);size(label,"Start my day",18);size(label,hint,20);
+        return label;
     }
     private void size(SpannableString label,String part,int sp){int start=label.toString().indexOf(part);if(start>=0)label.setSpan(new AbsoluteSizeSpan(sp,true),start,start+part.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);}
     private Button button(CharSequence label,String action,int background,int text){
@@ -201,8 +153,8 @@ public class RingActivity extends Activity {
     }
     @Override public void onBackPressed(){}
     @Override protected void onStart(){super.onStart();if(clockTick!=null)ui.post(clockTick);}
-    @Override protected void onPause(){cancelDismissHold();super.onPause();}
+    @Override protected void onPause(){cancelDismissHold();resetAssistiveSelection();super.onPause();}
     @Override public void onWindowFocusChanged(boolean focused){super.onWindowFocusChanged(focused);if(!focused)cancelDismissHold();}
     @Override protected void onStop(){if(clockTick!=null)ui.removeCallbacks(clockTick);super.onStop();}
-    @Override protected void onDestroy(){ui.removeCallbacksAndMessages(null);if(accessibilityDismissDialog!=null)accessibilityDismissDialog.dismiss();if(holdInstructionsDialog!=null)holdInstructionsDialog.dismiss();if(receiverRegistered){unregisterReceiver(done);receiverRegistered=false;}super.onDestroy();}
+    @Override protected void onDestroy(){ui.removeCallbacksAndMessages(null);if(receiverRegistered){unregisterReceiver(done);receiverRegistered=false;}super.onDestroy();}
 }

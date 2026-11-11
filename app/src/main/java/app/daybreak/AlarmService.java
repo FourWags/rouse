@@ -37,7 +37,6 @@ public class AlarmService extends Service {
         ch.setDescription("Scheduled work and personal alarms");ch.setSound(null,null);ch.enableVibration(false);ch.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         ((NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(ch);
     }
-    private PendingIntent action(String action){return PendingIntent.getService(this,action.hashCode(),new Intent(this,AlarmService.class).setAction(action),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);}
     @Override public int onStartCommand(Intent i,int flags,int id){
         String action=i==null?"":i.getAction();
         if("SNOOZE".equals(action)) {
@@ -91,13 +90,11 @@ public class AlarmService extends Service {
         int count=Store.object(this,"ringing").length();
         boolean testOnly=count==1&&"test".equals(current.optString("kind"));
         String title=count>1?count+" alarms · "+current.optString("title","Time to wake up"):current.optString("title","Time to wake up");
-        android.view.accessibility.AccessibilityManager access=(android.view.accessibility.AccessibilityManager)getSystemService(ACCESSIBILITY_SERVICE);
-        String guidance=testOnly?"Test alarm sounding · choose Stop test to finish"
-            :access!=null&&access.isEnabled()?(fallbackActive?"Backup alert sounding · choose I’m up to confirm dismissal":"Time to wake up · choose I’m up to confirm or Snooze")
+        String guidance=testOnly?"Test alarm sounding · open Rouse to stop it"
+            :RingActivity.usesAssistiveSelection(this)?(fallbackActive?"Backup alert sounding · select I’m up twice to dismiss":"Time to wake up · select I’m up twice to dismiss or Snooze")
             :(fallbackActive?"Backup alert sounding · hold I’m up to dismiss":"Time to wake up · hold I’m up to dismiss or tap Snooze");
         return new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.ic_alarm_notification).setColor(Appearance.current(this).surface).setColorized(true).setOnlyAlertOnce(true).setContentTitle(title).setContentText(guidance).setCategory(Notification.CATEGORY_ALARM).setVisibility(Store.p(this).getBoolean("privateLockScreen",true)?Notification.VISIBILITY_PRIVATE:Notification.VISIBILITY_PUBLIC).setPublicVersion(new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.ic_alarm_notification).setContentTitle("Rouse alarm").setContentText("Alarm sounding").build()).setOngoing(true).setContentIntent(full).setFullScreenIntent(full,true)
-            .addAction(new Notification.Action.Builder(null,"Snooze",action("SNOOZE")).build())
-            .addAction(new Notification.Action.Builder(null,testOnly?"Stop test":"I’m up",testOnly?action("STOP_TEST"):full).build()).build();
+            .build();
     }
     public static void appearanceChanged(){
         AlarmService service=active;

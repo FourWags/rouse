@@ -1,6 +1,10 @@
-ROUSE — ANDROID ALARM APP 0.1.44
+ROUSE — ANDROID ALARM APP 0.1.45
 
 This is an early installable Android build. It creates wake-up alarms from a live iCalendar sharing link or imported iCalendar (.ics) file. It also supports one-time personal alarms.
+
+VERSION 0.1.45 — TWO-BUTTON ALARM (PREVIEW)
+- The ringing screen uses the two large Snooze and I’m up controls. Short taps show hold guidance inside I’m up; TalkBack and Switch Access select I’m up twice to stop.
+- Switch Access instructions are visible on the large button. The ringing notification opens the controls without smaller action buttons.
 
 VERSION 0.1.44 — READABLE ASSISTIVE DISMISSAL (PREVIEW)
 - The ringing confirmation now uses large, high-contrast actions and message text, including at 200% Android font size.

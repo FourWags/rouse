@@ -1,5 +1,10 @@
 ROUSE — VALIDATION
 
+UPDATE 0.1.45 — TWO-BUTTON ALARM (PREVIEW)
+- See CHECKS.txt and RELEASE-NOTES.md for the signed artifact, exact-device checks, and qualification limits.
+- The physical Pixel Switch Access run confirmed that the user could select the large I’m up button twice and stop a synthetic alarm without a screen tap or snooze. The user found the new instructions clear.
+- Android’s Switch Access Menu and persistent heads-up alarm notification remain system-owned scan targets. Rouse’s ringing UI has only the two large action buttons.
+
 UPDATE 0.1.44 — ACCESSIBLE ALARM CONFIRMATION (PREVIEW)
 - See CHECKS.txt and RELEASE-NOTES.md for exact artifact identity, physical and emulator checks, and limits.
 - The dismiss confirmation has larger text and higher contrast, including at 200% Android font size. The same styling applies to short-tap hold guidance.

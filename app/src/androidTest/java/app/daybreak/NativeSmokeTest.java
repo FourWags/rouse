@@ -82,10 +82,10 @@ public class NativeSmokeTest extends Instrumentation {
             Activity openedRing=waitForMonitorWithTimeout(ringMonitor,3000);
             Activity ring=openedRing!=null?openedRing:startActivitySync(new Intent(c,RingActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));Thread.sleep(400);capture("ringing");
             android.service.notification.StatusBarNotification activeAlarm=null;for(android.service.notification.StatusBarNotification notice:((NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications())if(notice.getId()==1)activeAlarm=notice;
-            check(activeAlarm!=null&&activeAlarm.getNotification().actions!=null&&activeAlarm.getNotification().actions.length==2,"Alarm notification exposes Snooze and I’m up actions");
+            check(activeAlarm!=null&&(activeAlarm.getNotification().actions==null||activeAlarm.getNotification().actions.length==0),"Alarm notification has no small action buttons");
             check(activeAlarm.getNotification().visibility==Notification.VISIBILITY_PRIVATE&&activeAlarm.getNotification().publicVersion!=null,"Locked-screen alarm notification hides shift details by default");
-            check(activeAlarm.getNotification().actions[1].title.toString().equals("I’m up"),"Notification I’m up action is present");activeAlarm.getNotification().actions[1].actionIntent.send();Thread.sleep(400);
-            check(Store.object(c,"current").length()>0,"Notification I’m up opens the hold screen without directly stopping the alarm");
+            check(activeAlarm.getNotification().contentIntent!=null,"Alarm notification opens the large controls");activeAlarm.getNotification().contentIntent.send();Thread.sleep(400);
+            check(Store.object(c,"current").length()>0,"Opening the alarm notification does not stop the alarm");
             runOnMainSync(()->{android.view.ViewGroup root=(android.view.ViewGroup)((android.view.ViewGroup)ring.findViewById(android.R.id.content)).getChildAt(0);android.widget.Button upper=findButton(root,"Snooze"),lower=findButton(root,"I’m up");if(upper==null||lower==null||upper.getWidth()!=root.getWidth()||lower.getWidth()!=root.getWidth()||Math.abs(upper.getHeight()+lower.getHeight()-root.getHeight())>1)throw new AssertionError("Alarm buttons must fill the screen");});check(true,"Snooze and I’m up fill the full alarm screen width and height");
             Field activeField=AlarmService.class.getDeclaredField("active");activeField.setAccessible(true);AlarmService service=(AlarmService)activeField.get(null);
             Field beganField=AlarmService.class.getDeclaredField("playbackBegan");beganField.setAccessible(true);long began=(Long)beganField.get(service);
