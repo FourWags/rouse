@@ -1,5 +1,10 @@
 ROUSE — VALIDATION
 
+UPDATE 0.1.46 — ACCESSIBILITY GUIDE (PREVIEW)
+- Settings includes a dedicated TalkBack and Switch Access guide and a button opening Android accessibility settings.
+- The guide explains Next/Select switches, Android-owned scan targets, and the difference between a live alarm and the 15-second test alarm.
+- See CHECKS.txt for exact build results and remaining qualification limits.
+
 UPDATE 0.1.45 — TWO-BUTTON ALARM (PREVIEW)
 - See CHECKS.txt and RELEASE-NOTES.md for the signed artifact, exact-device checks, and qualification limits.
 - The physical Pixel Switch Access run confirmed that the user could select the large I’m up button twice and stop a synthetic alarm without a screen tap or snooze. The user found the new instructions clear.
