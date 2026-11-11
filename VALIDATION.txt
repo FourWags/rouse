@@ -1,5 +1,9 @@
 ROUSE — VALIDATION
 
+UPDATE 0.1.47 — MOVE PACKAGE FAILURE GUIDANCE (PREVIEW)
+- The Android document-provider regression failed first on the prior raw permission-error message and on stale stored error after a successful retry. The candidate shows a persistent, actionable backup warning for refused and mid-write-disconnected providers, then clears it after a successful save.
+- Exact signed APK emulator tests exercised both provider failures, the subsequent successful provider save, password-buffer clearing, and unchanged synthetic source calendar data. Compact and full-size encrypted move round trips passed with wrong-password, damaged-file, and occupied-destination rejection. See the release CHECKS.txt for hashes, broader tests, and limits.
+
 UPDATE 0.1.46 — ACCESSIBILITY GUIDE (PREVIEW)
 - Settings includes a dedicated TalkBack and Switch Access guide and a button opening Android accessibility settings.
 - The guide explains Next/Select switches, Android-owned scan targets, and the difference between a live alarm and the 15-second test alarm.

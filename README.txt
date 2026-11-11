@@ -1,6 +1,11 @@
-ROUSE — ANDROID ALARM APP 0.1.46
+ROUSE — ANDROID ALARM APP 0.1.47
 
 This is an early installable Android build. It creates wake-up alarms from a live iCalendar sharing link or imported iCalendar (.ics) file. It also supports one-time personal alarms.
+
+VERSION 0.1.47 — MOVE PACKAGE FAILURE GUIDANCE (PREVIEW)
+- If the chosen file provider refuses or disconnects while saving a private move package, Rouse keeps the existing phone data and shows a persistent warning beside the move controls. An incomplete file may remain in the chosen folder; delete it before trying again.
+- A successful retry clears that backup warning. The package password is cleared from the app's mutable input buffer after success or failure.
+- See this release's CHECKS.txt and RELEASE-NOTES.md for exact tests and remaining limits.
 
 VERSION 0.1.46 — ACCESSIBILITY GUIDE (PREVIEW)
 - Settings now has a dedicated Accessibility section with step-by-step TalkBack and Switch Access setup, scan/select instructions, and the two-selection live-alarm dismissal. It explains that the test alarm has a one-selection Stop test alarm control.

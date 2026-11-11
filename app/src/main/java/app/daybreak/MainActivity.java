@@ -119,10 +119,14 @@ public class MainActivity extends Activity {
             try{startActivityForResult(save,22);}catch(RuntimeException unavailable){clearMovePassword();tell("No file picker is available for the move package.");}
         }));dialog.show();
     }
-    private void exportMove(Uri uri,char[] password){tell("Saving move package. Keep Rouse open; a large music library may take a few minutes.");background(()->{
-        try(OutputStream out=getContentResolver().openOutputStream(uri,"wt")){if(out==null)throw new IOException("Move package file could not be created.");MovePackage.exportTo(this,out,password);}
+    private void exportMove(Uri uri,char[] password){if(web!=null)web.evaluateJavascript("window.moveExportStarted&&window.moveExportStarted()",null);tell("Saving move package. Keep Rouse open; a large music library may take a few minutes.");background(()->{
+        try{
+            try(OutputStream out=getContentResolver().openOutputStream(uri,"wt")){if(out==null)throw new IOException("Move package file could not be created.");MovePackage.exportTo(this,out,password);}
+            if(Store.p(this).getString("error","").startsWith("Move package was not saved."))Store.error(this,"");
+        }
+        catch(Exception failure){String message="Move package was not saved. An incomplete file may be in the selected folder; delete it before trying again.";runOnUiThread(()->{if(!destroying&&!isDestroyed()&&web!=null)web.evaluateJavascript("window.moveExportFailed&&window.moveExportFailed("+JSONObject.quote(message)+")",null);});throw new IOException(message,failure);}
         finally{Arrays.fill(password,'\0');}
-    },"Move package saved. Keep its password separately and move the file to your new phone.",null,DaybreakApp.PACK_IO);}
+    },"Move package saved. Keep its password separately and move the file to your new phone.","window.moveExportSucceeded&&window.moveExportSucceeded()",DaybreakApp.PACK_IO);}
     private void confirmMoveImport(Uri uri){
         android.widget.EditText passwordField=secretField("Move-package password");
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Restore Rouse on this phone?").setMessage("Use a new or empty Rouse setup. The encrypted package restores calendars, personal alarms, themes, history, and music. Work alarms stay paused until you check permissions and wake times.").setView(passwordField).setNegativeButton("Cancel",(d,w)->passwordField.setText("")).setPositiveButton("Restore",null).create();
