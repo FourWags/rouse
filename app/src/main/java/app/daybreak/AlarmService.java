@@ -8,6 +8,7 @@ import android.media.*;
 import android.os.*;
 import org.json.*;
 import java.io.*;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -112,19 +113,9 @@ public class AlarmService extends Service {
             // A provider can hang forever. Never queue later alarms behind it.
             if(!SOUND_BUSY.compareAndSet(false,true)){useBackup(attributes);startPlayback();return;}
             preparing=true;int request=++soundLoadId;
-            try{SOUND_IO.execute(()->{
-                MediaPlayer ready=null;
-                try{ready=preparedPlayer(attributes,sound,false);}catch(Exception ignored){}
-                finally{SOUND_BUSY.set(false);}
-                MediaPlayer result=ready;
-                handler.post(()->{
-                    if(destroyed||current==null||request!=soundLoadId){if(result!=null)result.release();return;}
-                    preparing=false;
-                    if(result==null){try{useBackup(attributes);}catch(Exception failure){Store.error(this,"Alarm playback failed. Check the phone’s alarm volume.");finish("playback failed");return;}}
-                    else player=result;
-                    try{startPlayback();}catch(Exception failure){Store.error(this,"Alarm playback failed. Check the phone’s alarm volume.");finish("playback failed");}
-                });
-            });}catch(RuntimeException unavailable){SOUND_BUSY.set(false);preparing=false;useBackup(attributes);startPlayback();return;}
+            Context appContext=getApplicationContext();WeakReference<AlarmService> owner=new WeakReference<>(this);
+            try{SOUND_IO.execute(()->prepareLinkedSound(appContext,attributes,sound,owner,request));}
+            catch(RuntimeException unavailable){SOUND_BUSY.set(false);preparing=false;useBackup(attributes);startPlayback();return;}
             handler.postDelayed(()->{
                 if(destroyed||current==null||request!=soundLoadId||!preparing)return;
                 ++soundLoadId;preparing=false;
@@ -133,12 +124,27 @@ public class AlarmService extends Service {
             },5_000L);
             return;
         }
-        try{player=preparedPlayer(attributes,sound,false);}catch(Exception selectedFailure){useBackup(attributes);}
+        try{player=preparedPlayer(this,attributes,sound,false);}catch(Exception selectedFailure){useBackup(attributes);}
         startPlayback();
     }
+    private static void prepareLinkedSound(Context appContext,AudioAttributes attributes,String sound,WeakReference<AlarmService> owner,int request){
+        MediaPlayer ready=null;
+        try{ready=preparedPlayer(appContext,attributes,sound,false);}catch(Exception ignored){}
+        finally{SOUND_BUSY.set(false);}
+        AlarmService service=owner.get();
+        if(service==null){if(ready!=null)ready.release();return;}
+        MediaPlayer result=ready;
+        service.handler.post(()->{
+            if(service.destroyed||service.current==null||request!=service.soundLoadId){if(result!=null)result.release();return;}
+            service.preparing=false;
+            if(result==null){try{service.useBackup(attributes);}catch(Exception failure){Store.error(service,"Alarm playback failed. Check the phone’s alarm volume.");service.finish("playback failed");return;}}
+            else service.player=result;
+            try{service.startPlayback();}catch(Exception failure){Store.error(service,"Alarm playback failed. Check the phone’s alarm volume.");service.finish("playback failed");}
+        });
+    }
     private void useBackup(AudioAttributes attributes)throws Exception {
-        try{player=preparedPlayer(attributes,"tone_12.wav",false);}
-        catch(Exception bundledFailure){player=preparedPlayer(attributes,null,true);}
+        try{player=preparedPlayer(this,attributes,"tone_12.wav",false);}
+        catch(Exception bundledFailure){player=preparedPlayer(this,attributes,null,true);}
         fallbackActive=true;AlarmHistory.record(this,"audio fallback",current);
         Store.error(this,"Selected sound could not play. The standard backup alert is sounding.");
     }
@@ -197,15 +203,15 @@ public class AlarmService extends Service {
         try{AudioManager audio=(AudioManager)c.getSystemService(AUDIO_SERVICE);int current=audio.getStreamVolume(AudioManager.STREAM_ALARM);if(current!=last&&current!=previous){clearRampMarker(c);return;}int desired=Math.min(target,audio.getStreamMaxVolume(AudioManager.STREAM_ALARM));if(current!=desired)audio.setStreamVolume(AudioManager.STREAM_ALARM,desired,0);if(audio.getStreamVolume(AudioManager.STREAM_ALARM)==desired)clearRampMarker(c);else Store.error(c,"Could not restore phone alarm volume after restart. Check Android sound settings.");}
         catch(RuntimeException error){Store.error(c,"Could not restore phone alarm volume after restart. Check Android sound settings.");}
     }
-    private MediaPlayer preparedPlayer(AudioAttributes attributes,String sound,boolean systemSound)throws Exception {
+    private static MediaPlayer preparedPlayer(Context context,AudioAttributes attributes,String sound,boolean systemSound)throws Exception {
         MediaPlayer candidate=new MediaPlayer();
         try{
-            candidate.setAudioAttributes(attributes);candidate.setWakeMode(this,PowerManager.PARTIAL_WAKE_LOCK);candidate.setLooping(true);
+            candidate.setAudioAttributes(attributes);candidate.setWakeMode(context,PowerManager.PARTIAL_WAKE_LOCK);candidate.setLooping(true);
             if(systemSound){
                 android.net.Uri uri=android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM);
                 if(uri==null)throw new FileNotFoundException("No system alarm sound is available.");
-                candidate.setDataSource(this,uri);
-            }else SoundLibrary.setDataSource(candidate,this,sound);
+                candidate.setDataSource(context,uri);
+            }else SoundLibrary.setDataSource(candidate,context,sound);
             candidate.prepare();return candidate;
         }catch(Exception error){candidate.release();throw error;}
     }

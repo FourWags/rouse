@@ -109,6 +109,7 @@ public final class Sync {
         CalendarConfidence.update(c);
         EveningCheck.update(c);
         Readiness.update(c);
+        SnoozeNotice.update(c);
         }
     }
 }

@@ -78,6 +78,7 @@ public final class Scheduler {
         all.remove(id);Store.put(c,"scheduled",all);
         if(alarm.optString("kind").equals("shift")){JSONObject skipped=Store.object(c,"skipped");skipped.put(id,true);Store.put(c,"skipped",skipped);}
         for(String key:new String[]{"manual","testAlarms","snoozes"}){JSONObject set=Store.object(c,key);set.remove(id);Store.put(c,key,set);}
+        if("snooze".equals(alarm.optString("kind")))SnoozeNotice.update(c);
         return alarm;
     }
     public static synchronized void acknowledge(Context c,String id)throws Exception {
@@ -162,5 +163,17 @@ public final class Scheduler {
         for(String id:ids)cancel(c,id);
         JSONObject scheduled=Store.object(c,"scheduled");for(String id:ids)scheduled.remove(id);Store.put(c,"scheduled",scheduled);
         Sync.run(c,false);
+    }
+    /** End one pending snooze without changing its original or any future alarms. */
+    public static synchronized boolean endSnooze(Context c,String id)throws Exception {
+        if(id==null||!id.startsWith("snooze:"))return false;
+        JSONObject alarm=Store.object(c,"snoozes").optJSONObject(id);
+        if(alarm==null||!"snooze".equals(alarm.optString("kind")))return false;
+        cancelSnoozes(c,java.util.Collections.singletonList(id));
+        if(Store.object(c,"snoozes").has(id)||Store.object(c,"scheduled").has(id)
+                ||operation(c,id,PendingIntent.FLAG_NO_CREATE)!=null)
+            throw new IllegalStateException("Snooze could not be ended. Check upcoming alarms.");
+        AlarmHistory.record(c,"snooze ended",alarm);
+        return true;
     }
 }

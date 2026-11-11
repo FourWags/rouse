@@ -1,6 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let pendingReviewSnooze=null;
 let st=null,category='Gentle',playing='',dirty=false,busy=false,toastTimer,confirmFn,historyExpanded=false;
 let calendarRuleBaseline='',calendarRuleSaving=false;
 const catalog=window.SOUNDS||[];
@@ -42,15 +43,15 @@ function promptSave(){showSettingsGroup('wake');$('unsavedBar').hidden=false;toa
 function alarmPercent(level,maximum){return Math.round(level*100/Math.max(1,maximum));}
 function updateVolumeReadout(){if(!st)return;const phoneLevel=st.permissions.systemVolume,phoneMax=st.permissions.systemVolumeMax||1,slider=$('phoneAlarmVolume');slider.min=st.permissions.systemVolumeMin??0;slider.max=phoneMax;slider.value=phoneLevel;$('endVolumeNumber').value=alarmPercent(phoneLevel,phoneMax);$('phoneVolumeGuide').textContent=phoneLevel===0?'Ending volume is muted. Raise it before relying on an alarm.':'Entering a percentage changes Android’s alarm volume for every alarm app. Your phone rounds it to a whole volume step; the effective percentage appears above.';$('phoneVolumeGuide').classList.toggle('volume-muted',phoneLevel===0);$('phoneVolumeGuide').classList.remove('volume-warning');updateRiseGuide();}
 function updateRiseGuide(target=st?.permissions.systemVolume??0){if(!st)return;const requested=+$('riseStartPercent').value,minimum=st.permissions.systemVolumeMin??0,maximum=st.permissions.systemVolumeMax||1,riseOn=$('fade').value!=='0',first=riseOn?Math.min(target,Math.max(minimum,Math.round(maximum*requested/100))):target,startPercent=alarmPercent(first,maximum),endPercent=alarmPercent(target,maximum),meter=$('alarmRiseMeter');$('riseStartValue').textContent='≈'+startPercent+'%';$('phoneMaxValue').textContent='≈'+endPercent+'%';meter.style.setProperty('--start',startPercent+'%');meter.style.setProperty('--end',endPercent+'%');meter.setAttribute('aria-label',riseOn?'Phone alarm volume rises from approximately '+startPercent+' percent to '+endPercent+' percent over '+$('fade').selectedOptions[0].textContent:'Phone alarm starts at approximately '+endPercent+' percent; gradual rise is off');$('riseStartPercent').disabled=!riseOn;$('riseStartNumber').disabled=!riseOn;$('riseStartGuide').textContent=!riseOn?'Rise is off. The alarm starts at the ending volume.':first>=target?'Start and end use the same phone volume level. Lower the start or raise the end to hear a rise.':'Android uses whole volume levels, so these percentages are approximate.';}
-function settingsSaved(){dirty=false;$('unsaved').hidden=true;$('unsavedBar').hidden=true;}
+function settingsSaved(){dirty=false;$('unsaved').hidden=true;$('unsavedBar').hidden=true;if(pendingReviewSnooze){const id=pendingReviewSnooze;pendingReviewSnooze=null;page('today');confirmEndSnooze(id);}}
 function handleAndroidBack(){const dialog=document.querySelector('dialog[open]');if(dialog){if(dialog.id==='calendarRuleDialog'&&calendarRuleDirty())promptCalendarRuleSave();else dialog.close();return;}if(dirty){promptSave();return;}if(!$('today').hidden)send('finish');else if(!$('appearance').hidden||!$('themeEditor').hidden)page('settings');else page('today');}
 function relativeDay(ms){const today=new Date(),day=new Date(ms);today.setHours(0,0,0,0);day.setHours(0,0,0,0);const tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);return day.getTime()===today.getTime()?'Today':day.getTime()===tomorrow.getTime()?'Tomorrow':new Intl.DateTimeFormat(undefined,{weekday:'long'}).format(ms);}
 function time(ms){return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(ms);}
 function shortDate(ms){return new Intl.DateTimeFormat(undefined,{weekday:'short',month:'short',day:'numeric'}).format(ms);}
 function timeMarkup(ms){const parts=new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).formatToParts(ms);return parts.map(p=>p.type==='dayPeriod'?`<small>${esc(p.value)}</small>`:esc(p.value)).join('');}
-function setBusy(value){busy=value;if(!value&&calendarRuleSaving){calendarRuleSaving=false;calendarRuleChanged();}document.body.classList.toggle('busy',value);document.querySelectorAll('form button[type=submit],#unsavedBar button,#importFile,#refreshCalendar,#disconnect,#enabled,#testAlarm,#cancelTest,#phoneAlarmVolume,#addManual,#heroAction,#soundPackAction,#importPersonal,#linkPersonal,#exportSettings,#importSettings,#exportMove,#importMove,#clearHistory').forEach(el=>el.disabled=value||!st||!!st.authorizing);$('connectButton').textContent=value?'Please wait…':$('addCalendar').checked?'Add calendar':st?.source?'Replace first calendar':'Connect work calendar';renderCalendarFeedback();}
+function setBusy(value){busy=value;if(!value&&calendarRuleSaving){calendarRuleSaving=false;calendarRuleChanged();}document.body.classList.toggle('busy',value);document.querySelectorAll('form button[type=submit],#unsavedBar button,#importFile,#refreshCalendar,#disconnect,#enabled,#testAlarm,#cancelTest,#phoneAlarmVolume,#addManual,#heroAction,#endSnooze,#soundPackAction,#importPersonal,#linkPersonal,#exportSettings,#importSettings,#exportMove,#importMove,#clearHistory').forEach(el=>el.disabled=value||!st||!!st.authorizing);$('connectButton').textContent=value?'Please wait…':$('addCalendar').checked?'Add calendar':st?.source?'Replace first calendar':'Connect work calendar';renderCalendarFeedback();}
 function toast(message){$('toast').textContent=message;$('toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),5000);}
-function receive(state){st=state;customThemes=state.customThemes||[];applyAppearance(state.settings.appearance,state.settings.iconDesign);render();}
+function receive(state){st=state;customThemes=state.customThemes||[];applyAppearance(state.settings.appearance,state.settings.iconDesign);render();if(state.openSnooze)pendingReviewSnooze=state.openSnooze;if(pendingReviewSnooze&&!dirty){const id=pendingReviewSnooze;pendingReviewSnooze=null;if(page('today')!==false)confirmEndSnooze(id);}}
 function calendarExplanation(){
  const i=st?.calendarInfo||{};
  if(!st?.source)return '';
@@ -102,6 +103,26 @@ function renderCalendarGuide(){
 }
 $('calendarService').onchange=renderCalendarGuide;renderCalendarGuide();
 
+function renderReadiness(next){
+ const permissions=st.permissions||{},health=st.calendarHealth||{},sound=[...catalog,...(st.customSounds||[])].find(a=>a.file===st.settings.sound),selectedSound=sound?.title||'Selected sound';
+ const volume=alarmPercent(permissions.systemVolume||0,permissions.systemVolumeMax||1),needsCalendar=next?.kind==='shift';
+ const calendarStatus=health.status||'never';
+ const checks=[
+  {label:'Scheduled with Android',detail:next?shortDate(next.at)+' at '+time(next.at):'No upcoming alarm is scheduled',ok:!!next},
+  {label:'Exact alarm access',detail:permissions.exact?'Allowed':'Allow Alarms & reminders',ok:!!permissions.exact},
+  {label:'Alarm notifications',detail:permissions.notifications?'Allowed':'Allow alarm notifications',ok:!!permissions.notifications},
+  {label:'Full-screen alarm',detail:permissions.fullscreen?'Allowed':'Allow full-screen alarm display',ok:!!permissions.fullscreen},
+  {label:'Phone alarm volume',detail:volume>0?'Current ending level ≈'+volume+'%':'Muted — raise phone alarm volume',ok:volume>0},
+  {label:'Alarm sound',detail:st.settings.requestedSound===st.settings.sound?selectedSound+' selected':'Backup sound selected; preferred sound unavailable',ok:st.settings.requestedSound===st.settings.sound},
+ ];
+ if(needsCalendar)checks.push({label:'Work calendar',detail:({fresh:'Downloaded '+downloadAge(health.lastSuccess||st.lastSync),failed:'Last refresh failed; saved alarm remains',stale:'Download overdue; saved alarm remains',imported:'Imported snapshot; check for schedule changes',never:'No successful download yet'})[calendarStatus]||'Review calendar connection',ok:calendarStatus==='fresh'});
+ const problems=checks.filter(row=>!row.ok);
+ $('readinessStatus').textContent=!next?'No alarm':problems.length?'Review '+problems.length:'Ready to test';
+ $('readinessStatus').classList.toggle('needs-attention',!!problems.length);
+ $('readinessSummary').textContent=next?problems.length?'Check the items below before relying on this alarm.':'Android reports these settings ready. Test your alarm sound on this phone.':'Add or enable an alarm to check its readiness.';
+ const list=$('readinessChecks');list.replaceChildren();for(const row of checks){const item=document.createElement('li');item.className=row.ok?'ready':'needs-attention';const mark=document.createElement('span');mark.setAttribute('aria-hidden','true');mark.textContent=row.ok?'✓':'!';const body=document.createElement('span');const title=document.createElement('strong');title.textContent=row.label;const detail=document.createElement('small');detail.textContent=row.detail;body.append(title,detail);item.append(mark,body);list.append(item);}
+ $('readinessAction').onclick=()=>page(needsCalendar&&['failed','stale','never','imported'].includes(calendarStatus)?'calendar':'settings');
+}
 function render(){
  if(!st)return;
  $('dateLabel').textContent=new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(new Date());
@@ -109,27 +130,31 @@ function render(){
  $('leadSummary').textContent=`Wake up ${st.settings.lead} minutes before each shift`;
  const future=Object.values(st.scheduled).filter(a=>a.at>Date.now()).sort((a,b)=>a.at-b.at);
  const next=future[0];
+ renderReadiness(next);
+ const pendingSnoozes=Object.values(st.snoozes).filter(a=>a.kind==='snooze'&&a.at>Date.now()).sort((a,b)=>a.at-b.at);
+ const nextSnooze=pendingSnoozes[0];
+ $('snoozeBanner').hidden=!nextSnooze;
+ if(nextSnooze)$('snoozeSummary').textContent=`${pendingSnoozes.length===1?'Next snooze':`${pendingSnoozes.length} snoozes pending · next`} at ${time(nextSnooze.at)}. ${st.scheduled[nextSnooze.id]?'Already up? End this snooze now.':'Check alarm permissions; this snooze may not ring.'}`;
+ $('endSnooze').onclick=()=>{if(nextSnooze)confirmEndSnooze(nextSnooze.id);};
  const permitted=st.permissions.exact&&st.permissions.notifications;
  const allDayMissing=st.calendarInfo?.needsTime||0;
  $('heroLabel').textContent=next?'Next alarm · '+relativeDay(next.at):'Next alarm';
- $('heroStatus').textContent=!permitted?'Setup needed':next?'Alarm set':allDayMissing?'Start time needed':st.settings.enabled?'Ready':'Paused';
+ $('heroStatus').textContent=!permitted?'Setup needed':next?.kind==='snooze'?'Snoozing':next?'Alarm set':allDayMissing?'Start time needed':st.settings.enabled?'Ready':'Paused';
  $('nextAlarm').innerHTML=next?`<div class="alarm-time">${timeMarkup(next.at)}</div><p class="hero-date">${esc(new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(next.at))}</p><div class="hero-work"><div><strong>${esc(next.title)}</strong><small>${next.kind==='shift'?`Wake ${next.leadMinutes??st.settings.lead} minutes before work`:next.kind==='snooze'?'Snoozed alarm':'Personal alarm'}</small></div>${next.kind==='shift'?`<span>${esc(time(next.start))}<small>Shift starts</small></span>`:''}</div>`:`<div class="hero-title">No alarm scheduled</div><p class="hero-detail">${allDayMissing?'All-day work blocks need a real shift start time before they can set an alarm.':st.source?(st.settings.enabled?'Review your upcoming shifts and alarm permissions.':'Turn on work alarms, or add a personal alarm below.'):'Connect your work calendar to schedule wake-up alarms automatically.'}</p>`;
- $('heroAction').textContent=!permitted?'Finish alarm setup':!st.source&&!next?'Connect work calendar':next?.kind==='shift'?'Skip once':next?'Manage personal alarms':allDayMissing?'Set all-day start time':'Review calendar & shifts';
- $('heroAction').onclick=()=>{if(!permitted)page('settings');else if(next?.kind==='shift')send('skip',{id:next.id});else if(next){$('manualList').scrollIntoView({behavior:'smooth',block:'center'});}else page('calendar');};
+ $('heroAction').textContent=!permitted?'Finish alarm setup':!st.source&&!next?'Connect work calendar':next?.kind==='snooze'?'I’m up · End snooze':next?.kind==='shift'?'Skip once':next?'Manage personal alarms':allDayMissing?'Set all-day start time':'Review calendar & shifts';
+ $('heroAction').onclick=()=>{if(!permitted)page('settings');else if(next?.kind==='snooze')confirmEndSnooze(next.id);else if(next?.kind==='shift')send('skip',{id:next.id});else if(next){$('manualList').scrollIntoView({behavior:'smooth',block:'center'});}else page('calendar');};
  $('workConnection').textContent=st.source?(st.linked?'Shared calendar':'Imported calendar')+' · '+(st.settings.enabled?'Enabled':'Paused'):'No calendar connected';
  let attention='';
- if(st.readinessIssue)attention+=`<div class="note error" role="alert"><strong>Alarm readiness</strong><br>${esc(st.readinessIssue)}</div>`;
  if(allDayMissing)attention+=`<div class="note error" role="alert"><strong>All-day work blocks need a start time</strong><br>${allDayMissing} upcoming ${allDayMissing===1?'entry has':'entries have'} no alarm scheduled. <button class="text-button full" id="attentionSetAllDay" type="button">Set actual shift start time →</button></div>`;
  if(st.error)attention+=`<div class="note error" role="alert">${esc(st.error)}${st.source?' Previously downloaded shifts stay available offline.':''}</div>`;
  if(st.source&&st.linked&&Date.now()-st.lastSync>8*3600000)attention+='<div class="note">Your calendar has not refreshed in over 8 hours. Open Calendar and refresh to check your shifts.</div>';
  if(st.late>0)attention+=`<div class="note">${st.late} upcoming shift${st.late>1?'s have':' has'} a wake-up time that already passed. Set a personal alarm if you still need one.</div>`;
- if(next&&st.permissions.systemVolume===0)attention+='<div class="note error">Your phone’s alarm volume is muted. Increase it in Settings before relying on this alarm.</div>';
  $('attention').innerHTML=attention;
  if($('attentionSetAllDay'))$('attentionSetAllDay').onclick=()=>{page('calendar');$('allDayAlert').scrollIntoView({block:'start'});};
  const remaining=st.shifts.filter(a=>a.id!==next?.id);const visible=remaining.slice(0,3);
  $('shiftList').innerHTML=visible.length?visible.map(a=>alarmRow(a,true)).join(''):`<div class="empty">${st.source?(next?.kind==='shift'?'Your next work alarm is shown above.':esc(calendarExplanation())):'Connect a calendar to see upcoming work shifts.'}</div>`;
  $('viewAllShifts').hidden=remaining.length<=3;$('viewAllShifts').textContent=`View all ${st.shifts.length} shifts`; 
- const personal=[...Object.values(st.manual),...Object.values(st.snoozes)].filter(a=>a.at>Date.now()).sort((a,b)=>a.at-b.at);
+ const personal=[...Object.values(st.manual),...pendingSnoozes].filter(a=>a.at>Date.now()).sort((a,b)=>a.at-b.at);
  $('manualList').innerHTML=personal.length?personal.map(a=>alarmRow(a,false)).join(''):'<div class="empty">Need a one-time wake-up? Add a personal alarm.</div>';renderHistory();
  const sound=[...catalog,...(st.customSounds||[])].find(a=>a.file===st.settings.requestedSound);$('selectedSound').textContent=sound?.title||'Choose a sound';
  $('connectionStatus').textContent=st.source?st.source:'Add your work calendar’s sharing link.';
@@ -155,12 +180,12 @@ function timeMinutes(value){const [hour,minute]=value.split(':').map(Number);ret
 function alarmRow(a,shift){
  const ms=shift?a.start:a.at,d=new Date(ms),set=!!st.scheduled[a.id];
  let status=shift?(a.needsTime?'Start time needed':a.skipped?'Skipped':a.at<=Date.now()?'Wake time passed':!st.settings.enabled?'Paused':set?'Alarm set':'Setup needed'):set?(a.kind==='snooze'?'Snoozed':'Alarm set'):'Setup needed';
- return `<div class="alarm-row${a.needsTime?' needs-time':''}"><div class="day-block"><span>${esc(new Intl.DateTimeFormat(undefined,{weekday:'short'}).format(d))}</span><strong>${d.getDate()}</strong></div><div class="row-main"><strong>${esc(a.title)}</strong><p>${shift?(a.allDay?(a.needsTime?'All-day block · start time unknown':`All-day entry · using ${esc(time(a.start))}`):`Shift ${esc(time(a.start))}${a.end>a.start?' – '+esc(time(a.end)):''}`):esc(shortDate(a.at))}<br>${a.needsTime?'<strong class="needs-time-label">No alarm scheduled</strong>':esc(status)}${shift&&st.calendars?.length>1?' · '+esc(a.calendarName||'Work calendar'):''}</p></div><div class="row-right"><div class="wake">${a.needsTime?'No time':timeMarkup(a.at)}</div>${a.needsTime?`<button class="row-action set-start-action" data-set-all-day="${esc(a.calendarId||'primary')}">Set start time</button>`:`<button class="row-action" data-alarm-action="${shift?(a.skipped?'unskip':'skip'):'delete'}" data-id="${esc(a.id)}">${shift?(a.skipped?'Restore':'Skip'):'Remove'}</button>`}</div></div>`;
+ return `<div class="alarm-row${a.needsTime?' needs-time':''}"><div class="day-block"><span>${esc(new Intl.DateTimeFormat(undefined,{weekday:'short'}).format(d))}</span><strong>${d.getDate()}</strong></div><div class="row-main"><strong>${esc(a.title)}</strong><p>${shift?(a.allDay?(a.needsTime?'All-day block · start time unknown':`All-day entry · using ${esc(time(a.start))}`):`Shift ${esc(time(a.start))}${a.end>a.start?' – '+esc(time(a.end)):''}`):esc(shortDate(a.at))}<br>${a.needsTime?'<strong class="needs-time-label">No alarm scheduled</strong>':esc(status)}${shift&&st.calendars?.length>1?' · '+esc(a.calendarName||'Work calendar'):''}</p></div><div class="row-right"><div class="wake">${a.needsTime?'No time':timeMarkup(a.at)}</div>${a.needsTime?`<button class="row-action set-start-action" data-set-all-day="${esc(a.calendarId||'primary')}">Set start time</button>`:`<button class="row-action" data-alarm-action="${shift?(a.skipped?'unskip':'skip'):a.kind==='snooze'?'endSnooze':'delete'}" data-id="${esc(a.id)}">${shift?(a.skipped?'Restore':'Skip'):a.kind==='snooze'?'End snooze':'Remove'}</button>`}</div></div>`;
 }
 function renderSetupChecklist(next,permitted){const checks=[[!!st.source,'Connect a work-only calendar'],[!!st.shifts.length,'Review upcoming shift entries'],[!st.calendarInfo?.needsTime,'Choose a time for all-day shifts'],[permitted,'Allow exact alarms and notifications'],[st.settings.enabled,'Enable work alarms'],[!!next,'Confirm the next wake-up time']];$('setupSteps').innerHTML=checks.map(([ok,label])=>`<div class="setup-step"><span aria-hidden="true">${ok?'✓':'○'}</span><span>${esc(label)}</span></div>`).join('');$('setupChecklist').hidden=checks.every(([ok])=>ok);}
 function renderHistory(){
  const history=st?.history||[],rows=historyExpanded?history:history.slice(0,6);
- const labels={scheduled:'Scheduled',removed:'Removed',rang:'Rang',snoozed:'Snoozed',dismissed:'Dismissed','timed out':'Timed out','backup alert':'Backup alert started','audio fallback':'Backup sound used','delivery retry':'Alarm start retried','playback failed':'Playback failed',moved:'Wake-up moved',canceled:'Wake-up removed',added:'New wake-up'};
+ const labels={scheduled:'Scheduled',removed:'Removed',rang:'Rang',snoozed:'Snoozed','snooze ended':'Snooze ended',dismissed:'Dismissed','timed out':'Timed out','backup alert':'Backup alert started','audio fallback':'Backup sound used','delivery retry':'Alarm start retried','playback failed':'Playback failed',moved:'Wake-up moved',canceled:'Wake-up removed',added:'New wake-up'};
  $('historyList').innerHTML=rows.length?rows.map(row=>{const kind=row.kind==='shift'?'Work alarm':row.kind==='manual'?'Personal alarm':row.kind==='snooze'?'Snoozed alarm':'Alarm';const changed=row.to?(' → '+shortDate(row.to)+' '+time(row.to)):'';const detail=row.at?shortDate(row.at)+' '+time(row.at)+changed:row.to?shortDate(row.to)+' '+time(row.to):'';return `<div class="activity-row"><strong>${esc(labels[row.event]||row.event)} · ${esc(kind)}</strong><small>${esc(detail)}</small><small>Recorded ${esc(new Date(row.when).toLocaleString())}</small></div>`;}).join(''):'<div class="empty">No alarm activity recorded yet.</div>';
  $('historyMore').hidden=history.length<=6;$('historyMore').textContent=historyExpanded?'Show recent activity':'Show all '+history.length+' entries';
 }
@@ -187,7 +212,8 @@ function renderSounds(){
 }
 function stopPreview(){if(playing)send('stopPreview');playing='';renderSounds();}
 function previewStopped(){playing='';renderSounds();}
-function confirmAction(title,text,fn,label='Remove'){$('yesConfirm').textContent=label;$('confirmTitle').textContent=title;$('confirmText').textContent=text;confirmFn=fn;$('confirmDialog').showModal();}
+function confirmAction(title,text,fn,label='Remove',cancelLabel='Cancel'){$('cancelConfirm').textContent=cancelLabel;$('yesConfirm').textContent=label;$('confirmTitle').textContent=title;$('confirmText').textContent=text;confirmFn=fn;$('confirmDialog').showModal();}
+function confirmEndSnooze(id){const alarm=st?.snoozes?.[id];if(!alarm||alarm.kind!=='snooze'){toast('That snooze is no longer pending.');return;}confirmAction('End this snooze?',`It will not ring again at ${time(alarm.at)}. Your future work and personal alarms stay set.`,()=>send('endSnooze',{id}),'End snooze','Keep snoozing');}
 document.querySelectorAll('nav button').forEach(el=>el.onclick=()=>page(el.dataset.page));
 
 function downloadAge(ms){if(!ms)return 'No successful download yet';const minutes=Math.max(0,Math.floor((Date.now()-ms)/60000));return minutes<1?'Just now':minutes<60?minutes+' min ago':minutes<1440?Math.floor(minutes/60)+' hr ago':Math.floor(minutes/1440)+' days ago';}
@@ -239,7 +265,7 @@ $('soundList').onchange=e=>{const select=e.target.closest('[data-custom-genre]')
 $('soundList').onclick=e=>{const remove=e.target.closest('[data-remove-sound]');if(remove){const item=(st?.customSounds||[]).find(a=>a.file===remove.dataset.removeSound);confirmAction('Remove '+(item?.title||'personal sound')+'?','An imported copy will be deleted from Rouse. A linked original file will stay where it is.',()=>send('removeCustomSound',{file:remove.dataset.removeSound}),'Remove');return;}const play=e.target.closest('[data-preview]'),use=e.target.closest('[data-sound]');if(play){const file=play.dataset.preview;if(file===playing)stopPreview();else{playing=file;send('preview',{file});renderSounds();}}if(use)send('sound',{file:use.dataset.sound});};
 $('importPersonal').onclick=()=>send('addCustomSound',{genre:$('personalGenre').value,link:false});$('linkPersonal').onclick=()=>send('addCustomSound',{genre:$('personalGenre').value,link:true});
 $('soundPackAction').onclick=()=>{if(st?.settings.soundPackInstalled)confirmAction('Remove orchestra pack?','Downloaded orchestra sounds will be unavailable until you download the pack again. Bundled sounds stay ready.',()=>send('removePack'),'Remove');else confirmAction('Download the orchestra collection?','Rouse will connect to its GitHub release to download about 60 MB once. GitHub may see your network address and request details. The recordings are checked and saved for offline alarms. No music is downloaded without your agreement.',()=>{setBusy(true);send('downloadPack');},'Agree & download');};
-for(const id of ['shiftList','manualList','calendarShiftList'])$(id).onclick=e=>{const setTime=e.target.closest('[data-set-all-day]');if(setTime){openCalendarRules(setTime.dataset.setAllDay,true);return;}const b=e.target.closest('[data-alarm-action]');if(b)send(b.dataset.alarmAction,{id:b.dataset.id});};
+for(const id of ['shiftList','manualList','calendarShiftList'])$(id).onclick=e=>{const setTime=e.target.closest('[data-set-all-day]');if(setTime){openCalendarRules(setTime.dataset.setAllDay,true);return;}const b=e.target.closest('[data-alarm-action]');if(b){if(b.dataset.alarmAction==='endSnooze')confirmEndSnooze(b.dataset.id);else send(b.dataset.alarmAction,{id:b.dataset.id});}};
 $('settingsForm').oninput=()=>{$('allDayTime').disabled=!$('allDayEnabled').checked;$('allDayTime').required=$('allDayEnabled').checked;dirty=true;$('unsaved').hidden=false;$('unsavedBar').hidden=false;};
 for(const id of ['fade','riseStartPercent'])$(id).addEventListener('input',()=>{if(id==='riseStartPercent')$('riseStartNumber').value=$('riseStartPercent').value;dirty=true;$('unsaved').hidden=false;$('unsavedBar').hidden=false;updateRiseGuide();});
 $('riseStartNumber').addEventListener('input',e=>{const value=Number(e.target.value);if(!Number.isInteger(value)||value<10||value>100)return;$('riseStartPercent').value=value;dirty=true;$('unsaved').hidden=false;$('unsavedBar').hidden=false;updateRiseGuide();});

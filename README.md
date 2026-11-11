@@ -2,7 +2,7 @@
 
 Rouse means to awaken or stir into activity. The name fits an alarm that helps a workday begin gently.
 
-Rouse is an Android alarm app that schedules work wake-ups from shared iCalendar feeds and offers gentle recorded music and nature sounds. This source release is version **0.1.41** (Android version code 42), with a password-protected move package for transferring Rouse data to another phone.
+Rouse is an Android alarm app that schedules work wake-ups from shared iCalendar feeds and offers gentle recorded music and nature sounds. This source release is version **0.1.43** (Android version code 44), with a password-protected move package for transferring Rouse data to another phone.
 
 Check the [GitHub releases page](https://github.com/FourWags/rouse/releases) for the published APK and verification notes. The compatible optional orchestra pack remains available from the [v0.1.23 release](https://github.com/FourWags/rouse/releases/tag/v0.1.23).
 

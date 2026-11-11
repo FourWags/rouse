@@ -16,12 +16,13 @@ import android.widget.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 public class RingActivity extends Activity {
-    private LinearLayout root;private Button snooze,awake;private AlertDialog accessibilityDismissDialog;private boolean receiverRegistered;
+    private LinearLayout root;private Button snooze,awake;private AlertDialog accessibilityDismissDialog,holdInstructionsDialog;private boolean receiverRegistered;
     private final Handler ui=new Handler(Looper.getMainLooper());
     private static final long DISMISS_HOLD_MS=2_000L;
     private long dismissHoldBegan;
     private boolean dismissHoldFinished,testAlarmScreen;
     private CharSequence awakeLabel;
+    private Runnable clockTick;
     private final Runnable dismissHoldProgress=new Runnable(){public void run(){
         if(awake==null||dismissHoldFinished||dismissHoldBegan==0)return;
         long elapsed=SystemClock.elapsedRealtime()-dismissHoldBegan;
@@ -56,7 +57,7 @@ public class RingActivity extends Activity {
         if(testOnly){awake.setText("Stop test alarm");awake.setContentDescription("Stop test alarm");awake.setOnClickListener(v->act("STOP_TEST"));}
         if(!testOnly)awake.setOnClickListener(v->{
             if(access!=null&&access.isEnabled())showAccessibleDismissConfirmation();
-            else Toast.makeText(this,"Hold for two seconds to dismiss.",Toast.LENGTH_SHORT).show();
+            else showHoldInstructions();
         });
         if(!testOnly)awake.setOnLongClickListener(v->{dismissHoldBegan=SystemClock.elapsedRealtime()-DISMISS_HOLD_MS;completeDismissHold();return true;});
         if(!testOnly)awake.setAccessibilityDelegate(new View.AccessibilityDelegate(){
@@ -82,7 +83,7 @@ public class RingActivity extends Activity {
             else{topInset=insets.getSystemWindowInsetTop();bottomInset=insets.getSystemWindowInsetBottom();left=insets.getSystemWindowInsetLeft();right=insets.getSystemWindowInsetRight();}
             snooze.setPadding(dp(24)+left,dp(16)+topInset,dp(24)+right,dp(16));awake.setPadding(dp(24)+left,dp(16),dp(24)+right,dp(16)+bottomInset);return insets;
         });
-        ui.post(new Runnable(){public void run(){snooze.setText(snoozeLabel(time,title,minutes));ui.postDelayed(this,1000);}});
+        clockTick=new Runnable(){public void run(){snooze.setText(snoozeLabel(time,title,minutes));ui.postDelayed(this,1000);}};
         setContentView(root);if(Build.VERSION.SDK_INT>=30)getWindow().getInsetsController().setSystemBarsAppearance(0,WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
         applyPalette();IntentFilter events=new IntentFilter("app.daybreak.RING_DONE");events.addAction(Appearance.CHANGED);if(Build.VERSION.SDK_INT>=33)registerReceiver(done,events,DaybreakApp.INTERNAL_PERMISSION,null,RECEIVER_NOT_EXPORTED);else registerReceiver(done,events,DaybreakApp.INTERNAL_PERMISSION,null);receiverRegistered=true;
     }
@@ -108,6 +109,21 @@ public class RingActivity extends Activity {
         dialog.setOnDismissListener(d->{if(accessibilityDismissDialog==dialog)accessibilityDismissDialog=null;});
         dialog.show();
     }
+    private void showHoldInstructions(){
+        if(holdInstructionsDialog!=null&&holdInstructionsDialog.isShowing())return;
+        AlertDialog dialog=new AlertDialog.Builder(this)
+            .setTitle("Hold I’m up to stop the alarm")
+            .setMessage("Press and hold the I’m up button for 2 seconds. The alarm keeps ringing until the hold completes.")
+            .setPositiveButton("OK, keep ringing",(d,which)->{})
+            .create();
+        holdInstructionsDialog=dialog;
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnDismissListener(d->{if(holdInstructionsDialog==dialog)holdInstructionsDialog=null;});
+        dialog.show();
+    }
+    boolean holdInstructionsShowing(){return holdInstructionsDialog!=null&&holdInstructionsDialog.isShowing();}
+    AlertDialog holdInstructionsDialog(){return holdInstructionsDialog;}
     boolean dismissConfirmationShowing(){return accessibilityDismissDialog!=null&&accessibilityDismissDialog.isShowing();}
     AlertDialog dismissConfirmationDialog(){return accessibilityDismissDialog;}
     private void cancelDismissHold(){ui.removeCallbacks(dismissHoldProgress);dismissHoldBegan=0;if(awake!=null){awake.setPressed(false);if(!dismissHoldFinished&&!testAlarmScreen)awake.setText(awakeLabel);}}
@@ -131,7 +147,9 @@ public class RingActivity extends Activity {
         // locking the display, or a failed snooze must never be treated as an alarm action.
     }
     @Override public void onBackPressed(){}
+    @Override protected void onStart(){super.onStart();if(clockTick!=null)ui.post(clockTick);}
     @Override protected void onPause(){cancelDismissHold();super.onPause();}
     @Override public void onWindowFocusChanged(boolean focused){super.onWindowFocusChanged(focused);if(!focused)cancelDismissHold();}
-    @Override protected void onDestroy(){ui.removeCallbacksAndMessages(null);if(accessibilityDismissDialog!=null)accessibilityDismissDialog.dismiss();if(receiverRegistered){unregisterReceiver(done);receiverRegistered=false;}super.onDestroy();}
+    @Override protected void onStop(){if(clockTick!=null)ui.removeCallbacks(clockTick);super.onStop();}
+    @Override protected void onDestroy(){ui.removeCallbacksAndMessages(null);if(accessibilityDismissDialog!=null)accessibilityDismissDialog.dismiss();if(holdInstructionsDialog!=null)holdInstructionsDialog.dismiss();if(receiverRegistered){unregisterReceiver(done);receiverRegistered=false;}super.onDestroy();}
 }

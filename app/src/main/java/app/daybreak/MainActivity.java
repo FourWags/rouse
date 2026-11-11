@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
     static volatile boolean visible;
     private WorkAlarmAuthorization workAlarmAuthorization;
     private char[] pendingMovePassword;
-    private boolean pageReady,receiverRegistered,destroying,iconPromptShown;private String pendingPage,pendingSoundGenre="Other";private WebView web;private MediaPlayer preview;private VolumeShaper previewShaper;private android.widget.FrameLayout host;
+    private boolean pageReady,receiverRegistered,destroying,iconPromptShown;private String pendingPage,pendingSnoozeId,pendingSoundGenre="Other";private WebView web;private MediaPlayer preview;private VolumeShaper previewShaper;private android.widget.FrameLayout host;
     private final Handler handler=new Handler(Looper.getMainLooper());
     private static final AtomicBoolean PREVIEW_BUSY=new AtomicBoolean();
     private int previewToken;
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
             return;
         }
         setTheme(Appearance.current(this).theme);super.onCreate(saved);
-        if(saved!=null)pendingSoundGenre=saved.getString("pendingSoundGenre","Other");
+        if(saved!=null){pendingSoundGenre=saved.getString("pendingSoundGenre","Other");pendingSnoozeId=saved.getString("pendingSnoozeId");}
         int background=Appearance.current(this).background;getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(background));
         if(!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)){
             android.widget.TextView unavailable=new android.widget.TextView(this);unavailable.setText("Rouse needs an updated Android System WebView. Update it in your app store, then reopen Rouse.");unavailable.setTextSize(18);unavailable.setPadding(48,48,48,48);setContentView(unavailable);return;
@@ -82,9 +82,9 @@ public class MainActivity extends Activity {
         assetLoader=null;
         super.onDestroy();
     }
-    @Override protected void onSaveInstanceState(Bundle out){out.putString("pendingSoundGenre",pendingSoundGenre);super.onSaveInstanceState(out);}
+    @Override protected void onSaveInstanceState(Bundle out){out.putString("pendingSoundGenre",pendingSoundGenre);out.putString("pendingSnoozeId",pendingSnoozeId);super.onSaveInstanceState(out);}
     @Override protected void onNewIntent(Intent i){super.onNewIntent(i);setIntent(i);incoming(i);}
-    private void incoming(Intent i){if(i==null)return;if("calendar".equals(i.getStringExtra("page"))){pendingPage="calendar";if(web!=null&&pageReady){web.evaluateJavascript("window.openPage&&window.openPage(\"calendar\")",null);pendingPage=null;}}Uri uri=null;if(Intent.ACTION_SEND.equals(i.getAction()))uri=i.getParcelableExtra(Intent.EXTRA_STREAM);else if(Intent.ACTION_VIEW.equals(i.getAction()))uri=i.getData();if(uri!=null&&"content".equals(uri.getScheme()))confirmImport(uri);else if(Intent.ACTION_SEND.equals(i.getAction())){String text=i.getStringExtra(Intent.EXTRA_TEXT);if(text!=null){String link=text.trim();if(link.startsWith("https://")||link.startsWith("webcal://"))new AlertDialog.Builder(this).setTitle("Connect shared calendar?").setMessage("Rouse will download this calendar link and replace the current calendar connection. Review the shifts before enabling work alarms.").setNegativeButton("Cancel",null).setPositiveButton("Connect",(d,w)->background(()->Sync.connect(this,link),"Calendar connected. Review shifts before enabling alarms.")).show();}}}
+    private void incoming(Intent i){if(i==null)return;if(SnoozeNotice.OPEN_ACTION.equals(i.getAction())){String id=i.getStringExtra("snoozeId");if(id!=null&&id.startsWith("snooze:")){pendingSnoozeId=id;if(pageReady)state();}return;}if("calendar".equals(i.getStringExtra("page"))){pendingPage="calendar";if(web!=null&&pageReady){web.evaluateJavascript("window.openPage&&window.openPage(\"calendar\")",null);pendingPage=null;}}Uri uri=null;if(Intent.ACTION_SEND.equals(i.getAction()))uri=i.getParcelableExtra(Intent.EXTRA_STREAM);else if(Intent.ACTION_VIEW.equals(i.getAction()))uri=i.getData();if(uri!=null&&"content".equals(uri.getScheme()))confirmImport(uri);else if(Intent.ACTION_SEND.equals(i.getAction())){String text=i.getStringExtra(Intent.EXTRA_TEXT);if(text!=null){String link=text.trim();if(link.startsWith("https://")||link.startsWith("webcal://"))new AlertDialog.Builder(this).setTitle("Connect shared calendar?").setMessage("Rouse will download this calendar link and replace the current calendar connection. Review the shifts before enabling work alarms.").setNegativeButton("Cancel",null).setPositiveButton("Connect",(d,w)->background(()->Sync.connect(this,link),"Calendar connected. Review shifts before enabling alarms.")).show();}}}
     private void confirmImport(Uri uri){new AlertDialog.Builder(this).setTitle("Import work calendar?").setMessage("This replaces your current calendar connection with a one-time snapshot. Files do not automatically refresh.").setNegativeButton("Cancel",null).setPositiveButton("Import",(d,w)->importUri(uri)).show();}
     @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(workAlarmAuthorization!=null&&workAlarmAuthorization.onActivityResult(request,result))return;
         if(request==22){char[] password=pendingMovePassword;pendingMovePassword=null;if(result==RESULT_OK&&data!=null&&data.getData()!=null&&password!=null)exportMove(data.getData(),password);else if(password!=null)Arrays.fill(password,'\0');return;}
@@ -152,6 +152,7 @@ public class MainActivity extends Activity {
             JSONObject health=CalendarConfidence.snapshot(this);JSONObject state=new JSONObject().put("settings",settings).put("permissions",permissions).put("readinessIssue",Readiness.issue(this)).put("calendars",calendars).put("source",p.getString("source","")).put("linked",!Store.url(this).trim().isEmpty()||extras.length()>0).put("lastSync",health.optLong("lastSuccess",p.getLong("lastSync",0))).put("error",p.getString("error","")).put("late",p.getInt("late",0)).put("shifts",Store.array(this,"shifts")).put("manual",Store.object(this,"manual")).put("snoozes",Store.object(this,"snoozes")).put("testPending",Store.object(this,"testAlarms").length()>0).put("scheduled",Store.object(this,"scheduled")).put("calendarInfo",Store.object(this,"calendarInfo")).put("customThemes",Appearance.customThemes(this)).put("customSounds",CustomSounds.forUi(this)).put("calendarHealth",health);
             state.put("history",AlarmHistory.entries(this));
             state.put("authorizing",workAlarmAuthorization!=null&&workAlarmAuthorization.isPending());
+            if(pageReady&&pendingSnoozeId!=null){state.put("openSnooze",pendingSnoozeId);pendingSnoozeId=null;}
             web.evaluateJavascript("window.receive&&window.receive("+state+")",null);
         } catch(Exception e){tell("Could not load saved settings.");}
     }
@@ -220,6 +221,10 @@ public class MainActivity extends Activity {
             case "unskip":background(()->{JSONObject skip=Store.object(this,"skipped");skip.remove(q.getString("id"));Store.put(this,"skipped",skip);Sync.run(this,false);},"Shift alarm restored.");break;
             case "manual":case "test":if(!Scheduler.allowed(this)||!notifyAllowed()){tell("Allow alarms and notifications in Settings first.");break;}background(()->{boolean test="test".equals(action);long at=test?System.currentTimeMillis()+15_000:q.getLong("at");if(at<=System.currentTimeMillis())throw new Exception("Choose a future time.");String key=test?"testAlarms":"manual";JSONObject list=Store.object(this,key);if(!test&&list.length()>=32)throw new Exception("Keep at most 32 personal alarms.");if(test){for(java.util.Iterator<String> ids=list.keys();ids.hasNext();)Scheduler.cancel(this,ids.next());list=new JSONObject();}String id=(test?"test:":"manual:")+UUID.randomUUID();list.put(id,new JSONObject().put("id",id).put("title",test?"Rouse sound check":q.optString("title","Personal alarm")).put("at",at).put("kind",test?"test":"manual"));Store.put(this,key,list);Sync.run(this,false);},"test".equals(action)?"Test alarm set for 15 seconds from now. Lock your screen to try it.":"Personal alarm added.");break;
             case "cancelTest":background(()->{JSONObject tests=Store.object(this,"testAlarms");for(java.util.Iterator<String> ids=tests.keys();ids.hasNext();)Scheduler.cancel(this,ids.next());Store.put(this,"testAlarms",new JSONObject());Sync.run(this,false);},"Test alarm cancelled.");break;
+            case "endSnooze":{String snoozeId=q.getString("id");background(()->{
+                if(Scheduler.endSnooze(this,snoozeId))tell("Snooze ended. Your other alarms stay set.");
+                else tell("That snooze has already ended or started ringing. Check the current alarm.");
+            },null,null,DaybreakApp.ALARM_IO);break;}
             case "delete":background(()->{String id=q.getString("id");for(String key:new String[]{"manual","snoozes"}){JSONObject items=Store.object(this,key);items.remove(id);Store.put(this,key,items);}Scheduler.cancel(this,id);Sync.run(this,false);},"Alarm removed.");break;
         }
     }

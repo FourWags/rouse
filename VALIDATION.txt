@@ -1,5 +1,10 @@
 ROUSE — VALIDATION
 
+UPDATE 0.1.43 — ALARM CONTROLS, SNOOZE NOTICE AND READINESS (PREVIEW)
+- See CHECKS.txt and RELEASE-NOTES.md for artifact identity, exact-device checks and limits.
+- The private snooze notification opens confirmation; a generic public version hides details on a locked screen. The next-alarm card reports actual scheduled time, access, volume, sound and calendar freshness.
+- Ring guidance, Back/swipe resistance and linked-audio cleanup from the prior local candidate are included in this single update.
+
 UPDATE 0.1.41 — PRIVATE PHONE MOVE (LOCAL PREVIEW CANDIDATE)
 - Exact non-debuggable app.daybreak/versionCode 42 release APK SHA-256 830be058773334a2c30e34c1b07ff249d1433e0a224e285c2dbf04f327c01127. Android-test APK SHA-256 b67bb96575e402956661234e2b4284ee82e8ed71a01859129978386c2fa6b1a7. Same signing certificate as verified v0.1.40: 386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4. Same-package, higher-version upgrade continuity passed.
 - A password-protected package now transfers the primary and additional calendar sharing links, saved calendar snapshots and rules, future personal alarms, skipped shifts, settings, themes, Quiet preset return settings, local alarm history, personal audio, and the installed optional orchestra pack. Linked audio is copied into the package and restored as offline audio. Existing app data blocks restore. Work alarms stay paused on the destination, and Android permissions and the next wake time must be checked. No personal calendar or audio data were exported during testing.

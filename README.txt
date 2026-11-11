@@ -1,6 +1,10 @@
-ROUSE — ANDROID ALARM APP 0.1.41
+ROUSE — ANDROID ALARM APP 0.1.43
 
 This is an early installable Android build. It creates wake-up alarms from a live iCalendar sharing link or imported iCalendar (.ics) file. It also supports one-time personal alarms.
+
+VERSION 0.1.43 — SNOOZE AND READINESS (PREVIEW)
+- A silent private snooze notification opens the End snooze confirmation. The home screen checks the next Android alarm, permissions, phone alarm volume, sound choice and calendar freshness. The ringing screen has clearer hold guidance.
+- Check your next alarm and phone alarm volume after updating. The app installed in place on the Pixel; no audible Pixel alarm was rung in this release check.
 
 VERSION 0.1.41 — PRIVATE PHONE MOVE (PREVIEW)
 - Settings includes a password-protected move package. It carries calendar sharing links and snapshots, calendar rules, future personal alarms, themes, alarm history, personal audio, and an installed optional orchestra pack. Linked audio is saved as an offline copy. The package uses a password independent of the old phone's Android KeyStore, and links are encrypted again on the new phone.
