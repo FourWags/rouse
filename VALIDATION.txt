@@ -1,5 +1,10 @@
 ROUSE — VALIDATION
 
+UPDATE 0.1.44 — ACCESSIBLE ALARM CONFIRMATION (PREVIEW)
+- See CHECKS.txt and RELEASE-NOTES.md for exact artifact identity, physical and emulator checks, and limits.
+- The dismiss confirmation has larger text and higher contrast, including at 200% Android font size. The same styling applies to short-tap hold guidance.
+- Assistive selection applies to TalkBack and key-filtering switch services. An unrelated enabled accessibility service retains the normal hold-to-dismiss path.
+
 UPDATE 0.1.43 — ALARM CONTROLS, SNOOZE NOTICE AND READINESS (PREVIEW)
 - See CHECKS.txt and RELEASE-NOTES.md for artifact identity, exact-device checks and limits.
 - The private snooze notification opens confirmation; a generic public version hides details on a locked screen. The next-alarm card reports actual scheduled time, access, volume, sound and calendar freshness.

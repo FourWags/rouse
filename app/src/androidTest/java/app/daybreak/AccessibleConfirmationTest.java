@@ -9,9 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ViewGroup;
-import android.view.accessibility.AccessibilityManager;
 import android.widget.Button;
+import android.widget.TextView;
 import org.json.JSONObject;
+import java.util.Locale;
 
 /** Verify the two-step assistive dismissal without relying on a timed touch hold. */
 public final class AccessibleConfirmationTest extends Instrumentation {
@@ -26,8 +27,8 @@ public final class AccessibleConfirmationTest extends Instrumentation {
             long deadline=System.currentTimeMillis()+8000;
             while(!Store.object(c,"ringing").has(id)&&System.currentTimeMillis()<deadline)Thread.sleep(50);
             if(!Store.object(c,"ringing").has(id))throw new Exception("Synthetic alarm did not ring");
-            AccessibilityManager access=(AccessibilityManager)c.getSystemService(Context.ACCESSIBILITY_SERVICE);
-            if(access==null||!access.isEnabled())throw new Exception("Requires an enabled accessibility service");
+            if(!RingActivity.usesAssistiveSelection(c))
+                throw new Exception("Requires TalkBack or Switch Access selection");
             activity=(RingActivity)startActivitySync(new Intent(c,RingActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             ViewGroup layout=(ViewGroup)((ViewGroup)activity.findViewById(android.R.id.content)).getChildAt(0);
             Button awake=(Button)layout.getChildAt(1);RingActivity screen=activity;
@@ -35,6 +36,7 @@ public final class AccessibleConfirmationTest extends Instrumentation {
                 throw new Exception("Assistive screen does not explain the confirmation action");
             runOnMainSync(awake::performClick);
             if(!screen.dismissConfirmationShowing())throw new Exception("Accessibility activation did not open confirmation");
+            assertConfirmationReadable(c,screen.dismissConfirmationDialog());
             clickConfirmationButton(screen,AlertDialog.BUTTON_NEGATIVE,"Keep ringing");
             if(!Store.object(c,"ringing").has(id))throw new Exception("Canceling confirmation stopped the alarm");
             runOnMainSync(awake::performClick);
@@ -54,5 +56,20 @@ public final class AccessibleConfirmationTest extends Instrumentation {
             !label.contentEquals(dialog.getButton(which).getText()))
             throw new Exception("Confirmation action missing: "+label);
         runOnMainSync(()->dialog.getButton(which).performClick());
+    }
+    private void assertConfirmationReadable(Context c,AlertDialog dialog)throws Exception{
+        Appearance palette=Appearance.current(c);
+        TextView message=dialog.findViewById(android.R.id.message);
+        if(message==null||message.getTextSize()/c.getResources().getDisplayMetrics().scaledDensity<18f)
+            throw new Exception("Confirmation message is too small");
+        assertButtonReadable(c,dialog.getButton(AlertDialog.BUTTON_NEGATIVE),palette.surface,"Keep ringing");
+        assertButtonReadable(c,dialog.getButton(AlertDialog.BUTTON_POSITIVE),palette.action,"Dismiss alarm");
+    }
+    private void assertButtonReadable(Context c,Button button,int background,String label)throws Exception{
+        if(button==null||button.getTextSize()/c.getResources().getDisplayMetrics().scaledDensity<20f)
+            throw new Exception(label+" is too small");
+        String foreground=String.format(Locale.ROOT,"#%06X",button.getCurrentTextColor()&0xFFFFFF);
+        String behind=String.format(Locale.ROOT,"#%06X",background&0xFFFFFF);
+        if(ThemeColors.contrast(foreground,behind)<4.5)throw new Exception(label+" has insufficient contrast");
     }
 }

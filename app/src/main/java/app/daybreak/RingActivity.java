@@ -1,5 +1,6 @@
 package app.daybreak;
 import android.annotation.SuppressLint;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.*;
 import android.content.*;
 import android.content.res.ColorStateList;
@@ -35,6 +36,14 @@ public class RingActivity extends Activity {
     }};
     private final BroadcastReceiver done=new BroadcastReceiver(){public void onReceive(Context c,Intent i){if(Appearance.CHANGED.equals(i.getAction()))applyPalette();else finish();}};
     private int dp(int value){return Math.round(value*getResources().getDisplayMetrics().density);}
+    static boolean usesAssistiveSelection(Context context){
+        AccessibilityManager manager=(AccessibilityManager)context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        if(manager==null||!manager.isEnabled())return false;
+        if(manager.isTouchExplorationEnabled())return true;
+        for(AccessibilityServiceInfo service:manager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK))
+            if((service.getCapabilities()&AccessibilityServiceInfo.CAPABILITY_CAN_REQUEST_FILTER_KEY_EVENTS)!=0)return true;
+        return false;
+    }
     @SuppressLint("UnspecifiedRegisterReceiverFlag") // Pre-33 receivers require the signature permission; 33+ also use NOT_EXPORTED.
     @Override public void onCreate(Bundle b){
         setTheme(Appearance.current(this).theme);super.onCreate(b);if(Build.VERSION.SDK_INT>=27){setShowWhenLocked(true);setTurnScreenOn(true);}getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON|WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
@@ -50,13 +59,14 @@ public class RingActivity extends Activity {
         testAlarmScreen=testOnly;
         SpannableString snoozeLabel=snoozeLabel(time,title,minutes);
         snooze=button(snoozeLabel,"SNOOZE",Appearance.current(this).surface,Appearance.current(this).text);snooze.setContentDescription("Snooze for "+minutes+" minutes. "+time+". "+title);
-        AccessibilityManager access=(AccessibilityManager)getSystemService(ACCESSIBILITY_SERVICE);
-        String dismissHint=access!=null&&access.isEnabled()?"Select to confirm dismissal":"Hold 2 seconds to dismiss";
+        boolean assistiveSelection=usesAssistiveSelection(this);
+        String dismissHint=assistiveSelection?"Select to confirm dismissal":"Hold 2 seconds to dismiss";
         SpannableString initialAwakeLabel=new SpannableString("I’m up\n\nStart my day\n\n"+dismissHint);size(initialAwakeLabel,"I’m up",44);size(initialAwakeLabel,"Start my day",18);size(initialAwakeLabel,dismissHint,15);awakeLabel=initialAwakeLabel;
-        awake=button(awakeLabel,"",Appearance.current(this).action,Appearance.current(this).onAction);awake.setContentDescription("I’m up. Hold for two seconds to dismiss. With TalkBack or Switch Access, activate to confirm dismissal.");
+        awake=button(awakeLabel,"",Appearance.current(this).action,Appearance.current(this).onAction);
+        awake.setContentDescription(assistiveSelection?"I’m up. Activate to confirm dismissal.":"I’m up. Hold for two seconds to dismiss.");
         if(testOnly){awake.setText("Stop test alarm");awake.setContentDescription("Stop test alarm");awake.setOnClickListener(v->act("STOP_TEST"));}
         if(!testOnly)awake.setOnClickListener(v->{
-            if(access!=null&&access.isEnabled())showAccessibleDismissConfirmation();
+            if(usesAssistiveSelection(this))showAccessibleDismissConfirmation();
             else showHoldInstructions();
         });
         if(!testOnly)awake.setOnLongClickListener(v->{dismissHoldBegan=SystemClock.elapsedRealtime()-DISMISS_HOLD_MS;completeDismissHold();return true;});
@@ -89,6 +99,8 @@ public class RingActivity extends Activity {
     }
     private void applyPalette(){
         Appearance p=Appearance.current(this);root.setBackgroundColor(p.background);tint(snooze,p.surface,p.text);tint(awake,p.action,p.onAction);
+        if(accessibilityDismissDialog!=null&&accessibilityDismissDialog.isShowing())styleAlarmDialog(accessibilityDismissDialog);
+        if(holdInstructionsDialog!=null&&holdInstructionsDialog.isShowing())styleAlarmDialog(holdInstructionsDialog);
         int mask=View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         int bars=(Appearance.light(p.surface)?View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR:0)|(Appearance.light(p.action)?View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR:0);
         if(Build.VERSION.SDK_INT>=30)getWindow().getInsetsController().setSystemBarsAppearance((Appearance.light(p.surface)?WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS:0)|(Appearance.light(p.action)?WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS:0),WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
@@ -108,6 +120,7 @@ public class RingActivity extends Activity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setOnDismissListener(d->{if(accessibilityDismissDialog==dialog)accessibilityDismissDialog=null;});
         dialog.show();
+        styleAlarmDialog(dialog);
     }
     private void showHoldInstructions(){
         if(holdInstructionsDialog!=null&&holdInstructionsDialog.isShowing())return;
@@ -121,6 +134,46 @@ public class RingActivity extends Activity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setOnDismissListener(d->{if(holdInstructionsDialog==dialog)holdInstructionsDialog=null;});
         dialog.show();
+        styleAlarmDialog(dialog);
+    }
+    private void styleAlarmDialog(AlertDialog dialog){
+        Appearance palette=Appearance.current(this);
+        int surface=palette.surface,ink=readable(palette.text,surface);
+        GradientDrawable panel=new GradientDrawable();panel.setColor(surface);panel.setCornerRadius(dp(24));
+        Window window=dialog.getWindow();if(window!=null)window.setBackgroundDrawable(panel);
+        TextView message=dialog.findViewById(android.R.id.message);
+        if(message!=null){message.setTextColor(ink);message.setTextSize(18);message.setLineSpacing(dp(3),1f);}
+        styleDialogButton(dialog.getButton(AlertDialog.BUTTON_NEGATIVE),surface,ink,ink);
+        int action=palette.action,actionInk=readable(palette.onAction,action);
+        styleDialogButton(dialog.getButton(AlertDialog.BUTTON_POSITIVE),action,actionInk,ink);
+    }
+    private void styleDialogButton(Button button,int background,int text,int outline){
+        if(button==null)return;
+        button.setAllCaps(false);button.setTextColor(text);button.setTextSize(20);
+        button.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));
+        button.setSingleLine(false);button.setMaxLines(2);button.setGravity(Gravity.CENTER);
+        button.setMinimumHeight(dp(64));button.setPadding(dp(12),dp(10),dp(12),dp(10));
+        GradientDrawable shape=new GradientDrawable();shape.setColor(background);shape.setCornerRadius(dp(14));shape.setStroke(dp(2),outline);
+        button.setBackground(new RippleDrawable(ColorStateList.valueOf((outline&0x00ffffff)|0x33000000),shape,null));
+    }
+    private int readable(int preferred,int background){
+        double contrast=contrast(preferred,background);
+        if(contrast>=7)return preferred;
+        int black=Color.BLACK,white=Color.WHITE;
+        return contrast(black,background)>=contrast(white,background)?black:white;
+    }
+    private double contrast(int first,int second){
+        double a=luminance(first),b=luminance(second);
+        return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+    }
+    private double luminance(int color){
+        int[] channels={Color.red(color),Color.green(color),Color.blue(color)};
+        double[] weights={.2126,.7152,.0722};double value=0;
+        for(int index=0;index<channels.length;index++){
+            double channel=channels[index]/255.0;
+            value+=weights[index]*(channel<=.04045?channel/12.92:Math.pow((channel+.055)/1.055,2.4));
+        }
+        return value;
     }
     boolean holdInstructionsShowing(){return holdInstructionsDialog!=null&&holdInstructionsDialog.isShowing();}
     AlertDialog holdInstructionsDialog(){return holdInstructionsDialog;}

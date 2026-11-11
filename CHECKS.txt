@@ -1,14 +1,13 @@
-Rouse 0.1.43 / code 44
+Rouse 0.1.44 / code 45 — local Preview candidate
 Prepared 2026-11-11
 
-APK SHA256: 3dbbe1652f6f64e0391074ebe2e63f2aaba63fc7ceaf30b1b33ab9b77f8ac72a
+APK SHA256: f59bc7b3190bfa87d9085c542cd769bdc41fea0ff9719dfd9e0214ef37bc6c1c
 Signing certificate SHA256: 386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4
-Same package and signer as verified v0.1.42; version code rose from 43 to 44.
-Non-debuggable signed release; same 13 packaged permissions as v0.1.42.
-44 host tests passed; zero failed, errored, or skipped. lintDebug: zero errors, 70 inherited warnings. lintVitalRelease passed. JavaScript syntax check passed.
+Same package app.daybreak and signer as verified 0.1.43; version code 44 -> 45.
+Signed, non-debuggable release. Permissions unchanged from 0.1.43. Installed over 0.1.43 on Pixel 11 Pro XL without removing app data; installed base.apk SHA256 matched the candidate.
 
-Exact release APK, Android 15 emulator: EndSnoozeTest passed notification privacy, action-opening confirmation, cancel preservation, one-snooze end, remaining alarms and final-notice removal. RingGuidanceTest passed short tap, swipe, Back, background ring and ongoing notification. LifecycleCleanupTest passed 14 checks. NativeSmokeTest passed 30 checks on a clean Android 15 emulator with alarm permissions, including real AlarmManager delivery, phone alarm-volume rise and snooze replay.
-Initial NativeSmokeTest run after other suites failed because the harness expects an empty app state. The subsequent clean-data run lacked Android notification permission and stopped before ringing. After granting notification/full-screen alarm access, the clean-state rerun passed all 30 smoke checks. The initial failures were test-setup conditions.
-Pixel 11 Pro XL: v0.1.42/code43 upgraded in place via adb install -r to v0.1.43/code44. Installed base.apk SHA256 matched candidate. MainActivity launched and process remained alive. No alarm was rung or personal calendar content inspected.
+Fresh offline Gradle run: 113 of 113 tasks executed; 44 JVM tests passed, zero failures/errors/skips. lintDebug zero errors and 70 inherited warnings; lintVitalRelease passed. Release and Android-test APKs built. A subsequent Android-test-only rebuild included a corrected assistive-mode precondition; it did not change the release APK.
+Exact release APK, Android 17 emulator: TalkBack-assisted confirmation test passed size and contrast checks for 18sp message and 20sp action labels, Keep ringing preservation, and Dismiss alarm stopping the synthetic alarm. Switch Access selection probe passed with its service enabled. With accessibility services off, RingGuidanceTest passed short-tap OK guidance, swipe, Back, background ringing, and ongoing notification. A 200% font screenshot showed both confirmation actions visible.
+Pixel 11 Pro XL: The earlier 0.1.43 physical TalkBack test confirmed spoken labels and double-tap controls, though finishing the session required ADB assistance. Physical Switch Access with Volume Down/Up reached and dismissed a synthetic alarm on retry. The 0.1.44 APK was installed in place; with only Lawnchair accessibility enabled, the selection probe reported the standard hold path. The temporary test package was removed. AlarmService was not running after cleanup. TalkBack and Switch Access were returned to their prior off states; Volume-key switch assignments were cleared and alarm volume restored.
 
-Limits: Pixel audio delivery, real Proton changes, long-duration idle/battery behavior, live assistive-technology use and production signing are unqualified. The offline USB signing-key copy is still pending. Previous build v0.1.42 remains the rollback version.
+Limits: the fixed 0.1.44 confirmation has not yet been repeated by a person on the physical Pixel with TalkBack/Switch Access. Pixel audio delivery, real Proton changes, long-duration battery behavior, full device/accessibility matrix, and production signing remain unqualified. Offline USB signing-key recovery copy remains pending. No GitHub publication or Obtainium asset verification is claimed for this local candidate.
