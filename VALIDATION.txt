@@ -1,5 +1,9 @@
 ROUSE — VALIDATION
 
+UPDATE 0.1.48 — DOG THEMES AND ALARM ARTWORK (PREVIEW)
+- 28 breeds and mixes, including Goldendoodle in place of Poodle, provide 84 selectable illustrated coat themes and two bundled alarm poses per choice. Each coat has its own app color palette. The dog art remains decorative inside the existing Snooze and I’m up controls; at large font sizes, control labels take priority.
+- See this release's CHECKS.txt and RELEASE-NOTES.md for exact signed APK checks and remaining qualification limits.
+
 UPDATE 0.1.47 — MOVE PACKAGE FAILURE GUIDANCE (PREVIEW)
 - The Android document-provider regression failed first on the prior raw permission-error message and on stale stored error after a successful retry. The candidate shows a persistent, actionable backup warning for refused and mid-write-disconnected providers, then clears it after a successful save.
 - Exact signed APK emulator tests exercised both provider failures, the subsequent successful provider save, password-buffer clearing, and unchanged synthetic source calendar data. Compact and full-size encrypted move round trips passed with wrong-password, damaged-file, and occupied-destination rejection. See the release CHECKS.txt for hashes, broader tests, and limits.

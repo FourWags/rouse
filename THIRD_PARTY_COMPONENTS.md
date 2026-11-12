@@ -29,4 +29,6 @@ Biweekly also embeds notices for `commons-codec` and Google recurrence code. Pre
 | Musopen performances | Public Domain Mark 1.0 as recorded upstream; check jurisdiction-specific rights before each market launch | `app/src/main/assets/credits.txt` |
 | Six nature recordings and twelve original standard tones | CC0 1.0 | `app/src/main/assets/credits.txt` |
 
+The bundled dog poses, thumbnails, and new launcher designs are Four Wags project artwork. Reference photos are not packaged. Their commercial clearance remains pending for v1.
+
 The optional 28-track orchestra archive is distributed separately. Its individual track and performer records are in the app's `credits.txt` and source catalog. A Public Domain Mark describes the identified work's status; it is not a rights warranty. Four Wags proprietary terms do not apply to the third-party material above.

@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "default": "wr_s2",
+  "shapes": [
+    {
+      "id": "wr_rising_tail",
+      "name": "Rising Tail",
+      "group": "original",
+      "svg": "<svg aria-label=\"Sun rising above a flowing tail-shaped horizon\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main\" d=\"M30 58a24 24 0 0 1 48 0Z\"></path><path class=\"light-stroke\" d=\"M19 65c17 1 25-12 39-12 11 0 18 7 30 4\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"7\"></path><path class=\"main-stroke\" d=\"M32 77h44\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_four_rays",
+      "name": "Four Rays",
+      "group": "original",
+      "svg": "<svg aria-label=\"Rising sun with four prominent rays\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main\" d=\"M31 68a23 23 0 0 1 46 0Z\"></path><path class=\"light-stroke\" d=\"M22 68h64\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"6\"></path><path class=\"soft-stroke\" d=\"M54 20v13M28 32l9 9M80 32l-9 9M17 48l13 4\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"6\"></path></svg>"
+    },
+    {
+      "id": "wr_wag_clock",
+      "name": "Wag Clock",
+      "group": "original",
+      "svg": "<svg aria-label=\"Clock with a curved rising hand\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><circle class=\"main-stroke\" cx=\"54\" cy=\"54\" fill=\"none\" r=\"30\" stroke-width=\"7\"></circle><path class=\"light-stroke\" d=\"M54 33v22l16 12\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"7\"></path><circle class=\"soft\" cx=\"54\" cy=\"54\" r=\"5\"></circle><path class=\"soft-stroke\" d=\"M26 22c7-7 15-9 22-9\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_paw_dawn",
+      "name": "Paw at Dawn",
+      "group": "original",
+      "svg": "<svg aria-label=\"Abstract paw above a sunrise horizon\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><circle class=\"soft\" cx=\"31\" cy=\"40\" r=\"5\"></circle><circle class=\"soft\" cx=\"46\" cy=\"31\" r=\"5\"></circle><circle class=\"soft\" cx=\"63\" cy=\"31\" r=\"5\"></circle><circle class=\"soft\" cx=\"78\" cy=\"40\" r=\"5\"></circle><path class=\"main\" d=\"M54 44c-12 0-24 14-24 26 0 8 8 12 16 8l8-4 8 4c8 4 16 0 16-8 0-12-12-26-24-26Z\"></path><path class=\"light-stroke\" d=\"M22 83h64\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_w_rise",
+      "name": "W Rise",
+      "group": "original",
+      "svg": "<svg aria-label=\"Angular W with a rising dot\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"light-stroke\" d=\"M19 37l15 36 20-27 20 27 15-36\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"8\"></path><circle class=\"main\" cx=\"54\" cy=\"27\" r=\"10\"></circle><path class=\"main-stroke\" d=\"M45 82h18\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_gentle_chime",
+      "name": "Gentle Chime",
+      "group": "original",
+      "svg": "<svg aria-label=\"Soft bell with four short sound arcs\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main\" d=\"M39 45a15 15 0 0 1 30 0v17l7 9H32l7-9Z\"></path><circle class=\"light\" cx=\"54\" cy=\"76\" r=\"5\"></circle><path class=\"soft-stroke\" d=\"M25 42c-5 10-5 20 0 29M83 42c5 10 5 20 0 29M17 51c-2 5-2 11 0 16M91 51c2 5 2 11 0 16\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"4\"></path></svg>"
+    },
+    {
+      "id": "wr_shift_sunrise",
+      "name": "Shift Sunrise",
+      "group": "original",
+      "svg": "<svg aria-label=\"Calendar with rising sun\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><rect class=\"light-stroke\" fill=\"none\" height=\"58\" rx=\"9\" stroke-width=\"6\" width=\"62\" x=\"23\" y=\"26\"></rect><path class=\"light-stroke\" d=\"M25 42h58M39 20v14M69 20v14\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"6\"></path><path class=\"main\" d=\"M38 71a16 16 0 0 1 32 0Z\"></path><path class=\"soft-stroke\" d=\"M34 72h40\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"4\"></path></svg>"
+    },
+    {
+      "id": "wr_soundrise",
+      "name": "Soundrise",
+      "group": "original",
+      "svg": "<svg aria-label=\"Rising sun inside soft sound waves\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main\" d=\"M39 66a15 15 0 0 1 30 0Z\"></path><path class=\"light-stroke\" d=\"M31 66h46\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"6\"></path><path class=\"soft-stroke\" d=\"M27 37c-9 9-9 25 0 34M81 37c9 9 9 25 0 34M19 28c-14 14-14 38 0 51M89 28c14 14 14 38 0 51\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_four_petals",
+      "name": "Four Petals",
+      "group": "original",
+      "svg": "<svg aria-label=\"Rising circle and four curved petals\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><circle class=\"main\" cx=\"54\" cy=\"49\" r=\"17\"></circle><path class=\"soft\" d=\"M53 24c-9-9-9-15 1-19 10 4 10 10 1 19ZM79 48c9-9 15-9 19 1-4 10-10 10-19 1ZM55 75c9 9 9 15-1 19-10-4-10-10-1-19ZM29 49c-9 9-15 9-19-1 4-10 10-10 19-1Z\"></path><path class=\"light-stroke\" d=\"M37 74c8 4 25 4 34 0\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_four_beats",
+      "name": "Four Beats",
+      "group": "original",
+      "svg": "<svg aria-label=\"Four rising sound bars and a small sun\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main-stroke\" d=\"M24 73V62M40 73V52M56 73V41M72 73V31\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"8\"></path><circle class=\"soft\" cx=\"75\" cy=\"26\" r=\"9\"></circle><path class=\"light-stroke\" d=\"M20 84h67\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_p1",
+      "name": "Classic Paw",
+      "group": "refinement",
+      "code": "P1",
+      "svg": "<svg aria-label=\"Paw pad rising above horizon\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main\" d=\"M54 44c-11 0-23 14-23 26 0 8 7 12 15 8l8-4 8 4c8 4 15 0 15-8 0-12-12-26-23-26Z\"></path><circle class=\"soft\" cx=\"31\" cy=\"39\" r=\"5\"></circle><circle class=\"soft\" cx=\"46\" cy=\"30\" r=\"5\"></circle><circle class=\"soft\" cx=\"62\" cy=\"30\" r=\"5\"></circle><circle class=\"soft\" cx=\"77\" cy=\"39\" r=\"5\"></circle><path class=\"light-stroke\" d=\"M22 83h64\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_p2",
+      "name": "Paw Sun",
+      "group": "refinement",
+      "code": "P2",
+      "svg": "<svg aria-label=\"Paw pad shaped like a rising sun\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main\" d=\"M29 67c2-16 12-27 25-27s23 11 25 27Z\"></path><path class=\"light-stroke\" d=\"M19 68h70\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"6\"></path><circle class=\"soft\" cx=\"29\" cy=\"40\" r=\"5\"></circle><circle class=\"soft\" cx=\"45\" cy=\"29\" r=\"5\"></circle><circle class=\"soft\" cx=\"63\" cy=\"29\" r=\"5\"></circle><circle class=\"soft\" cx=\"79\" cy=\"40\" r=\"5\"></circle><path class=\"main-stroke\" d=\"M36 80h36\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"4\"></path></svg>"
+    },
+    {
+      "id": "wr_s1",
+      "name": "Wide Sound",
+      "group": "refinement",
+      "code": "S1",
+      "svg": "<svg aria-label=\"Sun rising between two sound wave arcs\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main\" d=\"M38 66a16 16 0 0 1 32 0Z\"></path><path class=\"light-stroke\" d=\"M29 67h50\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"6\"></path><path class=\"soft-stroke\" d=\"M25 38c-8 9-8 22 0 31M83 38c8 9 8 22 0 31M17 30c-13 14-13 33 0 47M91 30c13 14 13 33 0 47\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_s2",
+      "name": "Quiet Ripples",
+      "group": "refinement",
+      "code": "S2",
+      "svg": "<svg aria-label=\"Sunrise with ripples below the horizon\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main\" d=\"M31 61a23 23 0 0 1 46 0Z\"></path><path class=\"light-stroke\" d=\"M20 63h68M28 73c16 7 36 7 52 0M36 83c10 4 26 4 36 0\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path><path class=\"soft-stroke\" d=\"M54 22v10M31 30l7 7M77 30l-7 7\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_s4",
+      "name": "Sound Halo",
+      "group": "refinement",
+      "code": "S4",
+      "svg": "<svg aria-label=\"A sun inside an enclosing sound-wave ring\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"light-stroke\" d=\"M35 34a29 29 0 1 0 38 0\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"6\"></path><path class=\"soft-stroke\" d=\"M26 26a40 40 0 0 0 0 56M82 26a40 40 0 0 1 0 56\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path><circle class=\"main\" cx=\"54\" cy=\"51\" r=\"14\"></circle><path class=\"main-stroke\" d=\"M40 71h28\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_h1",
+      "name": "Shiba Chime",
+      "group": "refinement",
+      "code": "H1",
+      "svg": "<svg aria-label=\"Shiba Inu head with gentle sound waves\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"light\" d=\"M31 47 34 24 46 39h16l12-15 3 23c8 13 4 35-23 35S23 60 31 47Z\"></path><path class=\"main\" d=\"M31 47c5 5 12 8 23 8s18-3 23-8c-2 17-10 29-23 29S33 64 31 47Z\"></path><circle class=\"bg\" cx=\"43\" cy=\"55\" r=\"3\"></circle><circle class=\"bg\" cx=\"65\" cy=\"55\" r=\"3\"></circle><path class=\"bg\" d=\"M48 65q6-5 12 0l-6 5Z\"></path><path class=\"soft-stroke\" d=\"M19 49c-5 8-5 17 0 25M89 49c5 8 5 17 0 25\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path></svg>"
+    },
+    {
+      "id": "wr_h3",
+      "name": "Shiba Clock",
+      "group": "refinement",
+      "code": "H3",
+      "svg": "<svg aria-label=\"Shiba Inu head framed by a clock ring\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><circle class=\"soft-stroke\" cx=\"54\" cy=\"54\" fill=\"none\" r=\"38\" stroke-width=\"5\"></circle><path class=\"light\" d=\"M33 54 34 29 46 42h16l12-13 1 25c2 16-6 26-21 26S31 70 33 54Z\"></path><path class=\"main\" d=\"M36 61c8 7 28 7 36 0-3 10-9 16-18 16s-15-6-18-16Z\"></path><circle class=\"bg\" cx=\"44\" cy=\"56\" r=\"2.8\"></circle><circle class=\"bg\" cx=\"64\" cy=\"56\" r=\"2.8\"></circle><path class=\"bg\" d=\"M49 66q5-4 10 0l-5 4Z\"></path><path class=\"main-stroke\" d=\"M54 14v5M54 89v5\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"4\"></path></svg>"
+    },
+    {
+      "id": "wr_h4",
+      "name": "Shiba Signal",
+      "group": "refinement",
+      "code": "H4",
+      "svg": "<svg aria-label=\"Minimal Shiba Inu head and small chime arcs\" class=\"icon\" role=\"img\" viewbox=\"0 0 108 108\"><rect class=\"bg\" height=\"108\" rx=\"27\" width=\"108\"></rect><path class=\"main\" d=\"M31 51 34 27 47 42h14l13-15 3 24c4 17-8 31-23 31S27 68 31 51Z\"></path><path class=\"light\" d=\"M35 61c6 7 12 9 19 9s13-2 19-9c-2 11-9 18-19 18S37 72 35 61Z\"></path><circle class=\"bg\" cx=\"43\" cy=\"55\" r=\"3\"></circle><circle class=\"bg\" cx=\"65\" cy=\"55\" r=\"3\"></circle><path class=\"bg\" d=\"M49 65q5-4 10 0l-5 5Z\"></path><path class=\"light-stroke\" d=\"M17 55c-5 6-5 12 0 18M91 55c5 6 5 12 0 18\" fill=\"none\" stroke-linecap=\"round\" stroke-width=\"5\"></path><circle class=\"soft\" cx=\"54\" cy=\"21\" r=\"5\"></circle></svg>"
+    }
+  ]
+}

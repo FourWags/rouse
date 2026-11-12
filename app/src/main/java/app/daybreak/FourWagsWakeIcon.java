@@ -23,14 +23,15 @@ public final class FourWagsWakeIcon {
         try{var info=c.getPackageManager().getPackageInfo(c.getPackageName(),0);fresh=info.firstInstallTime==info.lastUpdateTime;}
         catch(PackageManager.NameNotFoundException ignored){}
         var editor=p.edit().putBoolean("fw_icon_initialized",true).putBoolean("fw_icon_pending",fresh);
-        if(fresh)editor.putString("iconDesign","rouse_c");
+        if(fresh&&!p.contains("iconDesign"))editor.putString("iconDesign","wr_s2");
         editor.commit();
     }
     public static boolean pending(Context c){return Store.p(c).getBoolean("fw_icon_pending",false);}
     public static void skip(Context c){boolean first=pending(c);if(Store.p(c).edit().putBoolean("fw_icon_pending",false).commit()&&first)try{Appearance.syncLauncher(c);}catch(RuntimeException ignored){} }
     public static void showPicker(Activity activity){
-        var rows=new LinearLayout[3];var labels=new String[]{"Sunrise","Sunrise clock","Shiba alarm"};
-        var icons=new int[]{R.drawable.fw_rouse_a_foreground,R.drawable.fw_rouse_b_foreground,R.drawable.fw_rouse_c_foreground};
+        var rows=new LinearLayout[3];var labels=new String[]{"S2 Quiet Ripples","P2 Soft Horizon Paw","H1 Gentle Shiba"};
+        var designs=new String[]{"wr_s2","wr_p2","wr_h1"};
+        var icons=new int[]{R.mipmap.ic_launcher_vermilion_wr_s2,R.mipmap.ic_launcher_vermilion_wr_p2,R.mipmap.ic_launcher_vermilion_wr_h1};
         float density=activity.getResources().getDisplayMetrics().density;
         java.util.function.IntUnaryOperator dp=n->Math.round(n*density);
         var body=new LinearLayout(activity);body.setOrientation(LinearLayout.VERTICAL);body.setPadding(dp.applyAsInt(16),dp.applyAsInt(8),dp.applyAsInt(16),dp.applyAsInt(8));
@@ -42,12 +43,12 @@ public final class FourWagsWakeIcon {
             var title=new TextView(activity);title.setText(labels[i]);title.setTextSize(16);title.setPadding(dp.applyAsInt(16),0,0,0);
             row.addView(title);row.setContentDescription(labels[i]+" launcher icon");body.addView(row);rows[i]=row;
         }
-        var dialog=new AlertDialog.Builder(activity).setTitle("Choose Rouse's icon")
+        var dialog=new AlertDialog.Builder(activity).setTitle("Choose an app icon")
             .setMessage("You can change this later in Appearance settings.")
             .setView(body).setNegativeButton("Later",(d,which)->skip(activity)).create();
         dialog.setOnCancelListener(d->skip(activity));
         for(int i=0;i<3;i++){
-            final String choice="rouse_"+(char)('a'+i);
+            final String choice=designs[i];
             rows[i].setOnClickListener(v->{
                 try{Appearance.chooseIcon(activity,choice);skip(activity);dialog.dismiss();}
                 catch(RuntimeException e){Toast.makeText(activity,"Could not save the icon. Please try again.",Toast.LENGTH_LONG).show();}

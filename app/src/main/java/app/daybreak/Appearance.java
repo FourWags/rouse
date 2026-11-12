@@ -32,7 +32,9 @@ public final class Appearance {
         shibaPalette("shiba_sesame","Sesame Dusk",R.style.Key_shiba_sesame)};
     public static final Appearance NAVY=builtin("navy"),ROSE=builtin("rose");
     private static Appearance builtin(String id){for(Appearance p:ALL)if(p.id.equals(id))return p;throw new IllegalArgumentException(id);}
-    public static final String[] ICONS={"petal","dawn","moon","bell","baton","calendar","rouse_a","rouse_b","rouse_c"};
+    public static final String[] ICONS={"wr_s2","wr_p1","wr_p2","wr_s1","wr_s4","wr_h1","wr_h3","wr_h4",
+        "wr_rising_tail","wr_four_rays","wr_wag_clock","wr_paw_dawn","wr_w_rise","wr_gentle_chime","wr_shift_sunrise","wr_soundrise","wr_four_petals","wr_four_beats",
+        "petal","dawn","moon","bell","baton","calendar","rouse_a","rouse_b","rouse_c"};
     public final String id,name;
     public final int theme,background,surface,text,action,onAction,accent;
     public final boolean dark;
@@ -51,8 +53,15 @@ public final class Appearance {
         Appearance p=new Appearance(id,name,style,ThemeColors.luminance(colors.background)<.179,colors.background,colors.surface,colors.text,colors.primary,colors.actionText,colors.link);
         p.customColors=colors;return p;
     }
-    private static String resolveId(String id){switch(id){case "lavender":return "violet";case "sand":return "arctic";case "peach":return "vermilion";case "plum":return "pistachio";case "graphite":return "navy";case "moonstone":return "rose";case "forest":return "sage";case "amber":return "marigold";case "cocoa":return "arctic";case "twilight":return "violet";case "mint":return "sage";case "terracotta":return "berry";case "copper":return "coral";case "mulberry":return "berry";case "lilacspruce":return "sage";case "jaderibbon":return "rose";case "raspberry":return "berry";case "skypapaya":return "cobalt";case "saffron":return "marigold";case "olive":return "sage";case "flamingo":return "rose";case "ochre":return "marigold";case "peony":return "blush";case "cherry":return "rose";default:return id;}}
-    private static Appearance find(Context c,String id){id=resolveId(id);for(Appearance p:ALL)if(p.id.equals(id))return p;JSONArray saved=Store.array(c,"customThemes");for(int n=0;n<saved.length();n++){JSONObject raw=saved.optJSONObject(n);if(raw!=null&&id.equals(raw.optString("id")))try{return custom(raw);}catch(Exception ignored){}}return null;}
+    static Appearance dogPalette(String id,String name,String bg,String action,String accent,String text){
+        ThemeColors colors=new ThemeColors(bg,action,accent,text);
+        boolean dark=ThemeColors.luminance(colors.background)<.179;
+        Appearance p=new Appearance(id,name,dark?R.style.Theme_graphite:R.style.Theme_moonstone,dark,
+            colors.background,colors.surface,colors.text,colors.primary,colors.actionText,colors.link);
+        p.customColors=colors;return p;
+    }
+    private static String resolveId(String id){switch(id){case "dog_poodle_0":return "dog_goldendoodle_0";case "dog_poodle_1":return "dog_goldendoodle_1";case "dog_poodle_2":return "dog_goldendoodle_2";case "lavender":return "violet";case "sand":return "arctic";case "peach":return "vermilion";case "plum":return "pistachio";case "graphite":return "navy";case "moonstone":return "rose";case "forest":return "sage";case "amber":return "marigold";case "cocoa":return "arctic";case "twilight":return "violet";case "mint":return "sage";case "terracotta":return "berry";case "copper":return "coral";case "mulberry":return "berry";case "lilacspruce":return "sage";case "jaderibbon":return "rose";case "raspberry":return "berry";case "skypapaya":return "cobalt";case "saffron":return "marigold";case "olive":return "sage";case "flamingo":return "rose";case "ochre":return "marigold";case "peony":return "blush";case "cherry":return "rose";default:return id;}}
+    private static Appearance find(Context c,String id){id=resolveId(id);for(Appearance p:ALL)if(p.id.equals(id))return p;Appearance dog=DogThemes.appearance(c,id);if(dog!=null)return dog;JSONArray saved=Store.array(c,"customThemes");for(int n=0;n<saved.length();n++){JSONObject raw=saved.optJSONObject(n);if(raw!=null&&id.equals(raw.optString("id")))try{return custom(raw);}catch(Exception ignored){}}return null;}
     private static Appearance custom(JSONObject raw)throws JSONException {
         String id=raw.getString("id"),name=raw.getString("name").trim();if(!id.matches("custom:[a-f0-9-]{36}")||name.isEmpty()||name.length()>40)throw new IllegalArgumentException("Choose a theme name of 1–40 characters.");
         ThemeColors colors=new ThemeColors(raw.getString("background"),raw.getString("primary"),raw.getString("secondary"),raw.getString("preferredText"));boolean dark=ThemeColors.luminance(colors.background)<.179;
@@ -66,7 +75,7 @@ public final class Appearance {
         JSONArray saved=Store.array(c,"customThemes");String id=raw.optString("id","");boolean editing=!id.isEmpty();if(!editing)id="custom:"+UUID.randomUUID();raw.put("id",id);Appearance p=custom(raw);JSONArray next=new JSONArray();boolean found=false;
         for(int n=0;n<saved.length();n++){JSONObject item=saved.getJSONObject(n);if(id.equals(item.optString("id"))){next.put(p.customJson());found=true;}else next.put(item);}
         if(editing&&!found)throw new IllegalArgumentException("That custom theme no longer exists.");if(!editing){if(next.length()>=50)throw new IllegalArgumentException("Keep up to 50 custom themes. Edit or remove one first.");next.put(p.customJson());}
-        String old=saved.toString();Store.put(c,"customThemes",next);try{save(c,id,icon(c));}catch(RuntimeException e){Store.p(c).edit().putString("customThemes",old).commit();throw e;}
+        String old=saved.toString();Store.put(c,"customThemes",next);try{save(c,id,icon(c),false);}catch(RuntimeException e){Store.p(c).edit().putString("customThemes",old).commit();throw e;}
     }
     public static void deleteCustom(Context c,String id)throws JSONException {
         JSONArray saved=Store.array(c,"customThemes"),next=new JSONArray();boolean found=false;for(int n=0;n<saved.length();n++){JSONObject item=saved.getJSONObject(n);if(id.equals(item.optString("id")))found=true;else next.put(item);}if(!found)throw new IllegalArgumentException("That custom theme no longer exists.");
@@ -98,14 +107,15 @@ public final class Appearance {
         if("rouse_b".equals(shape))return R.mipmap.fw_rouse_b;
         if("rouse_c".equals(shape))return R.mipmap.fw_rouse_c;if(customColors!=null)return launcherPalette(this).bundledIcon(c,shape);return bundledIcon(c,shape);}
     private int bundledIcon(Context c,String shape){return c.getResources().getIdentifier("ic_launcher_"+id+"_"+shape,"mipmap",c.getPackageName());}
-    public static void choose(Context c,String id){if(find(c,id)==null)throw new IllegalArgumentException("Unknown theme.");save(c,id,icon(c));}
-    public static void chooseIcon(Context c,String shape){if(!Arrays.asList(ICONS).contains(shape))throw new IllegalArgumentException("Unknown icon design.");save(c,current(c).id,shape);}
-    private static synchronized void save(Context c,String id,String shape){
+    public static void choose(Context c,String id){if(find(c,id)==null)throw new IllegalArgumentException("Unknown theme.");save(c,id,icon(c),true);}
+    public static void chooseIcon(Context c,String shape){if(!Arrays.asList(ICONS).contains(shape))throw new IllegalArgumentException("Unknown icon design.");save(c,current(c).id,shape,false);}
+    private static synchronized void save(Context c,String id,String shape,boolean selectDog){
         current(c);
         var prefs=Store.p(c);
-        if(prefs.getInt(ShibaThemeMigration.MARKER,0)<1)throw new IllegalStateException("Could not record the one-time theme migration.");String oldTheme=prefs.getString("appearance",null),oldIcon=prefs.getString("iconDesign",null);
-        if(!prefs.edit().putString("appearance",id).putString("iconDesign",shape).commit())throw new IllegalStateException("Could not save appearance.");
-        try{syncLauncher(c);}catch(RuntimeException e){var editor=prefs.edit();if(oldTheme==null)editor.remove("appearance");else editor.putString("appearance",oldTheme);if(oldIcon==null)editor.remove("iconDesign");else editor.putString("iconDesign",oldIcon);editor.commit();syncLauncher(c);throw e;}
+        if(prefs.getInt(ShibaThemeMigration.MARKER,0)<1)throw new IllegalStateException("Could not record the one-time theme migration.");String oldTheme=prefs.getString("appearance",null),oldIcon=prefs.getString("iconDesign",null),oldDog=prefs.getString("dogCompanion",null);
+        var change=prefs.edit().putString("appearance",id).putString("iconDesign",shape);if(selectDog&&DogThemes.has(c,id))change.putString("dogCompanion",id);
+        if(!change.commit())throw new IllegalStateException("Could not save appearance.");
+        try{syncLauncher(c);}catch(RuntimeException e){var editor=prefs.edit();if(oldTheme==null)editor.remove("appearance");else editor.putString("appearance",oldTheme);if(oldIcon==null)editor.remove("iconDesign");else editor.putString("iconDesign",oldIcon);if(oldDog==null)editor.remove("dogCompanion");else editor.putString("dogCompanion",oldDog);editor.commit();syncLauncher(c);throw e;}
         AlarmService.appearanceChanged();c.sendBroadcast(new Intent(CHANGED).setPackage(c.getPackageName()));
     }
     public static void syncLauncher(Context c){

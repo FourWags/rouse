@@ -7,17 +7,38 @@ let calendarRuleBaseline='',calendarRuleSaving=false;
 const catalog=window.SOUNDS||[];
 const personalGenres=['Orchestral','Piano','Ambient','Nature','Acoustic','Jazz','Electronic','Classical','Other'];
 const appearanceCatalog=window.APPEARANCE;
+const legacyIconNames={petal:'Flower Clock',dawn:'Dawn Note',moon:'Moon Chime',bell:'Lavender Bell',baton:'Morning Baton',calendar:'Calendar Song',rouse_a:'Sunrise',rouse_b:'Sunrise Clock',rouse_c:'Shiba Alarm'};
+const dogThemes=window.DOG_THEMES||[];
+const dogBreeds=[...new Set(dogThemes.map(d=>d.breed))];
+let dogPreviewId='',lastSavedDogId;
+appearanceCatalog.themes.push(...dogThemes.map(d=>({id:d.id,name:d.breed+' · '+d.coat,background:d.bg,primary:d.action,secondary:d.accent,preferredText:d.ink,dog:true})));
 appearanceCatalog.themes=appearanceCatalog.themes.map(t=>({...t,...customColorMath(t.background,t.primary,t.secondary,t.preferredText),...(t.shiba?shibaColors(t.shiba):{}),custom:false}));
-let currentTheme='shiba_black_tan',currentIcon='petal';
+let currentTheme='shiba_black_tan',currentIcon='wr_s2';
 let customThemes=[];
 function iconPath(theme,icon){if(/^rouse_[abc]$/.test(icon))return `icons/fourwags_${icon}.svg`;const custom=[...appearanceCatalog.themes,...customThemes].find(t=>t.id===theme);return custom?customIconUrl(custom,icon):`icons/${theme}_${icon}.svg`;}
+function renderDogOptions(){
+ const selected=st?.settings?.dogCompanion;
+ if(selected!==lastSavedDogId){lastSavedDogId=selected;dogPreviewId=dogThemes.some(d=>d.id===selected)?selected:'';}
+ const preview=dogThemes.find(d=>d.id===dogPreviewId);
+ $('dogBreed').innerHTML='<option value="">Choose a dog or mix…</option>'+dogBreeds.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+ $('dogBreed').value=preview?.breed||'';
+ $('dogPreview').hidden=!preview;$('dogOptions').hidden=!preview;$('dogCoatHeading').hidden=!preview;
+ if(preview){
+  $('dogPreviewName').textContent=preview.breed+' · '+preview.coat;
+  $('dogSnoozePreview').src=`dog-poses/${preview.id}-curl.webp`;$('dogSnoozePreview').alt=`${preview.breed}, ${preview.coat} coat, curled asleep`;
+  $('dogAwakePreview').src=`dog-poses/${preview.id}-yawn.webp`;$('dogAwakePreview').alt=`${preview.breed}, ${preview.coat} coat, yawning and stretching`;
+  $('dogOptions').innerHTML=dogThemes.filter(d=>d.breed===preview.breed).map(d=>`<button type="button" class="dog-option" data-dog="${d.id}" aria-pressed="${d.id===selected}" aria-label="${esc(d.coat)} coat${d.id===selected?', selected':''}"><span class="coat-swatch" data-coat="${d.id}" aria-hidden="true"><i></i><i></i><i></i></span><strong>${esc(d.coat)}</strong><span class="dog-check" aria-hidden="true">✓</span></button>`).join('');
+ }else{$('dogPreviewName').textContent='';$('dogSnoozePreview').removeAttribute('src');$('dogAwakePreview').removeAttribute('src');$('dogOptions').innerHTML='';}
+ $('dogNone').hidden=selected==='none';
+ $('dogStatus').textContent=preview?(selected===preview.id?`${preview.breed} · ${preview.coat} selected. Its colors and pictures are active.`:`Previewing ${preview.breed} · ${preview.coat}. Choose a coat to use these colors and pictures.`):selected==='none'?'Dog artwork is hidden. Choose a breed to use it again.':'Choose a breed or mix to preview its alarm pictures.';
+}
 function renderAppearanceOptions(){
- $('themeOptions').innerHTML=appearanceCatalog.themes.map(theme=>`<button type="button" class="theme-option" id="profile${theme.id==='navy'?'Navy':theme.id==='rose'?'Rose':theme.id}" data-profile="${theme.id}" aria-pressed="false"><img src="${iconPath(theme.id,currentIcon)}" alt=""><strong>${esc(theme.name)}</strong><span class="theme-swatches" aria-hidden="true"><span style="background:${theme.background}"></span><span style="background:${theme.primary}"></span><span style="background:${theme.secondary}"></span></span><small>${theme.dark?'Night palette':'Day palette'}</small><span class="profile-check" aria-hidden="true">✓</span></button>`).join('');
- $('iconOptions').innerHTML=appearanceCatalog.icons.map(icon=>`<button type="button" class="icon-option" data-icon="${icon.id}" aria-pressed="false"><img src="${iconPath(currentTheme,icon.id)}" alt=""><strong>${esc(icon.name)}</strong><span class="profile-check" aria-hidden="true">✓</span></button>`).join('');
+ $('themeOptions').innerHTML=appearanceCatalog.themes.filter(theme=>!theme.dog).map(theme=>`<button type="button" class="theme-option" id="profile${theme.id==='navy'?'Navy':theme.id==='rose'?'Rose':theme.id}" data-profile="${theme.id}" aria-pressed="false"><img src="${iconPath(theme.id,currentIcon)}" alt=""><strong>${esc(theme.name)}</strong><span class="theme-swatches" aria-hidden="true"><span style="background:${theme.background}"></span><span style="background:${theme.primary}"></span><span style="background:${theme.secondary}"></span></span><small>${theme.dark?'Night palette':'Day palette'}</small><span class="profile-check" aria-hidden="true">✓</span></button>`).join('');
+ let group='';$('iconOptions').innerHTML=appearanceCatalog.icons.map(icon=>{const heading=icon.group!==group?`<h3 class="icon-group-title">${esc(icon.group)}</h3>`:'';group=icon.group;return heading+`<button type="button" class="icon-option" data-icon="${icon.id}" aria-pressed="false"><img src="${iconPath(currentTheme,icon.id)}" alt=""><strong>${esc(icon.name)}</strong><span class="profile-check" aria-hidden="true">✓</span></button>`;}).join('');
 }
 function applyAppearance(profile,design){
  const theme=[...appearanceCatalog.themes,...customThemes].find(t=>t.id===profile)||appearanceCatalog.themes.find(t=>t.id==='shiba_black_tan');
- const icon=appearanceCatalog.icons.find(i=>i.id===design)||appearanceCatalog.icons[0];
+ const icon=appearanceCatalog.icons.find(i=>i.id===design)||(legacyIconNames[design]?{id:design,name:legacyIconNames[design],legacy:true}:appearanceCatalog.icons[0]);
  currentTheme=theme.id;currentIcon=icon.id;document.documentElement.dataset.profile=theme.id;document.documentElement.dataset.tone=theme.dark?'dark':'light';
  Object.keys(customColorMath('#28262D','#D89AAA','#A783A8','#F4EADC').tokens).forEach(key=>document.documentElement.style.removeProperty('--'+key));document.documentElement.style.removeProperty('color-scheme');
  if(theme.tokens){Object.entries(theme.tokens).forEach(([key,value])=>document.documentElement.style.setProperty('--'+key,value));document.documentElement.style.colorScheme=theme.dark?'dark':'light';}
@@ -25,13 +46,18 @@ function applyAppearance(profile,design){
  $('appearancePreview').src=iconPath(theme.id,icon.id);$('appearanceName').textContent=theme.name;$('appearanceIconName').textContent=icon.name+' icon';
  document.querySelectorAll('.theme-option').forEach(button=>{button.setAttribute('aria-pressed',String(button.dataset.profile===theme.id));button.querySelector('img').src=iconPath(button.dataset.profile,icon.id);});
  document.querySelectorAll('.icon-option').forEach(button=>{button.setAttribute('aria-pressed',String(button.dataset.icon===icon.id));button.querySelector('img').src=iconPath(theme.id,button.dataset.icon);});
- $('appearanceStatus').textContent=theme.name+' selected · saves automatically.';$('iconStatus').textContent=icon.name+(icon.id.startsWith('rouse_')?' selected · independent of your color theme.':' selected · the app icon uses the closest bundled palette.');
+ $('appearanceStatus').textContent=theme.name+' selected · saves automatically.';$('iconStatus').textContent=icon.legacy?icon.name+' is your current older icon. Choose an Original design to use your theme colors.':icon.name+' selected · the app icon uses the closest bundled palette.';
+ $('customizePreset').hidden=!!theme.custom;$('customizePreset').textContent='Customize '+theme.name;
  $('themeSelect').innerHTML=[...appearanceCatalog.themes,...customThemes].map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');$('themeSelect').value=theme.id;
+ renderDogOptions();
  renderCustomThemes();
 }
 renderAppearanceOptions();applyAppearance(...location.hash.slice(1).split('/'));
 $('themeSelect').onchange=()=>send('appearance',{profile:$('themeSelect').value});
 $('themeOptions').onclick=event=>{const button=event.target.closest('[data-profile]');if(button)send('appearance',{profile:button.dataset.profile});};
+$('dogBreed').onchange=()=>{dogPreviewId=dogThemes.find(d=>d.breed===$('dogBreed').value)?.id||'';renderDogOptions();};
+$('dogOptions').onclick=event=>{const button=event.target.closest('[data-dog]');if(button){dogPreviewId=button.dataset.dog;renderDogOptions();send('appearance',{profile:button.dataset.dog});}};
+$('dogNone').onclick=()=>send('dogCompanion',{id:'none'});
 $('iconOptions').onclick=event=>{const button=event.target.closest('[data-icon]');if(button)send('iconDesign',{design:button.dataset.icon});};
 $('openAppearance').onclick=()=>page('appearance');$('appearanceBack').onclick=()=>{page('settings');showSettingsGroup('appearance');};
  setupCustomThemes();

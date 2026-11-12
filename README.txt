@@ -1,6 +1,12 @@
-ROUSE — ANDROID ALARM APP 0.1.47
+ROUSE — ANDROID ALARM APP 0.1.48
 
 This is an early installable Android build. It creates wake-up alarms from a live iCalendar sharing link or imported iCalendar (.ics) file. It also supports one-time personal alarms.
+
+VERSION 0.1.48 — DOG THEMES AND ALARM ARTWORK (PREVIEW)
+- Appearance opens with a dog-and-mix dropdown. Its 28 choices include Goldendoodle in place of Poodle. Select a dog to preview its curled Snooze and yawning, stretching I’m up poses, then choose one of 84 illustrated coats. Each coat also selects its own matching, readable app color theme. The artwork is bundled offline.
+- The 18 original icon designs and 19 original color themes remain available in their own sections below the dog choices.
+- The alarm still uses the same two large actions. The dog illustrations are decorative and do not add buttons or accessibility scan targets. Large text can take priority over artwork on compact screens.
+- The app remains named Rouse while the next name is reviewed. Check your next work alarm and phone alarm volume after updating.
 
 VERSION 0.1.47 — MOVE PACKAGE FAILURE GUIDANCE (PREVIEW)
 - If the chosen file provider refuses or disconnects while saving a private move package, Rouse keeps the existing phone data and shows a persistent warning beside the move controls. An incomplete file may remain in the chosen folder; delete it before trying again.

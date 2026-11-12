@@ -13,7 +13,7 @@ import java.util.Set;
 public final class SettingsTransfer {
     private static final String[] INTS={"lead","snooze","volume","fade","riseStartPercent","allDayMinutes","earlyBefore","earlyLead","lateAfter","lateLead","eveningMinutes","fallbackMinutes","maxRingMinutes"};
     private static final String[] BOOLEANS={"vibrate","allDayEnabled","shiftRulesEnabled","eveningCheck","syncAlerts","quietPreset","privateLockScreen"};
-    private static final String[] STRINGS={"appearance","iconDesign","sound","filter"};
+    private static final String[] STRINGS={"appearance","dogCompanion","iconDesign","sound","filter"};
 
     public static String exportJson(Context c)throws Exception{
         SharedPreferences prefs=Store.p(c);JSONObject settings=new JSONObject();
@@ -63,9 +63,11 @@ public final class SettingsTransfer {
         if(settings.has("filter")&&settings.getString("filter").length()>120)throw new IllegalArgumentException("Invalid title filter.");
         if(settings.has("sound")&&!SoundLibrary.allowed(settings.getString("sound"))&&!CustomSounds.id(settings.getString("sound")))throw new IllegalArgumentException("Invalid alarm sound.");
         if(settings.has("iconDesign")&&!Arrays.asList(Appearance.ICONS).contains(settings.getString("iconDesign")))throw new IllegalArgumentException("Invalid icon design.");
+        if(settings.has("dogCompanion")&&!"none".equals(settings.getString("dogCompanion"))&&!DogThemes.has(c,settings.getString("dogCompanion")))throw new IllegalArgumentException("Invalid dog companion.");
         if(settings.has("appearance")){
             String id=settings.getString("appearance");boolean known=false;
             for(Appearance theme:Appearance.ALL)if(theme.id.equals(id))known=true;
+            if(DogThemes.has(c,id))known=true;
             for(int i=0;i<themes.length();i++)if(themes.getJSONObject(i).getString("id").equals(id))known=true;
             if(!known)throw new IllegalArgumentException("Invalid color theme.");
         }

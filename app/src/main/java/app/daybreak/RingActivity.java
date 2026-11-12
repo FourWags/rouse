@@ -5,12 +5,14 @@ import android.app.*;
 import android.content.*;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.*;
 import android.os.*;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ImageSpan;
 import android.view.*;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.*;
@@ -24,6 +26,9 @@ public class RingActivity extends Activity {
     private boolean dismissHoldFinished,testAlarmScreen;
     private CharSequence awakeLabel,armedAwakeLabel,shortTapAwakeLabel;
     private String awakeDescription;
+    private Bitmap curlPose,yawnPose;
+    private String companionId,ringTime,ringTitle,ringDismissHint;
+    private int ringMinutes;
     private Runnable clockTick;
     private final Runnable dismissHoldProgress=new Runnable(){public void run(){
         if(awake==null||dismissHoldFinished||dismissHoldBegan==0)return;
@@ -35,8 +40,9 @@ public class RingActivity extends Activity {
         awake.setText("Hold to stop\n\n"+bar+"\n"+String.format(Locale.getDefault(),"%.1f seconds",tenths/10.0));
         ui.postDelayed(this,40);
     }};
-    private final BroadcastReceiver done=new BroadcastReceiver(){public void onReceive(Context c,Intent i){if(Appearance.CHANGED.equals(i.getAction()))applyPalette();else finish();}};
+    private final BroadcastReceiver done=new BroadcastReceiver(){public void onReceive(Context c,Intent i){if(Appearance.CHANGED.equals(i.getAction())){applyPalette();refreshDogArt();}else finish();}};
     private int dp(int value){return Math.round(value*getResources().getDisplayMetrics().density);}
+    private boolean compactLargeText(){return getResources().getConfiguration().fontScale>=1.8f&&getResources().getDisplayMetrics().heightPixels/2<dp(390);}
     static boolean usesAssistiveSelection(Context context){
         AccessibilityManager manager=(AccessibilityManager)context.getSystemService(Context.ACCESSIBILITY_SERVICE);
         if(manager==null||!manager.isEnabled())return false;
@@ -56,6 +62,8 @@ public class RingActivity extends Activity {
         int minutes=Store.p(this).getInt("snooze",9);
         String time=new SimpleDateFormat("h:mm a",Locale.getDefault()).format(new Date());
         String title=Store.object(this,"current").optString("title","Time to wake up");
+        ringMinutes=minutes;ringTime=time;ringTitle=title;companionId=DogThemes.selected(this);
+        if(companionId!=null&&!compactLargeText()){curlPose=DogThemes.pose(this,companionId,"curl");yawnPose=DogThemes.pose(this,companionId,"yawn");}
         boolean testOnly="test".equals(Store.object(this,"current").optString("kind"))&&Store.object(this,"ringing").length()==1;
         testAlarmScreen=testOnly;
         SpannableString snoozeLabel=snoozeLabel(time,title,minutes);
@@ -64,6 +72,7 @@ public class RingActivity extends Activity {
         AccessibilityManager accessibility=(AccessibilityManager)getSystemService(Context.ACCESSIBILITY_SERVICE);
         boolean talkback=assistiveSelection&&accessibility!=null&&accessibility.isTouchExplorationEnabled();
         String dismissHint=assistiveSelection?(talkback?"Activate twice to stop":"Blue box = focus\nNext switch moves · Select switch chooses\nNo screen tap needed\nSelect I’m up twice to stop"):"Hold 2 seconds to dismiss";
+        ringDismissHint=dismissHint;
         awakeLabel=awakeText(dismissHint);
         armedAwakeLabel=awakeText("Select again to stop");
         shortTapAwakeLabel=awakeText("Press and hold for 2 seconds to stop");
@@ -71,7 +80,7 @@ public class RingActivity extends Activity {
         awakeDescription=assistiveSelection?(talkback?"I’m up. Activate once to prepare dismissal. Activate again to stop the alarm.":"I’m up. Blue outline means focus. Next switch moves the outline. Select switch activates the highlighted button. Select I’m up twice to stop the alarm."):"I’m up. Hold for two seconds to dismiss.";
         awake.setContentDescription(awakeDescription);
         snooze.setOnClickListener(v->{resetAssistiveSelection();act("SNOOZE");});
-        if(testOnly){awake.setText("Stop test alarm");awake.setContentDescription("Stop test alarm");awake.setOnClickListener(v->act("STOP_TEST"));}
+        if(testOnly){awake.setText(testAwakeText());awake.setContentDescription("Stop test alarm");awake.setOnClickListener(v->act("STOP_TEST"));}
         if(!testOnly)awake.setOnClickListener(v->{
             if(usesAssistiveSelection(this)){
                 if(assistiveArmed)act("STOP");
@@ -117,6 +126,16 @@ public class RingActivity extends Activity {
         if(Build.VERSION.SDK_INT>=30)getWindow().getInsetsController().setSystemBarsAppearance((Appearance.light(p.surface)?WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS:0)|(Appearance.light(p.action)?WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS:0),WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
         else getWindow().getDecorView().setSystemUiVisibility((getWindow().getDecorView().getSystemUiVisibility()&~mask)|bars);
     }
+    private void refreshDogArt(){
+        String next=DogThemes.selected(this);if(Objects.equals(next,companionId))return;
+        Bitmap oldCurl=curlPose,oldYawn=yawnPose;
+        companionId=next;curlPose=next==null||compactLargeText()?null:DogThemes.pose(this,next,"curl");yawnPose=next==null||compactLargeText()?null:DogThemes.pose(this,next,"yawn");
+        ui.removeCallbacks(dismissHoldProgress);dismissHoldBegan=0;assistiveArmed=false;
+        awakeLabel=awakeText(ringDismissHint);armedAwakeLabel=awakeText("Select again to stop");shortTapAwakeLabel=awakeText("Press and hold for 2 seconds to stop");
+        snooze.setText(snoozeLabel(ringTime,ringTitle,ringMinutes));awake.setText(testAlarmScreen?testAwakeText():awakeLabel);
+        awake.setContentDescription(testAlarmScreen?"Stop test alarm":awakeDescription);
+        if(oldCurl!=null)oldCurl.recycle();if(oldYawn!=null)oldYawn.recycle();
+    }
     private void completeDismissHold(){if(dismissHoldBegan==0||dismissHoldFinished)return;dismissHoldFinished=true;ui.removeCallbacks(dismissHoldProgress);awake.setPressed(false);awake.setText(awakeLabel);act("STOP");}
     private void showShortTapGuidance(){
         awake.setText(shortTapAwakeLabel);
@@ -133,12 +152,40 @@ public class RingActivity extends Activity {
     }
     private SpannableString snoozeLabel(String time,String title,int minutes){
         int percent=AlarmService.playbackPercent();String volume=percent<0?"Phone alarm volume":"Phone alarm volume · about "+percent+"%";
-        SpannableString label=new SpannableString("Rouse\n\n"+time+"\n"+title+"\n\nSnooze\n"+minutes+" minutes\n"+volume);size(label,"Rouse",14);size(label,time,56);size(label,title,18);size(label,"Snooze",38);size(label,minutes+" minutes",16);size(label,volume,13);return label;
+        if(curlPose==null&&!compactLargeText()){
+            SpannableString original=new SpannableString("Rouse\n\n"+time+"\n"+title+"\n\nSnooze\n"+minutes+" minutes\n"+volume);
+            size(original,"Rouse",14);size(original,time,56);size(original,title,18);size(original,"Snooze",38);size(original,minutes+" minutes",16);size(original,volume,13);return original;
+        }
+        String art=curlPose==null?"\n":"\n\uFFFC\n";
+        SpannableString label=new SpannableString("Rouse\n"+time+"\n"+title+art+"Snooze\n"+minutes+" minutes\n"+volume);size(label,"Rouse",14);size(label,time,56);size(label,title,18);size(label,"Snooze",38);size(label,minutes+" minutes",16);size(label,volume,13);poseSpan(label,curlPose,true);return label;
     }
     private SpannableString awakeText(String hint){
-        SpannableString label=new SpannableString("I’m up\n\nStart my day\n\n"+hint);
+        if(yawnPose==null&&!compactLargeText()){
+            SpannableString original=new SpannableString("I’m up\n\nStart my day\n\n"+hint);
+            size(original,"I’m up",44);size(original,"Start my day",18);size(original,hint,20);return original;
+        }
+        String art=yawnPose==null?"\n":"\n\uFFFC\n";
+        SpannableString label=new SpannableString("I’m up"+art+"Start my day\n"+hint);poseSpan(label,yawnPose,false);
         size(label,"I’m up",44);size(label,"Start my day",18);size(label,hint,20);
         return label;
+    }
+    private SpannableString testAwakeText(){
+        if(yawnPose==null&&!compactLargeText())return new SpannableString("Stop test alarm");
+        String art=yawnPose==null?"\n":"\n\uFFFC\n";
+        SpannableString label=new SpannableString("Stop test alarm"+art+"Tap to stop");
+        size(label,"Stop test alarm",32);size(label,"Tap to stop",20);poseSpan(label,yawnPose,false);return label;
+    }
+    private void poseSpan(SpannableString label,Bitmap bitmap,boolean snoozePose){
+        int index=label.toString().indexOf('\uFFFC');if(bitmap==null||index<0)return;
+        int halfHeight=getResources().getDisplayMetrics().heightPixels/2;
+        // Leave room for every label plus the status/navigation insets on compact phones.
+        float fontScale=Math.max(1f,getResources().getConfiguration().fontScale);
+        int reserve=dp((snoozePose?255:225)+Math.round((fontScale-1f)*(snoozePose?60:35)));
+        int height=Math.min(dp(snoozePose?150:170),Math.max(dp(48),halfHeight-reserve));
+        int width=Math.min(getResources().getDisplayMetrics().widthPixels-dp(48),Math.round(height*(float)bitmap.getWidth()/bitmap.getHeight()));
+        height=Math.max(1,Math.round(width*(float)bitmap.getHeight()/bitmap.getWidth()));
+        BitmapDrawable drawable=new BitmapDrawable(getResources(),bitmap);drawable.setBounds(0,0,width,height);
+        label.setSpan(new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM),index,index+1,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     private void size(SpannableString label,String part,int sp){int start=label.toString().indexOf(part);if(start>=0)label.setSpan(new AbsoluteSizeSpan(sp,true),start,start+part.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);}
     private Button button(CharSequence label,String action,int background,int text){
@@ -156,5 +203,5 @@ public class RingActivity extends Activity {
     @Override protected void onPause(){cancelDismissHold();resetAssistiveSelection();super.onPause();}
     @Override public void onWindowFocusChanged(boolean focused){super.onWindowFocusChanged(focused);if(!focused)cancelDismissHold();}
     @Override protected void onStop(){if(clockTick!=null)ui.removeCallbacks(clockTick);super.onStop();}
-    @Override protected void onDestroy(){ui.removeCallbacksAndMessages(null);if(receiverRegistered){unregisterReceiver(done);receiverRegistered=false;}super.onDestroy();}
+    @Override protected void onDestroy(){ui.removeCallbacksAndMessages(null);if(receiverRegistered){unregisterReceiver(done);receiverRegistered=false;}if(snooze!=null)snooze.setText("");if(awake!=null)awake.setText("");awakeLabel=null;armedAwakeLabel=null;shortTapAwakeLabel=null;if(curlPose!=null){curlPose.recycle();curlPose=null;}if(yawnPose!=null){yawnPose.recycle();yawnPose=null;}super.onDestroy();}
 }
