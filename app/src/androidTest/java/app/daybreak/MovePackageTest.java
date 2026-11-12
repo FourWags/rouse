@@ -44,6 +44,15 @@ public class MovePackageTest extends Instrumentation {
                 .putString("previousPlayback",new JSONObject().put("volume",100).put("fade",0).toString()).commit();
             char[] password="synthetic-move-password-24".toCharArray();
             try(FileOutputStream saved=new FileOutputStream(packageFile)){MovePackage.exportTo(c,saved,password);}
+            try(FileInputStream saved=new FileInputStream(packageFile)){
+                byte[] header=new byte[8];if(saved.read(header)!=8||!"WAGRISE\n".equals(new String(header,StandardCharsets.US_ASCII)))
+                    throw new AssertionError("New move package has the wrong brand header.");
+            }
+            JSONObject settings=new JSONObject(SettingsTransfer.exportJson(c));
+            if(!"WagRise".equals(settings.getString("app")))throw new AssertionError("Settings export kept an old app name.");
+            for(String older:new String[]{"Rouse","Petal Wake"}){
+                settings.put("app",older);SettingsTransfer.validateJson(c,settings.toString());
+            }
             if(contains(packageFile,url)||contains(packageFile,extraUrl))throw new AssertionError("Calendar link leaked into encrypted package.");
             clear(c);
             boolean wrongFailed=false;
@@ -72,7 +81,7 @@ public class MovePackageTest extends Instrumentation {
             if(!restoredHistory)throw new AssertionError("Alarm history was not restored.");
             boolean existingRejected=false;try(FileInputStream input=new FileInputStream(packageFile)){MovePackage.importFrom(c,input,password);}catch(Exception expected){existingRejected=true;}
             if(!existingRejected||!url.equals(Store.url(c)))throw new AssertionError("Restore overwrote existing app data.");
-            File[] leftovers=c.getCacheDir().listFiles();if(leftovers!=null)for(File file:leftovers)if(file.getName().startsWith("rouse-move-"))throw new AssertionError("Private restore staging was left behind.");
+            File[] leftovers=c.getCacheDir().listFiles();if(leftovers!=null)for(File file:leftovers)if(file.getName().startsWith("wagrise-move-")||file.getName().startsWith("rouse-move-"))throw new AssertionError("Private restore staging was left behind.");
             Arrays.fill(password,'\0');result.putString("summary","encrypted synthetic multi-calendar, personal alarm, history, copied and linked audio, and "+(largePack?"full-size":"compact")+" orchestra pack round trip; wrong password and damaged package rejected; existing data protected");finish(Activity.RESULT_OK,result);
         }catch(Throwable error){result.putString("error",error.toString());finish(Activity.RESULT_CANCELED,result);}
         finally{packageFile.delete();damagedFile.delete();}

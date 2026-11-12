@@ -1,6 +1,6 @@
 package app.daybreak;
 
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 import android.app.*;
 import android.content.*;
 import android.net.Uri;
@@ -126,12 +126,12 @@ public final class Scheduler {
         return olderMiss;
     }
     static void failureNotice(Context c){
-        Store.error(c,"An alarm could not start. Check Rouse and Android alarm permissions.");
+        Store.error(c,"An alarm could not start. Check WagRise and Android alarm permissions.");
         try{
             NotificationManager manager=c.getSystemService(NotificationManager.class);
             PendingIntent open=PendingIntent.getActivity(c,204,new Intent(c,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-            manager.notify(204,new Notification.Builder(c,"alarm_readiness").setSmallIcon(R.drawable.ic_alarm_notification).setContentTitle("Rouse alarm needs attention")
-                .setContentText("An alarm could not start. Open Rouse to check it.").setContentIntent(open).setAutoCancel(true).setVisibility(Notification.VISIBILITY_PRIVATE).build());
+            manager.notify(204,new Notification.Builder(c,"alarm_readiness").setSmallIcon(R.drawable.ic_alarm_notification).setContentTitle("WagRise alarm needs attention")
+                .setContentText("An alarm could not start. Open WagRise to check it.").setContentIntent(open).setAutoCancel(true).setVisibility(Notification.VISIBILITY_PRIVATE).build());
         }catch(RuntimeException ignored){}
     }
     public static synchronized String snooze(Context c,JSONObject alarm,java.util.function.BooleanSupplier cancelled)throws Exception {

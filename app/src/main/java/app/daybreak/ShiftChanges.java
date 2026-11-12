@@ -1,6 +1,6 @@
 package app.daybreak;
 
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -61,7 +61,7 @@ public final class ShiftChanges {
             JSONObject change=changes.optJSONObject(i);if(change!=null)AlarmHistory.change(c,change.optString("event"),change.optLong("at"),change.optLong("to"));
         }
         JSONObject first=changes.optJSONObject(0);
-        String detail="Open Rouse to review the new wake-up times.";
+        String detail="Open WagRise to review the new wake-up times.";
         if(changes.length()==1&&first!=null){
             DateFormat format=DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT);
             String event=first.optString("event");

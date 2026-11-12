@@ -1,6 +1,6 @@
 package app.daybreak;
 
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 import android.app.*;
 import android.content.*;
 import android.media.AudioManager;
@@ -29,7 +29,7 @@ public class ConfidenceTest extends Instrumentation {
  private void update()throws Exception{js("send('state')");Thread.sleep(150);}
  private void capture(String name)throws Exception{Thread.sleep(300);var b=getUiAutomation().takeScreenshot();var dir=new File(c.getFilesDir(),"qa");dir.mkdirs();try(var out=new FileOutputStream(new File(dir,"confidence-"+name+".png"))){b.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out);}b.recycle();}
  @Override public void onStart(){Bundle result=new Bundle();try{
-  c=getTargetContext();String day=LocalDate.now().plusDays(2).format(DateTimeFormatter.BASIC_ISO_DATE);String calendar="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Petal Wake Confidence QA//EN\r\nBEGIN:VEVENT\r\nUID:confidence\r\nDTSTART:"+day+"T120000Z\r\nDURATION:PT8H\r\nSUMMARY:Private work fixture\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
+  c=getTargetContext();String day=LocalDate.now().plusDays(2).format(DateTimeFormatter.BASIC_ISO_DATE);String calendar="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//WagRise Confidence QA//EN\r\nBEGIN:VEVENT\r\nUID:confidence\r\nDTSTART:"+day+"T120000Z\r\nDURATION:PT8H\r\nSUMMARY:Private work fixture\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
   URL.setURLStreamHandlerFactory(protocol->!"https".equals(protocol)?null:new URLStreamHandler(){protected URLConnection openConnection(URL url){return new HttpURLConnection(url){public void connect(){}public void disconnect(){}public boolean usingProxy(){return false;}public int getResponseCode(){return code;}public InputStream getInputStream(){return new ByteArrayInputStream(calendar.getBytes(StandardCharsets.UTF_8));}};}});
   io(()->{var scheduled=Store.object(c,"scheduled");for(var ids=scheduled.keys();ids.hasNext();)Scheduler.cancel(c,ids.next());Store.p(c).edit().clear().putString("appearance","violet").putString("iconDesign","petal").putBoolean("enabled",true).putInt("lead",90).putInt("volume",100).putInt("fade",60).putBoolean("vibrate",true).putInt("playbackRevision",1).commit();Appearance.syncLauncher(c);try{Sync.connect(c,"https://fixture.invalid/private-token.ics");}catch(Exception e){throw new RuntimeException(e);}});launch();
   check(CalendarConfidence.snapshot(c).getString("status").equals("fresh")&&Store.object(c,"scheduled").length()==1,"Successful download records confidence and schedules the fixture shift");

@@ -40,7 +40,7 @@ public final class CustomSounds {
         throw new IOException("A linked sound is unavailable. Reconnect it before saving a move package.");
     }
     static void restoreCopies(Context c,JSONArray rows,File staged)throws Exception{
-        if(saved(c).length()!=0)throw new IOException("Restore on a new Rouse setup without personal sounds.");
+        if(saved(c).length()!=0)throw new IOException("Restore on a new WagRise setup without personal sounds.");
         if(rows.length()==0)return;
         File directory=folder(c);
         if(!directory.isDirectory()&&!directory.mkdirs())throw new IOException("Could not prepare personal sound storage.");

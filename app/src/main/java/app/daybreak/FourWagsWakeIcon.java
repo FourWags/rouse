@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 
 /** First-launch choice only; AlarmService schedules and stored settings stay unchanged. */
 @SuppressLint("ApplySharedPref")

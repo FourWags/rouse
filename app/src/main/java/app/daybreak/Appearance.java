@@ -1,6 +1,6 @@
 package app.daybreak;
 
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 import android.content.*;
 import android.content.pm.*;
 import android.graphics.Color;

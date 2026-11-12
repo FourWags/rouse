@@ -1,6 +1,6 @@
 package app.daybreak;
 
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 import android.app.*;
 import android.content.*;
 import android.net.Uri;
@@ -41,9 +41,9 @@ public final class SnoozeNotice {
         String time=DateFormat.getTimeInstance(DateFormat.SHORT).format(new java.util.Date(next.optLong("at")));
         String text=count==1?"Snoozed until "+time:"Next of "+count+" snoozes at "+time;
         Notification publicVersion=new Notification.Builder(c,CHANNEL).setSmallIcon(R.drawable.ic_alarm_notification)
-            .setContentTitle("Rouse snooze active").setContentText("Open Rouse to review").build();
+            .setContentTitle("WagRise snooze active").setContentText("Open WagRise to review").build();
         Notification notice=new Notification.Builder(c,CHANNEL).setSmallIcon(R.drawable.ic_alarm_notification)
-            .setColor(Appearance.current(c).accent).setContentTitle("Rouse snooze active")
+            .setColor(Appearance.current(c).accent).setContentTitle("WagRise snooze active")
             .setContentText(text).setCategory(Notification.CATEGORY_STATUS).setVisibility(Notification.VISIBILITY_PRIVATE)
             .setPublicVersion(publicVersion).setOnlyAlertOnce(true).setOngoing(true)
             .setContentIntent(review).addAction(new Notification.Action.Builder(null,"I’m up",review).build()).build();

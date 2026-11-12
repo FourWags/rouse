@@ -1,29 +1,25 @@
-# Rouse
+# WagRise
 
-Rouse means to awaken or stir into activity. The name fits an alarm that helps a workday begin gently.
+**Wake up with a dog by your side.** WagRise is a private Android alarm for workdays and personal plans. Connect a shared iCalendar feed to schedule work alarms, or set an alarm yourself. Choose from 28 illustrated dogs and mixes, then pick a coat: each of the 84 coats shapes the app's colors and appears as a resting or stretching companion on the two large alarm buttons. The original icon and color collection remains available.
 
-Rouse is an Android alarm app that schedules work wake-ups from shared iCalendar feeds and offers gentle recorded music and nature sounds. This source release is version **0.1.48** (Android version code 49), with selectable dog-inspired color themes and artwork on the two large alarm controls.
+WagRise includes gentle recorded orchestral music, standard tones, and nature sounds. You can import your own audio, add the optional orchestra pack, set the Android alarm volume and gradual rise, and test the actual alarm path. Calendar links and alarm data stay on your phone; there is no WagRise account, analytics, or advertising. See [README.txt](README.txt) for setup and limits.
 
-Check the [GitHub releases page](https://github.com/FourWags/rouse/releases) for the published APK and verification notes. The compatible optional orchestra pack remains available from the [v0.1.23 release](https://github.com/FourWags/rouse/releases/tag/v0.1.23).
-
-See [README.txt](README.txt) for setup, calendar sharing, features, practical limits, and testing notes. Four Wags original materials are proprietary; see [LICENSE](LICENSE). Third-party terms and audio provenance are in [THIRD_PARTY_COMPONENTS.md](THIRD_PARTY_COMPONENTS.md), [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt), and [CREDITS.txt](CREDITS.txt).
+This source release is **0.1.49 Preview** (Android version code 50). Download the signed APK and see its actual test results on [GitHub releases](https://github.com/FourWags/wagrise/releases). The compatible [optional orchestra pack](https://github.com/FourWags/wagrise/releases/tag/v0.1.23) is separate.
 
 ## Obtainium
 
-Source: `https://github.com/FourWags/rouse`
+Source: `https://github.com/FourWags/wagrise`
 
-APK filename filter: `^petal-wake\.apk$`
+APK filename filter: `^petal-wake\.apk$` (kept for existing Obtainium subscriptions)
 
-Android package: `app.daybreak`
+Android package: `app.daybreak` (kept so existing installs and data update in place)
 
 Signing certificate SHA-256: `386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4`
 
-Obtainium detects published releases. Updating the app requires a new APK signed with the same key and a higher version code. Signing keys, calendar links, pairing tokens, and personal app data are not published.
+Obtainium detects published releases. An update needs a higher version code and the same signing key. The key, private calendar links, and personal app data are never published.
 
-## Build
+## Build and rights
 
-Install JDK 17 and the Android SDK for API 35, set up the SDK path through `ANDROID_HOME` or a local `local.properties`, and run `./gradlew assembleRelease`. The release variant is non-debuggable and uses the existing update certificate to preserve in-place Obtainium updates, including Android 8. The signing key is kept outside this repository. See [RELEASE_SIGNING.md](RELEASE_SIGNING.md). [VALIDATION.txt](VALIDATION.txt) records completed checks and limits. Use `tools/check-update-continuity.sh` to compare an APK against the previous version before distributing it.
+Build with JDK 17 and Android SDK API 35 using `./gradlew assembleRelease`. The release variant is non-debuggable and uses the existing update certificate kept outside the repository. See [RELEASE_SIGNING.md](RELEASE_SIGNING.md) and [VALIDATION.txt](VALIDATION.txt).
 
-## Credits
-
-See [CREDITS.txt](CREDITS.txt) for original authors, upstream projects, recording and model creators, and applicable licenses. Original copyright notices remain in the source and app assets. No upstream endorsement is implied.
+Four Wags' original materials are proprietary; see [LICENSE](LICENSE). Third-party terms and audio provenance are in [THIRD_PARTY_COMPONENTS.md](THIRD_PARTY_COMPONENTS.md), [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt), and [CREDITS.txt](CREDITS.txt). No upstream endorsement is implied.

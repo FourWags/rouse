@@ -92,7 +92,7 @@ final class MoveRestoreJournal {
                 default: throw new IOException("Invalid restore preference recovery record.");
             }
         }
-        if (!editor.commit()) throw new IOException("Restore recovery could not save settings. Free storage and reopen Rouse to retry.");
+        if (!editor.commit()) throw new IOException("Restore recovery could not save settings. Free storage and reopen WagRise to retry.");
         // Treat completed rollback like commit before disposing of immutable backup data.
         committed(c);
         blocked = false;
@@ -123,7 +123,7 @@ final class MoveRestoreJournal {
             File[] children = file.listFiles(); if (children == null) throw new IOException("Could not read restore storage.");
             for (File child : children) remove(child);
         }
-        if (!file.delete()) throw new IOException("Could not clean restore storage. Free storage and reopen Rouse to retry.");
+        if (!file.delete()) throw new IOException("Could not clean restore storage. Free storage and reopen WagRise to retry.");
     }
     private MoveRestoreJournal() { }
 }

@@ -1,6 +1,6 @@
 package app.daybreak;
 
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 import android.app.*;
 import android.content.*;
 import android.os.*;
@@ -31,7 +31,7 @@ public class QuietFocusTest extends Instrumentation {
   check(!state.getBoolean("overflow")&&state.getJSONArray("buttons").length()==0,"No horizontal overflow and all visible buttons have 44px targets: "+page+" at "+state.getInt("width")+"px");
  }
  @Override public void onStart(){Bundle result=new Bundle();try{
-  Context c=getTargetContext();io(()->{Store.p(c).edit().putBoolean("enabled",true).putInt("lead",90).putString("appearance","violet").putString("iconDesign","petal").remove("customThemes").commit();Appearance.syncLauncher(c);Store.put(c,"skipped",new JSONObject());try{long base=System.currentTimeMillis()+86400000;StringBuilder ics=new StringBuilder("BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Petal Wake QA//EN\r\n");for(int n=0;n<5;n++)ics.append("BEGIN:VEVENT\r\nUID:quiet-").append(n).append("\r\nDTSTART:").append(stamp(base+n*86400000L)).append("\r\nDURATION:PT8H\r\nSUMMARY:").append(n==4?"A long work shift title to check wrapping on compact screens":"Work shift").append("\r\nEND:VEVENT\r\n");ics.append("END:VCALENDAR\r\n");Sync.importFile(c,ics.toString());}catch(Exception e){throw new RuntimeException(e);}});
+  Context c=getTargetContext();io(()->{Store.p(c).edit().putBoolean("enabled",true).putInt("lead",90).putString("appearance","violet").putString("iconDesign","petal").remove("customThemes").commit();Appearance.syncLauncher(c);Store.put(c,"skipped",new JSONObject());try{long base=System.currentTimeMillis()+86400000;StringBuilder ics=new StringBuilder("BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//WagRise QA//EN\r\n");for(int n=0;n<5;n++)ics.append("BEGIN:VEVENT\r\nUID:quiet-").append(n).append("\r\nDTSTART:").append(stamp(base+n*86400000L)).append("\r\nDURATION:PT8H\r\nSUMMARY:").append(n==4?"A long work shift title to check wrapping on compact screens":"Work shift").append("\r\nEND:VEVENT\r\n");ics.append("END:VCALENDAR\r\n");Sync.importFile(c,ics.toString());}catch(Exception e){throw new RuntimeException(e);}});
   activity=startActivitySync(new Intent(c,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));await(()->{runOnMainSync(()->web=find(activity.findViewById(android.R.id.content)));return web!=null;},15);await(()->"true".equals(js("!!st&&st.shifts.length===5")),15);
   check("true".equals(js("(()=>{const nav=document.querySelector('.rail-nav'),main=document.querySelector('.shell>main'),n=nav.getBoundingClientRect(),m=main.getBoundingClientRect();return getComputedStyle(nav).flexDirection==='column'&&n.top<=1&&n.bottom>=innerHeight-1&&m.left>=n.right-1&&nav.querySelector('[data-page=today]').getAttribute('aria-current')==='page'})()")),"Schedule Rail remains visible beside content and marks the active page");
   check("true".equals(js("document.querySelector('.alarm-time')&&document.querySelector('.hero-work').textContent.includes('90 minutes')&&getComputedStyle(document.querySelector('.hero')).backgroundImage==='none'")),"Schedule Rail hero shows the real next alarm and lead time without decorative background");

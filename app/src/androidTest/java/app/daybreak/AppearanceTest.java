@@ -1,6 +1,6 @@
 package app.daybreak;
 
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 import android.app.*;
 import android.content.*;
 import android.content.pm.*;
@@ -29,7 +29,7 @@ public class AppearanceTest extends Instrumentation {
         js("document.querySelector('.icon-option[data-icon="+shape+"]').click()");
         await(()->Appearance.icon(getTargetContext()).equals(shape)&&"true".equals(js("document.documentElement.dataset.profile==='"+p.id+"'&&document.documentElement.dataset.icon==='"+shape+"'")),5);
     }
-    private boolean launcherMatches(Appearance p,String shape){Context c=getTargetContext();var entries=c.getPackageManager().queryIntentActivities(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setPackage(c.getPackageName()),0);return entries.size()==1&&entries.get(0).activityInfo.name.equals("app.daybreak."+p.launcher(shape))&&p.iconResource(c,shape)!=0&&entries.get(0).activityInfo.getIconResource()==p.iconResource(c,shape);}
+    private boolean launcherMatches(Appearance p,String shape){Context c=getTargetContext();var entries=c.getPackageManager().queryIntentActivities(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setPackage(c.getPackageName()),0);return entries.size()==1&&entries.get(0).activityInfo.name.equals("app.daybreak."+p.launcher(shape))&&"WagRise".contentEquals(entries.get(0).loadLabel(c.getPackageManager()))&&p.iconResource(c,shape)!=0&&entries.get(0).activityInfo.getIconResource()==p.iconResource(c,shape);}
     private boolean renderedMatches(Appearance p,String shape)throws Exception{
         String rgb="rgb("+Color.red(p.background)+", "+Color.green(p.background)+", "+Color.blue(p.background)+")";
         String script="getComputedStyle(document.documentElement).backgroundColor==='"+rgb+"'&&getComputedStyle(document.documentElement).colorScheme==='"+(p.dark?"dark":"light")+"'&&document.getElementById('brandMark').getAttribute('src')===iconPath('"+p.id+"','"+shape+"')&&document.querySelectorAll('.theme-option[aria-pressed=true]').length===1&&document.querySelectorAll('.icon-option[aria-pressed=true]').length===1&&Array.from(document.querySelectorAll('.icon-option img')).every(i=>i.getAttribute('src')===iconPath('"+p.id+"',i.closest('.icon-option').dataset.icon))&&Array.from(document.querySelectorAll('.theme-option img')).every(i=>i.getAttribute('src')===iconPath(i.closest('.theme-option').dataset.profile,'"+shape+"'))";
@@ -40,6 +40,10 @@ public class AppearanceTest extends Instrumentation {
     private Map<String,Object> preserved(Context c){Map<String,?> all=Store.p(c).getAll();Map<String,Object> selected=new HashMap<>();for(String key:new String[]{"url","source","enabled","lead","filter","snooze","volume","fade","vibrate","sound","allDayEnabled","allDayMinutes","manual","scheduled","snoozes"})selected.put(key,all.get(key));return selected;}
     @Override public void onStart(){Bundle result=new Bundle();try{
         Context c=getTargetContext();FourWagsWakeIcon.skip(c);launch();
+        check("WagRise".contentEquals(c.getApplicationInfo().loadLabel(c.getPackageManager()))
+            && "\"WagRise\"".equals(js("document.title"))
+            && "true".equals(js("document.querySelector('.footer-note').textContent.includes('WAGRISE')")),
+            "WagRise appears in Android and the app interface");
         boolean preservedUpgrade=Appearance.current(c)==Appearance.ROSE&&Appearance.icon(c).equals("petal");
         boolean freshDefault="shiba_black_tan".equals(Appearance.current(c).id)&&"wr_s2".equals(Appearance.icon(c));
         check(preservedUpgrade||freshDefault,"Upgrade preserves its old icon; new installs default to S2 Quiet Ripples");

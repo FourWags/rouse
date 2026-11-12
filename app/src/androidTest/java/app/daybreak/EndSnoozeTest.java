@@ -41,7 +41,7 @@ public final class EndSnoozeTest extends Instrumentation {
             screen=(MainActivity)startActivitySync(new Intent(c,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             long deadline=System.currentTimeMillis()+10_000L;
             while(web==null&&System.currentTimeMillis()<deadline){runOnMainSync(()->web=find(screen.findViewById(android.R.id.content)));Thread.sleep(50);}
-            if(web==null)throw new Exception("Rouse home screen did not load");
+            if(web==null)throw new Exception("WagRise home screen did not load");
             while(!"true".equals(js("!!st&&!!st.snoozes['"+FIRST+"']&&!$('snoozeBanner').hidden&&!$('endSnooze').disabled"))&&System.currentTimeMillis()<deadline)Thread.sleep(50);
             if(!"true".equals(js("$('endSnooze').textContent.includes('End snooze')&&!!document.querySelector('#manualList [data-alarm-action=endSnooze]')")))
                 throw new Exception("Snooze ending controls are missing from the home screen");
@@ -112,7 +112,7 @@ public final class EndSnoozeTest extends Instrumentation {
     private String js(String script)throws Exception{
         CountDownLatch latch=new CountDownLatch(1);String[] result={null};
         runOnMainSync(()->web.evaluateJavascript(script,value->{result[0]=value;latch.countDown();}));
-        if(!latch.await(5,TimeUnit.SECONDS))throw new Exception("Rouse home screen did not respond");
+        if(!latch.await(5,TimeUnit.SECONDS))throw new Exception("WagRise home screen did not respond");
         return result[0];
     }
 }

@@ -23,9 +23,11 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-/** Password-encrypted, phone-independent transfer of Rouse's user data. */
+/** Password-encrypted, phone-independent transfer of WagRise's user data. */
 public final class MovePackage {
-    private static final byte[] MAGIC="ROUSEM2\n".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] MAGIC="WAGRISE\n".getBytes(StandardCharsets.US_ASCII);
+    // Existing phone-to-phone packages keep their original authenticated header.
+    private static final byte[] LEGACY_MAGIC="ROUSEM2\n".getBytes(StandardCharsets.US_ASCII);
     private static final int ITERATIONS=310_000,MAX_JSON=32_000_000;
     private static final long MAX_ARCHIVE=675_000_000L,MAX_AUDIO=100_000_000L,MAX_AUDIO_TOTAL=500_000_000L,MAX_PACK_FILE=4_000_000L;
     private static final String DATA="data.json";
@@ -66,20 +68,20 @@ public final class MovePackage {
 
     public static synchronized void importFrom(Context c,InputStream in,char[] password)throws Exception{
         checkPassword(password);
-        if (MoveRestoreJournal.blocked) throw new IOException("Restore recovery is pending. Reopen Rouse to retry.");
-        if(!empty(c))throw new IOException("Restore on a new Rouse setup. This phone already has calendars, personal alarms, or personal sounds.");
-        File encrypted=new File(c.getCacheDir(),"rouse-move-"+UUID.randomUUID()+".enc");
-        File archive=new File(c.getCacheDir(),"rouse-move-"+UUID.randomUUID()+".zip");
-        File stage=new File(c.getCacheDir(),"rouse-move-"+UUID.randomUUID());
+        if (MoveRestoreJournal.blocked) throw new IOException("Restore recovery is pending. Reopen WagRise to retry.");
+        if(!empty(c))throw new IOException("Restore on a new WagRise setup. This phone already has calendars, personal alarms, or personal sounds.");
+        File encrypted=new File(c.getCacheDir(),"wagrise-move-"+UUID.randomUUID()+".enc");
+        File archive=new File(c.getCacheDir(),"wagrise-move-"+UUID.randomUUID()+".zip");
+        File stage=new File(c.getCacheDir(),"wagrise-move-"+UUID.randomUUID());
         try{
             byte[] magic=readExact(in,MAGIC.length);
-            if(!Arrays.equals(magic,MAGIC))throw new IOException("Choose a Rouse move package.");
+            if(!Arrays.equals(magic,MAGIC)&&!Arrays.equals(magic,LEGACY_MAGIC))throw new IOException("Choose a WagRise move package.");
             byte[] salt=readExact(in,16),iv=readExact(in,16);
             try(FileOutputStream target=new FileOutputStream(encrypted)){copy(in,target,MAX_ARCHIVE+32);target.getFD().sync();}
             long length=encrypted.length();if(length<=32)throw new IOException("The move package is incomplete.");
             Keys keys=keys(password,salt);Mac mac;Cipher cipher;
             try{
-            mac=mac(keys.mac);mac.update(MAGIC);mac.update(salt);mac.update(iv);
+            mac=mac(keys.mac);mac.update(magic);mac.update(salt);mac.update(iv);
             byte[] actual;
             try(FileInputStream source=new FileInputStream(encrypted)){
                 byte[] buffer=new byte[32768];long remaining=length-32;int n;
@@ -96,9 +98,9 @@ public final class MovePackage {
             }
             if(!stage.mkdirs())throw new IOException("Could not prepare private restore storage.");
             Prepared prepared=prepare(c,archive,stage);
-            if(!empty(c))throw new IOException("Rouse data changed while the package was being checked. Restore was cancelled.");
+            if(!empty(c))throw new IOException("WagRise data changed while the package was being checked. Restore was cancelled.");
             synchronized (Scheduler.class) {
-                if (!empty(c)) throw new IOException("Rouse data changed while the package was being checked. Restore was cancelled.");
+                if (!empty(c)) throw new IOException("WagRise data changed while the package was being checked. Restore was cancelled.");
                 restoring = true;
                 try {
                     Set<String> paths = new LinkedHashSet<>();
@@ -116,7 +118,7 @@ public final class MovePackage {
                         try { MoveRestoreJournal.recover(c); }
                         catch (Exception recovery) {
                             failure.addSuppressed(recovery);
-                            throw new IOException("Restore recovery is pending. Free storage and reopen Rouse; saved recovery data is kept.", failure);
+                            throw new IOException("Restore recovery is pending. Free storage and reopen WagRise; saved recovery data is kept.", failure);
                         }
                         throw new IOException("Restore could not finish. Previous settings were restored; retry the original move package.", failure);
                     }
@@ -133,7 +135,7 @@ public final class MovePackage {
                     Sync.run(c, false);
                     Readiness.update(c);
                 } catch (Exception unavailable) {
-                    Store.error(c, "Move data restored. Reopen Rouse and check alarm readiness and phone alarm volume.");
+                    Store.error(c, "Move data restored. Reopen WagRise and check alarm readiness and phone alarm volume.");
                 }
             }
         }finally{deleteTree(stage);archive.delete();encrypted.delete();}
@@ -146,7 +148,7 @@ public final class MovePackage {
     /** Clear abandoned plaintext staging after a crash before any user action. */
     static void clearAbandoned(Context c){
         File[] files=c.getCacheDir().listFiles();if(files==null)return;
-        for(File file:files)if(file.getName().startsWith("rouse-move-"))deleteTree(file);
+        for(File file:files)if(file.getName().startsWith("wagrise-move-")||file.getName().startsWith("rouse-move-"))deleteTree(file);
     }
 
     private static JSONObject snapshot(Context c)throws Exception{
@@ -160,7 +162,7 @@ public final class MovePackage {
         int percent=max>0?Math.round(level*100f/max):100;
         JSONObject settings=new JSONObject(SettingsTransfer.exportJson(c));
         settings.getJSONObject("settings").put("sound",SoundLibrary.playable(c));
-        return new JSONObject().put("format","Rouse move").put("schema",1).put("settings",settings)
+        return new JSONObject().put("format","WagRise move").put("schema",1).put("settings",settings)
             .put("source",p.getString("source","")).put("primaryUrl",Store.url(c)).put("primaryName",p.getString("primaryName","Work calendar"))
             .put("primaryCache",Store.cache(c)).put("extraCalendars",new JSONArray(extra.toString())).put("extraCaches",caches)
             .put("manual",futureManual(Store.object(c,"manual"))).put("skipped",Store.object(c,"skipped"))
@@ -185,7 +187,8 @@ public final class MovePackage {
                 copy(stream,bytes,MAX_JSON);json=bytes.toString(StandardCharsets.UTF_8.name());
             }
             JSONObject data=new JSONObject(json);
-            if(!"Rouse move".equals(data.optString("format"))||data.optInt("schema")!=1)throw new IOException("This Rouse move package version is not supported.");
+            String format=data.optString("format");
+            if(!("WagRise move".equals(format)||"Rouse move".equals(format))||data.optInt("schema")!=1)throw new IOException("This WagRise move package version is not supported.");
             SettingsTransfer.validateJson(c,data.getJSONObject("settings").toString());
             JSONObject prior=data.optJSONObject("previousPlayback");
             if(data.getJSONObject("settings").getJSONObject("settings").optBoolean("quietPreset",false)

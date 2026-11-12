@@ -1,6 +1,6 @@
 package app.daybreak;
 
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 import android.app.*;
 import android.content.*;
 import android.content.pm.ServiceInfo;
@@ -30,7 +30,7 @@ public class AlarmService extends Service {
     @Override public void onCreate(){super.onCreate();active=this;}
     public static int playbackPercent(){AlarmService service=active;if(service==null||service.player==null||service.audio==null)return -1;int maximum=service.audio.getStreamMaxVolume(AudioManager.STREAM_ALARM);return maximum<=0?-1:Math.round(100f*service.audio.getStreamVolume(AudioManager.STREAM_ALARM)/maximum);}
     @Override protected void dump(FileDescriptor fd,PrintWriter writer,String[] args){
-        writer.println("Rouse alarm volume");writer.println("elapsedMs="+(playbackBegan==0?0:SystemClock.elapsedRealtime()-playbackBegan));writer.println("riseSeconds="+fadeSeconds);writer.println("currentAlarmStep="+(audio==null?-1:audio.getStreamVolume(AudioManager.STREAM_ALARM)));writer.println("displayedPercent="+playbackPercent());
+        writer.println("WagRise alarm volume");writer.println("elapsedMs="+(playbackBegan==0?0:SystemClock.elapsedRealtime()-playbackBegan));writer.println("riseSeconds="+fadeSeconds);writer.println("currentAlarmStep="+(audio==null?-1:audio.getStreamVolume(AudioManager.STREAM_ALARM)));writer.println("displayedPercent="+playbackPercent());
     }
     public static void createChannel(Context c){
         NotificationChannel ch=new NotificationChannel(CHANNEL,"Wake-up alarms",NotificationManager.IMPORTANCE_HIGH);
@@ -90,10 +90,10 @@ public class AlarmService extends Service {
         int count=Store.object(this,"ringing").length();
         boolean testOnly=count==1&&"test".equals(current.optString("kind"));
         String title=count>1?count+" alarms · "+current.optString("title","Time to wake up"):current.optString("title","Time to wake up");
-        String guidance=testOnly?"Test alarm sounding · open Rouse to stop it"
+        String guidance=testOnly?"Test alarm sounding · open WagRise to stop it"
             :RingActivity.usesAssistiveSelection(this)?(fallbackActive?"Backup alert sounding · select I’m up twice to dismiss":"Time to wake up · select I’m up twice to dismiss or Snooze")
             :(fallbackActive?"Backup alert sounding · hold I’m up to dismiss":"Time to wake up · hold I’m up to dismiss or tap Snooze");
-        return new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.ic_alarm_notification).setColor(Appearance.current(this).surface).setColorized(true).setOnlyAlertOnce(true).setContentTitle(title).setContentText(guidance).setCategory(Notification.CATEGORY_ALARM).setVisibility(Store.p(this).getBoolean("privateLockScreen",true)?Notification.VISIBILITY_PRIVATE:Notification.VISIBILITY_PUBLIC).setPublicVersion(new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.ic_alarm_notification).setContentTitle("Rouse alarm").setContentText("Alarm sounding").build()).setOngoing(true).setContentIntent(full).setFullScreenIntent(full,true)
+        return new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.ic_alarm_notification).setColor(Appearance.current(this).surface).setColorized(true).setOnlyAlertOnce(true).setContentTitle(title).setContentText(guidance).setCategory(Notification.CATEGORY_ALARM).setVisibility(Store.p(this).getBoolean("privateLockScreen",true)?Notification.VISIBILITY_PRIVATE:Notification.VISIBILITY_PUBLIC).setPublicVersion(new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.ic_alarm_notification).setContentTitle("WagRise alarm").setContentText("Alarm sounding").build()).setOngoing(true).setContentIntent(full).setFullScreenIntent(full,true)
             .build();
     }
     public static void appearanceChanged(){

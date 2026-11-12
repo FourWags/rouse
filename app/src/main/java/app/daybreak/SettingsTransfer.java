@@ -27,7 +27,7 @@ public final class SettingsTransfer {
                 .put("background",source.getString("background")).put("primary",source.getString("primary"))
                 .put("secondary",source.getString("secondary")).put("preferredText",source.getString("preferredText")));
         }
-        return new JSONObject().put("app","Rouse").put("schema",1).put("settings",settings).put("customThemes",themes).toString(2);
+        return new JSONObject().put("app","WagRise").put("schema",1).put("settings",settings).put("customThemes",themes).toString(2);
     }
 
     public static void validateJson(Context c,String text)throws Exception{validate(c,text);}
@@ -40,7 +40,8 @@ public final class SettingsTransfer {
         if(text==null||text.length()>262_144)throw new IllegalArgumentException("Settings file is too large.");
         JSONObject root=new JSONObject(text);
         String app=root.optString("app");
-        if(!("Rouse".equals(app)||"Petal Wake".equals(app))||root.optInt("schema")!=1)throw new IllegalArgumentException("Choose a Rouse settings file.");
+        // The export name changes; old settings files remain restorable.
+        if(!("WagRise".equals(app)||"Rouse".equals(app)||"Petal Wake".equals(app))||root.optInt("schema")!=1)throw new IllegalArgumentException("Choose a WagRise settings file.");
         JSONObject settings=root.getJSONObject("settings");
         JSONArray rawThemes=root.optJSONArray("customThemes"),themes=new JSONArray();
         if(rawThemes!=null){

@@ -142,7 +142,7 @@ def update_manifest(themes):
                 f'        <activity-alias android:name="{component}" '
                 'android:targetActivity="app.daybreak.LauncherActivity" '
                 'android:enabled="false" android:exported="true" '
-                f'android:icon="@mipmap/{resource}" android:label="Rouse">'
+                f'android:icon="@mipmap/{resource}" android:label="@string/app_name">'
                 '<intent-filter><action android:name="android.intent.action.MAIN" />'
                 '<category android:name="android.intent.category.LAUNCHER" /></intent-filter>'
                 '</activity-alias>')

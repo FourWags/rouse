@@ -153,11 +153,11 @@ public class RingActivity extends Activity {
     private SpannableString snoozeLabel(String time,String title,int minutes){
         int percent=AlarmService.playbackPercent();String volume=percent<0?"Phone alarm volume":"Phone alarm volume · about "+percent+"%";
         if(curlPose==null&&!compactLargeText()){
-            SpannableString original=new SpannableString("Rouse\n\n"+time+"\n"+title+"\n\nSnooze\n"+minutes+" minutes\n"+volume);
-            size(original,"Rouse",14);size(original,time,56);size(original,title,18);size(original,"Snooze",38);size(original,minutes+" minutes",16);size(original,volume,13);return original;
+            SpannableString original=new SpannableString("WagRise\n\n"+time+"\n"+title+"\n\nSnooze\n"+minutes+" minutes\n"+volume);
+            size(original,"WagRise",14);size(original,time,56);size(original,title,18);size(original,"Snooze",38);size(original,minutes+" minutes",16);size(original,volume,13);return original;
         }
         String art=curlPose==null?"\n":"\n\uFFFC\n";
-        SpannableString label=new SpannableString("Rouse\n"+time+"\n"+title+art+"Snooze\n"+minutes+" minutes\n"+volume);size(label,"Rouse",14);size(label,time,56);size(label,title,18);size(label,"Snooze",38);size(label,minutes+" minutes",16);size(label,volume,13);poseSpan(label,curlPose,true);return label;
+        SpannableString label=new SpannableString("WagRise\n"+time+"\n"+title+art+"Snooze\n"+minutes+" minutes\n"+volume);size(label,"WagRise",14);size(label,time,56);size(label,title,18);size(label,"Snooze",38);size(label,minutes+" minutes",16);size(label,volume,13);poseSpan(label,curlPose,true);return label;
     }
     private SpannableString awakeText(String hint){
         if(yawnPose==null&&!compactLargeText()){

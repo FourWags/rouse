@@ -38,7 +38,7 @@ public final class AccessibilityGuideTest extends Instrumentation {
             runOnMainSync(()->web=findWeb(activity.findViewById(android.R.id.content)));
             long deadline=System.currentTimeMillis()+15000;
             while (!"true".equals(js("typeof st==='object'&&st!==null&&!!st.settings"))) {
-                if (System.currentTimeMillis()>deadline) throw new Exception("Rouse did not load");
+                if (System.currentTimeMillis()>deadline) throw new Exception("WagRise did not load");
                 Thread.sleep(100);
             }
             String open="page('settings');document.querySelector('[data-settings-group=accessibility]').click();"

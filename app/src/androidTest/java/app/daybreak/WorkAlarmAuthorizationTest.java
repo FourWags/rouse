@@ -1,6 +1,6 @@
 package app.daybreak;
 
-import dev.fourwags.rouse.R;
+import dev.fourwags.wagrise.R;
 
 import android.app.*;
 import android.content.*;
@@ -30,7 +30,7 @@ public class WorkAlarmAuthorizationTest extends Instrumentation {
     @Override public void onStart(){Bundle result=new Bundle();try{
         c=getTargetContext();check(c.getSystemService(KeyguardManager.class).isDeviceSecure(),"Disposable emulator screen lock is configured");
         String day=LocalDate.now().plusDays(2).format(DateTimeFormatter.BASIC_ISO_DATE);
-        String calendar="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Petal Wake Auth QA//EN\r\nBEGIN:VEVENT\r\nUID:auth-qa\r\nDTSTART:"+day+"T120000Z\r\nDURATION:PT8H\r\nSUMMARY:Authentication work fixture\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
+        String calendar="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//WagRise Auth QA//EN\r\nBEGIN:VEVENT\r\nUID:auth-qa\r\nDTSTART:"+day+"T120000Z\r\nDURATION:PT8H\r\nSUMMARY:Authentication work fixture\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
         io(()->{try{for(var ids=Store.object(c,"scheduled").keys();ids.hasNext();)Scheduler.cancel(c,ids.next());Store.p(c).edit().clear().putBoolean("enabled",true).putInt("playbackRevision",1).commit();Sync.importFile(c,calendar);String id="manual:auth-qa";Store.put(c,"manual",new JSONObject().put(id,new JSONObject().put("id",id).put("kind","manual").put("title","Personal QA").put("at",System.currentTimeMillis()+3*86400000L)));Sync.run(c,false);}catch(Exception e){throw new RuntimeException(e);}});
         activity=startActivitySync(new Intent(c,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));runOnMainSync(()->web=find(activity.findViewById(android.R.id.content)));await(()->"true".equals(js("!!st&&st.settings.enabled")),15);
         String armed=Store.object(c,"scheduled").toString();check(Store.object(c,"scheduled").length()==2,"Fixture work and personal alarms are scheduled");
