@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="dog_howl_bg_husky">#364047</color>
+    <color name="dog_howl_bg_golden">#F0D39A</color>
+    <color name="dog_howl_bg_border">#191E21</color>
+    <color name="dog_howl_bg_dalmatian">#F4F2EB</color>
+    <color name="dog_howl_bg_aussie">#26384C</color>
+    <color name="dog_howl_bg_shiba">#302822</color>
+    <color name="dog_howl_bg_frenchie">#36536F</color>
+    <color name="dog_howl_bg_lab">#315E5A</color>
+    <color name="dog_howl_bg_shepherd">#254536</color>
+    <color name="dog_howl_bg_dachshund">#F2DFC6</color>
+    <color name="dog_howl_bg_beagle">#4D6144</color>
+    <color name="dog_howl_bg_rottweiler">#29292E</color>
+    <color name="dog_howl_bg_gsp">#3D5368</color>
+    <color name="dog_howl_bg_bulldog">#834A42</color>
+    <color name="dog_howl_bg_corso">#61574F</color>
+    <color name="dog_howl_bg_cavalier">#884252</color>
+    <color name="dog_howl_bg_yorkie">#F5E8CF</color>
+    <color name="dog_howl_bg_doberman">#453044</color>
+    <color name="dog_howl_bg_corgi">#A8D0EB</color>
+    <color name="dog_howl_bg_floppy_mix">#2E6667</color>
+    <color name="dog_howl_bg_pointy_mix">#633653</color>
+    <color name="dog_howl_bg_shaggy_mix">#F5E6CD</color>
+    <color name="dog_howl_bg_patchwork_mix">#3E5973</color>
+    <color name="dog_howl_bg_velvet_mix">#17383D</color>
+    <color name="dog_howl_bg_copper_mix">#F5E9D7</color>
+    <color name="dog_howl_bg_silver_mix">#3E3345</color>
+    <color name="dog_howl_bg_cream_mix">#3B5870</color>
+    <color name="dog_howl_bg_goldendoodle">#F3E7D2</color>
+</resources>

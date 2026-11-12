@@ -91,24 +91,62 @@ public final class Appearance {
         if(p!=null&&!p.id.equals(id)){prefs.edit().putString("appearance",p.id).commit();syncLauncher(c);}
         return p==null?ROSE:p;
     }
-    public static String icon(Context c){String id=Store.p(c).getString("iconDesign","petal");return Arrays.asList(ICONS).contains(id)?id:"petal";}
+    public static boolean validIcon(Context c,String id){return Arrays.asList(ICONS).contains(id)||dogIcon(c,id);}
+    private static boolean dogIcon(Context c,String id){return id!=null&&id.startsWith("dog_howl_")&&DogThemes.has(c,"dog_"+id.substring(9)+"_0");}
+    public static String icon(Context c){String id=Store.p(c).getString("iconDesign","petal");return validIcon(c,id)?id:"petal";}
     public String launcher(String icon){
+        if(icon.startsWith("dog_howl_"))return launcherName(icon);
         if(customColors!=null){Appearance closest=launcherPalette(this);return closest.launcherName(icon);}
         return launcherName(icon);
     }
     private String launcherName(String icon){
+        if(icon.startsWith("dog_howl_"))return "DogHowl_"+icon.substring(9);
         if(icon.startsWith("rouse_"))return "FourWagsIcon_"+icon.substring(6);
         if("petal".equals(icon)&&("navy".equals(id)||"rose".equals(id)))return title(id)+"Launcher";
         return title(id)+title(icon)+"Launcher";
     }
     private static String title(String id){return id.substring(0,1).toUpperCase(Locale.ROOT)+id.substring(1);}
     public int iconResource(Context c,String shape){
+        if(dogIcon(c,shape))return dogIconResource(shape);
         if("rouse_a".equals(shape))return R.mipmap.fw_rouse_a;
         if("rouse_b".equals(shape))return R.mipmap.fw_rouse_b;
         if("rouse_c".equals(shape))return R.mipmap.fw_rouse_c;if(customColors!=null)return launcherPalette(this).bundledIcon(c,shape);return bundledIcon(c,shape);}
     private int bundledIcon(Context c,String shape){return c.getResources().getIdentifier("ic_launcher_"+id+"_"+shape,"mipmap",c.getPackageName());}
-    public static void choose(Context c,String id){if(find(c,id)==null)throw new IllegalArgumentException("Unknown theme.");save(c,id,icon(c),true);}
-    public static void chooseIcon(Context c,String shape){if(!Arrays.asList(ICONS).contains(shape))throw new IllegalArgumentException("Unknown icon design.");save(c,current(c).id,shape,false);}
+    private static int dogIconResource(String shape){
+        switch(shape){
+            case "dog_howl_husky":return R.mipmap.wag_howl_husky;
+            case "dog_howl_golden":return R.mipmap.wag_howl_golden;
+            case "dog_howl_border":return R.mipmap.wag_howl_border;
+            case "dog_howl_dalmatian":return R.mipmap.wag_howl_dalmatian;
+            case "dog_howl_aussie":return R.mipmap.wag_howl_aussie;
+            case "dog_howl_shiba":return R.mipmap.wag_howl_shiba;
+            case "dog_howl_frenchie":return R.mipmap.wag_howl_frenchie;
+            case "dog_howl_lab":return R.mipmap.wag_howl_lab;
+            case "dog_howl_shepherd":return R.mipmap.wag_howl_shepherd;
+            case "dog_howl_dachshund":return R.mipmap.wag_howl_dachshund;
+            case "dog_howl_beagle":return R.mipmap.wag_howl_beagle;
+            case "dog_howl_rottweiler":return R.mipmap.wag_howl_rottweiler;
+            case "dog_howl_gsp":return R.mipmap.wag_howl_gsp;
+            case "dog_howl_bulldog":return R.mipmap.wag_howl_bulldog;
+            case "dog_howl_corso":return R.mipmap.wag_howl_corso;
+            case "dog_howl_cavalier":return R.mipmap.wag_howl_cavalier;
+            case "dog_howl_yorkie":return R.mipmap.wag_howl_yorkie;
+            case "dog_howl_doberman":return R.mipmap.wag_howl_doberman;
+            case "dog_howl_corgi":return R.mipmap.wag_howl_corgi;
+            case "dog_howl_floppy_mix":return R.mipmap.wag_howl_floppy_mix;
+            case "dog_howl_pointy_mix":return R.mipmap.wag_howl_pointy_mix;
+            case "dog_howl_shaggy_mix":return R.mipmap.wag_howl_shaggy_mix;
+            case "dog_howl_patchwork_mix":return R.mipmap.wag_howl_patchwork_mix;
+            case "dog_howl_velvet_mix":return R.mipmap.wag_howl_velvet_mix;
+            case "dog_howl_copper_mix":return R.mipmap.wag_howl_copper_mix;
+            case "dog_howl_silver_mix":return R.mipmap.wag_howl_silver_mix;
+            case "dog_howl_cream_mix":return R.mipmap.wag_howl_cream_mix;
+            case "dog_howl_goldendoodle":return R.mipmap.wag_howl_goldendoodle;
+            default:return 0;
+        }
+    }
+    public static void choose(Context c,String id){if(find(c,id)==null)throw new IllegalArgumentException("Unknown theme.");String dog=DogThemes.launcherIcon(c,id);save(c,id,dog==null?icon(c):dog,true);}
+    public static void chooseIcon(Context c,String shape){if(!validIcon(c,shape))throw new IllegalArgumentException("Unknown icon design.");save(c,current(c).id,shape,false);}
     private static synchronized void save(Context c,String id,String shape,boolean selectDog){
         current(c);
         var prefs=Store.p(c);

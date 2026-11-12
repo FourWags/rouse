@@ -32,6 +32,7 @@ function customIconSvg(theme,shape){
  return window.ICON_TEMPLATES[shape].replace(/\{\{(\w+)\}\}/g,(_,key)=>colors[key]);
 }
 function customIconUrl(theme,shape){
+ if(shape.startsWith('dog_howl_'))return `dog-icons/${shape.slice(9)}.png`;
  if(/^rouse_[abc]$/.test(shape))return `icons/fourwags_${shape}.svg`;
  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(customIconSvg(theme,shape));
 }

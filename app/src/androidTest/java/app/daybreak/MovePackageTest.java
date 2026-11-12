@@ -23,6 +23,7 @@ public class MovePackageTest extends Instrumentation {
         try{
             clear(c);
             Store.setUrl(c,url);Store.cache(c,CALENDAR);
+            Appearance.choose(c,"dog_husky_1");
             Store.p(c).edit().putString("source","Shared calendar link").putString("primaryName","Synthetic work").putInt("lead",75).putBoolean("enabled",true).commit();
             String alarmId="manual:"+UUID.randomUUID(),soundId="custom:"+UUID.randomUUID(),linkedId="custom:"+UUID.randomUUID(),extraId=UUID.randomUUID().toString();
             String extraUrl="https://example.invalid/private/synthetic-second-calendar";
@@ -65,6 +66,8 @@ public class MovePackageTest extends Instrumentation {
             if(!damagedFailed||!Store.url(c).isEmpty())throw new AssertionError("Damaged package changed app data.");
             try(FileInputStream input=new FileInputStream(packageFile)){MovePackage.importFrom(c,input,password);}
             if(!url.equals(Store.url(c)))throw new AssertionError("Calendar link was not restored.");
+            if(!"dog_husky_1".equals(Appearance.current(c).id)||!"dog_howl_husky".equals(Appearance.icon(c)))
+                throw new AssertionError("Dog coat and icon restore mismatch: "+Appearance.current(c).id+" / "+Appearance.icon(c));
             if(!Store.cache(c).contains("move-test-only"))throw new AssertionError("Calendar snapshot was not restored.");
             if(!extraUrl.equals(CalendarSources.link(c,extraId))||!CalendarSources.data(c,extraId).contains("move-test-extra"))throw new AssertionError("Additional calendar was not restored.");
             if(Store.p(c).getInt("lead",0)!=75)throw new AssertionError("Lead time was not restored.");

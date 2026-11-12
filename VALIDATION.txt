@@ -1,22 +1,9 @@
-WAGRISE 0.1.49 PREVIEW — VERIFICATION AND LIMITS
+WAGRISE 0.1.50 PREVIEW — VERIFICATION AND LIMITS
 
-Artifact identity
-- Android application ID: app.daybreak; version 0.1.49, code 50.
-- Exact signed APK SHA-256: 357c01bfaefd44bb713cec35bd2a91c24a6caeec77f56b13d8cc48207ff54ef1.
-- Signing certificate SHA-256: 386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4.
-- In-place continuity against 0.1.48 passed. Android reports the launcher label WagRise.
+Artifact: app.daybreak, version 0.1.50/code 51. Exact signed APK SHA-256 aa4db42373f08abc0c6c0e22d607be7afd8a1dfac33c73947fe81462bfca5455. Signing certificate SHA-256 386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4. In-place continuity against 0.1.49 passed.
 
-Fresh local checks
-- 97 offline Gradle tasks executed. 44 JVM tests passed; zero failed, errored, or skipped. Release and test builds passed. lintDebug: zero errors, 69 warnings; lintVitalRelease passed.
-- Visible app HTML, JavaScript, native messages, music credits, and all 459 launcher aliases use WagRise. The package name, APK filename, and some saved icon IDs remain stable for existing installations and Obtainium subscriptions.
-- A 0.1.48 encrypted move package was created by the old installed app on an isolated emulator and restored by 0.1.49. New encrypted move and settings round trips, wrong-password and damaged-file rejection passed with synthetic data.
-- Isolated Android 15 emulator: 36 appearance checks and 342 launcher/theme combinations passed; dog picker and 84 dog palettes/168 poses passed; ring guidance passed. Thirty smoke checks passed, including actual Android alarm-stream rise from step 2 to 5 to 7 at 0/30/61 seconds, hold dismissal, snooze, and redelivery.
-- Initial emulator runs were affected by missing fresh-install alarm permissions and synthetic data carried between test classes. After correcting the emulator setup, the same tests passed. These setup failures do not establish a phone failure.
+Fresh offline build and checks: 97 Gradle tasks, 44 JVM tests passed, zero failures/errors/skips; lintDebug zero errors and 69 warnings; lintVitalRelease passed. On an isolated Android 15 emulator the exact signed APK passed launcher-icon, dog-theme picker, dog alarm artwork, encrypted move-package, and appearance tests. The latter passed 36 checks and 342 launcher/theme combinations, including native alarm and notification appearance. The restore test found and helped fix a dog-coat migration issue before final verification. See CHECKS.txt for details.
 
-Physical device
-- On the connected Pixel 11 Pro XL, 0.1.49 installed over 0.1.48 with its original install date and exact-alarm permission retained. The installed APK hash matched the tested APK.
-- No audible alarm, live calendar inspection, or live accessibility session was performed on the Pixel for this exact build. Visual confirmation of the renamed launcher and next work alarm remains with the owner.
+Physical device: Pixel 11 Pro XL updated in place to this exact APK; original first-install date and exact-alarm permission remained. Installed APK hash matched the tested build. The app was not launched and no audible alarm or live calendar inspection was performed.
 
-Preview and commercial limits
-- This is a personal Preview, not commercial v1 qualification. Real phone-to-phone recovery, a second lower-powered device, prolonged idle/battery/thermal comparison, live TalkBack and Switch Access on this exact build, final name clearance, market-specific rights review, and an approved public privacy policy remain open.
-- Older release evidence is preserved in the verified 0.1.48 source archive and project QA records. See CHECKS.txt for detailed current checks and RELEASE-NOTES.md for user-facing changes.
+Personal Preview limits: live TalkBack/Switch Access and audible alarm on this exact build, a second physical device, prolonged idle/battery/thermal comparison, real phone-to-phone recovery, final name clearance, market-specific rights review, and an approved public privacy policy remain open. One portrait exists per breed; coat variants color the app and alarm artwork. Prior release evidence does not qualify this exact artifact.

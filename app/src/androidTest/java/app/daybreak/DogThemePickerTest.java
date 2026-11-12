@@ -37,11 +37,12 @@ public final class DogThemePickerTest extends Instrumentation {
             String count=js("String(document.querySelectorAll('.dog-option[data-dog^=dog_husky]').length)");
             if(!"\"3\"".equals(count))throw new Exception("Husky coat choices missing: "+count);
             if(!"true".equals(js("$('dogSnoozePreview').getAttribute('src')==='dog-poses/dog_husky_0-curl.webp'&&$('dogAwakePreview').getAttribute('src')==='dog-poses/dog_husky_0-yawn.webp'")))throw new Exception("Large alarm-pose previews missing");
+            if(!"true".equals(js("$('dogLauncherPreview').getAttribute('src')==='dog-icons/husky.png'")))throw new Exception("Husky home-screen icon preview missing");
             if(!"true".equals(js("getComputedStyle(document.querySelector('[data-dog=dog_husky_0] .coat-swatch i:nth-child(2)')).backgroundColor==='rgb(232, 230, 222)'")))throw new Exception("Coat colors did not render under the app content policy");
             js("document.querySelector('[data-dog=dog_husky_0]').click()");
             end=System.currentTimeMillis()+5000;
             while(System.currentTimeMillis()<end&&!"dog_husky_0".equals(prefs.getString("dogCompanion","")))Thread.sleep(100);
-            if(!"dog_husky_0".equals(Appearance.current(c).id)||!"dog_husky_0".equals(prefs.getString("dogCompanion","")))throw new Exception("Dog and palette did not save together");
+            if(!"dog_husky_0".equals(Appearance.current(c).id)||!"dog_husky_0".equals(prefs.getString("dogCompanion",""))||!"dog_howl_husky".equals(Appearance.icon(c)))throw new Exception("Dog, palette and home-screen icon did not save together");
             if(!"true".equals(js("document.querySelector('[data-dog=dog_husky_0]').getAttribute('aria-pressed')==='true'")))throw new Exception("Selected dog not visibly marked");
             js("$('dogPreview').scrollIntoView({block:'center'})");Thread.sleep(5200);
             Bitmap shot=getUiAutomation().takeScreenshot();if(shot==null)throw new Exception("Could not capture picker");
@@ -56,7 +57,7 @@ public final class DogThemePickerTest extends Instrumentation {
             while(System.currentTimeMillis()<end&&!"wr_p1".equals(Appearance.icon(c)))Thread.sleep(100);
             if(!"wr_p1".equals(Appearance.icon(c))||!"none".equals(prefs.getString("dogCompanion","")))throw new Exception("Changing icon re-enabled hidden dog art");
             if(!"true".equals(js("document.querySelectorAll('.theme-option').length===19&&document.querySelector('#appearance .panel').id==='dogThemePanel'")))throw new Exception("Dog chooser is not first or classic colors are unavailable");
-            result.putString("summary","Dog chooser is first; Husky dropdown shows three coats and two large poses; coat saves palette; classic colors stay available with basic icons; hide-art survives icon changes");finish(Activity.RESULT_OK,result);
+            result.putString("summary","Dog chooser is first; Husky dropdown shows three coats, two large poses, and side-profile icon; coat saves palette and actual launcher choice; classic colors stay available; hide-art survives icon changes");finish(Activity.RESULT_OK,result);
         }catch(Throwable error){result.putString("error",error.toString());finish(Activity.RESULT_CANCELED,result);}
         finally{if(screen!=null&&!screen.isFinishing()){Activity finalScreen=screen;runOnMainSync(finalScreen::finish);}
             var edit=prefs.edit();if(oldTheme==null)edit.remove("appearance");else edit.putString("appearance",oldTheme);if(oldDog==null)edit.remove("dogCompanion");else edit.putString("dogCompanion",oldDog);if(oldIcon==null)edit.remove("iconDesign");else edit.putString("iconDesign",oldIcon);edit.commit();Appearance.syncLauncher(c);}

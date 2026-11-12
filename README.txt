@@ -1,6 +1,6 @@
-WAGRISE — ANDROID ALARM APP 0.1.49 PREVIEW
+WAGRISE — ANDROID ALARM APP 0.1.50 PREVIEW
 
-Wake up with a dog by your side. WagRise connects a work calendar or lets you set a personal alarm. Choose from 28 illustrated dogs and mixes and 84 coat palettes; your selected companion rests on Snooze and stretches on I’m up. You can also keep the original icons and colors. The dog artwork is static, so alarm controls stay responsive and readable.
+Wake up with a dog by your side. WagRise connects a work calendar or lets you set a personal alarm. Choose from 28 illustrated dogs and mixes and 84 coat palettes; your selected companion rests on Snooze and stretches on I’m up. Its side-profile portrait becomes the actual home-screen icon. You can also choose an Original icon and color theme. The dog artwork is static, so alarm controls stay responsive and readable.
 
 INSTALL AND UPDATE
 - Install petal-wake.apk from the GitHub release, or subscribe to https://github.com/FourWags/wagrise in Obtainium. Existing Obtainium APK filters may continue to use ^petal-wake\.apk$.
@@ -18,8 +18,8 @@ SOUNDS AND ALARM CONTROL
 - Snooze and I’m up are the two large ringing controls. I’m up requires a deliberate hold or repeated accessible selection. A snoozed alarm can be stopped from the app's active-snooze control.
 
 APPEARANCE
-- Appearance opens with dogs first. Choose a dog, view its sleeping and waking artwork, then select an illustrated coat. The coat's palette colors the interface. You can hide the dog art while keeping its colors.
-- Original designs provide 18 launcher icon choices and 19 classic color themes. Existing saved choices carry forward. New launcher labels say WagRise; older internal icon IDs remain so saved selections still resolve.
+- Appearance opens with dogs first. Choose a dog, view its side-profile home-screen icon and sleeping and waking artwork, then select an illustrated coat. The breed sets the actual Android launcher icon; the coat's palette colors the interface. You can hide the alarm-button art while keeping its colors and icon. There is one side-profile portrait per breed; the 84 coat variants do not recolor that portrait.
+- Original designs provide 18 launcher icon choices and 19 classic color themes. Existing saved choices carry forward until a dog is selected. Choosing an Original icon afterward switches the launcher back without changing the dog artwork or its coat palette. New launcher labels say WagRise; older internal icon IDs remain so saved selections still resolve.
 
 MOVE TO A NEW PHONE
 - Create a password-protected move package in Settings. It includes calendars, future personal alarms, settings, compatible copied and linked audio, and the optional music pack if installed. Keep the package and password separately: together they can expose private calendar links. The app cannot recover the password.

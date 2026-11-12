@@ -15,7 +15,7 @@ appearanceCatalog.themes.push(...dogThemes.map(d=>({id:d.id,name:d.breed+' · '+
 appearanceCatalog.themes=appearanceCatalog.themes.map(t=>({...t,...customColorMath(t.background,t.primary,t.secondary,t.preferredText),...(t.shiba?shibaColors(t.shiba):{}),custom:false}));
 let currentTheme='shiba_black_tan',currentIcon='wr_s2';
 let customThemes=[];
-function iconPath(theme,icon){if(/^rouse_[abc]$/.test(icon))return `icons/fourwags_${icon}.svg`;const custom=[...appearanceCatalog.themes,...customThemes].find(t=>t.id===theme);return custom?customIconUrl(custom,icon):`icons/${theme}_${icon}.svg`;}
+function iconPath(theme,icon){if(icon.startsWith('dog_howl_'))return `dog-icons/${icon.slice(9)}.png`;if(/^rouse_[abc]$/.test(icon))return `icons/fourwags_${icon}.svg`;const custom=[...appearanceCatalog.themes,...customThemes].find(t=>t.id===theme);return custom?customIconUrl(custom,icon):`icons/${theme}_${icon}.svg`;}
 function renderDogOptions(){
  const selected=st?.settings?.dogCompanion;
  if(selected!==lastSavedDogId){lastSavedDogId=selected;dogPreviewId=dogThemes.some(d=>d.id===selected)?selected:'';}
@@ -25,12 +25,14 @@ function renderDogOptions(){
  $('dogPreview').hidden=!preview;$('dogOptions').hidden=!preview;$('dogCoatHeading').hidden=!preview;
  if(preview){
   $('dogPreviewName').textContent=preview.breed+' · '+preview.coat;
+  $('dogLauncherPreview').src=`dog-icons/${preview.id.slice(4).replace(/_\d+$/,'')}.png`;$('dogLauncherPreview').alt=`${preview.breed} side-profile home-screen icon`;
   $('dogSnoozePreview').src=`dog-poses/${preview.id}-curl.webp`;$('dogSnoozePreview').alt=`${preview.breed}, ${preview.coat} coat, curled asleep`;
   $('dogAwakePreview').src=`dog-poses/${preview.id}-yawn.webp`;$('dogAwakePreview').alt=`${preview.breed}, ${preview.coat} coat, yawning and stretching`;
   $('dogOptions').innerHTML=dogThemes.filter(d=>d.breed===preview.breed).map(d=>`<button type="button" class="dog-option" data-dog="${d.id}" aria-pressed="${d.id===selected}" aria-label="${esc(d.coat)} coat${d.id===selected?', selected':''}"><span class="coat-swatch" data-coat="${d.id}" aria-hidden="true"><i></i><i></i><i></i></span><strong>${esc(d.coat)}</strong><span class="dog-check" aria-hidden="true">✓</span></button>`).join('');
- }else{$('dogPreviewName').textContent='';$('dogSnoozePreview').removeAttribute('src');$('dogAwakePreview').removeAttribute('src');$('dogOptions').innerHTML='';}
+ }else{$('dogPreviewName').textContent='';$('dogLauncherPreview').removeAttribute('src');$('dogSnoozePreview').removeAttribute('src');$('dogAwakePreview').removeAttribute('src');$('dogOptions').innerHTML='';}
  $('dogNone').hidden=selected==='none';
- $('dogStatus').textContent=preview?(selected===preview.id?`${preview.breed} · ${preview.coat} selected. Its colors and pictures are active.`:`Previewing ${preview.breed} · ${preview.coat}. Choose a coat to use these colors and pictures.`):selected==='none'?'Dog artwork is hidden. Choose a breed to use it again.':'Choose a breed or mix to preview its alarm pictures.';
+ const dogIconActive=preview&&st?.settings?.iconDesign===`dog_howl_${preview.id.slice(4).replace(/_\d+$/,'')}`;
+ $('dogStatus').textContent=preview?(selected===preview.id?`${preview.breed} · ${preview.coat} selected. Its colors and alarm pictures are active. ${dogIconActive?'Its side-profile home-screen icon is active.':'Your other home-screen icon is active.'}`:`Previewing ${preview.breed} · ${preview.coat}. Choose a coat to use its colors, alarm pictures, and home-screen icon.`):selected==='none'?'Dog artwork is hidden. Choose a breed to use it again.':'Choose a breed or mix to preview its alarm pictures.';
 }
 function renderAppearanceOptions(){
  $('themeOptions').innerHTML=appearanceCatalog.themes.filter(theme=>!theme.dog).map(theme=>`<button type="button" class="theme-option" id="profile${theme.id==='navy'?'Navy':theme.id==='rose'?'Rose':theme.id}" data-profile="${theme.id}" aria-pressed="false"><img src="${iconPath(theme.id,currentIcon)}" alt=""><strong>${esc(theme.name)}</strong><span class="theme-swatches" aria-hidden="true"><span style="background:${theme.background}"></span><span style="background:${theme.primary}"></span><span style="background:${theme.secondary}"></span></span><small>${theme.dark?'Night palette':'Day palette'}</small><span class="profile-check" aria-hidden="true">✓</span></button>`).join('');
@@ -38,7 +40,8 @@ function renderAppearanceOptions(){
 }
 function applyAppearance(profile,design){
  const theme=[...appearanceCatalog.themes,...customThemes].find(t=>t.id===profile)||appearanceCatalog.themes.find(t=>t.id==='shiba_black_tan');
- const icon=appearanceCatalog.icons.find(i=>i.id===design)||(legacyIconNames[design]?{id:design,name:legacyIconNames[design],legacy:true}:appearanceCatalog.icons[0]);
+ const dogBreed=design?.startsWith('dog_howl_')?dogThemes.find(d=>d.id.startsWith('dog_'+design.slice(9)+'_'))?.breed:null;
+ const icon=appearanceCatalog.icons.find(i=>i.id===design)||(dogBreed?{id:design,name:dogBreed+' side profile',dog:true}:legacyIconNames[design]?{id:design,name:legacyIconNames[design],legacy:true}:appearanceCatalog.icons[0]);
  currentTheme=theme.id;currentIcon=icon.id;document.documentElement.dataset.profile=theme.id;document.documentElement.dataset.tone=theme.dark?'dark':'light';
  Object.keys(customColorMath('#28262D','#D89AAA','#A783A8','#F4EADC').tokens).forEach(key=>document.documentElement.style.removeProperty('--'+key));document.documentElement.style.removeProperty('color-scheme');
  if(theme.tokens){Object.entries(theme.tokens).forEach(([key,value])=>document.documentElement.style.setProperty('--'+key,value));document.documentElement.style.colorScheme=theme.dark?'dark':'light';}
@@ -46,7 +49,7 @@ function applyAppearance(profile,design){
  $('appearancePreview').src=iconPath(theme.id,icon.id);$('appearanceName').textContent=theme.name;$('appearanceIconName').textContent=icon.name+' icon';
  document.querySelectorAll('.theme-option').forEach(button=>{button.setAttribute('aria-pressed',String(button.dataset.profile===theme.id));button.querySelector('img').src=iconPath(button.dataset.profile,icon.id);});
  document.querySelectorAll('.icon-option').forEach(button=>{button.setAttribute('aria-pressed',String(button.dataset.icon===icon.id));button.querySelector('img').src=iconPath(theme.id,button.dataset.icon);});
- $('appearanceStatus').textContent=theme.name+' selected · saves automatically.';$('iconStatus').textContent=icon.legacy?icon.name+' is your current older icon. Choose an Original design to use your theme colors.':icon.name+' selected · the app icon uses the closest bundled palette.';
+ $('appearanceStatus').textContent=theme.name+' selected · saves automatically.';$('iconStatus').textContent=icon.dog?icon.name+' is your home-screen icon. Choose an Original design below to switch back.':icon.legacy?icon.name+' is your current older icon. Choose an Original design to use your theme colors.':icon.name+' selected · the app icon uses the closest bundled palette.';
  $('customizePreset').hidden=!!theme.custom;$('customizePreset').textContent='Customize '+theme.name;
  $('themeSelect').innerHTML=[...appearanceCatalog.themes,...customThemes].map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');$('themeSelect').value=theme.id;
  renderDogOptions();

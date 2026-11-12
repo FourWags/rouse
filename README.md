@@ -1,10 +1,10 @@
 # WagRise
 
-**Wake up with a dog by your side.** WagRise is a private Android alarm for workdays and personal plans. Connect a shared iCalendar feed to schedule work alarms, or set an alarm yourself. Choose from 28 illustrated dogs and mixes, then pick a coat: each of the 84 coats shapes the app's colors and appears as a resting or stretching companion on the two large alarm buttons. The original icon and color collection remains available.
+**Wake up with a dog by your side.** WagRise is a private Android alarm for workdays and personal plans. Connect a shared iCalendar feed to schedule work alarms, or set an alarm yourself. Choose from 28 illustrated dogs and mixes, then pick a coat: each of the 84 coats shapes the app's colors and appears as a resting or stretching companion on the two large alarm buttons. Your chosen breed also becomes the actual home-screen icon as a side-profile portrait with gentle sound marks. The original icon and color collection remains available.
 
 WagRise includes gentle recorded orchestral music, standard tones, and nature sounds. You can import your own audio, add the optional orchestra pack, set the Android alarm volume and gradual rise, and test the actual alarm path. Calendar links and alarm data stay on your phone; there is no WagRise account, analytics, or advertising. See [README.txt](README.txt) for setup and limits.
 
-This source release is **0.1.49 Preview** (Android version code 50). Download the signed APK and see its actual test results on [GitHub releases](https://github.com/FourWags/wagrise/releases). The compatible [optional orchestra pack](https://github.com/FourWags/wagrise/releases/tag/v0.1.23) is separate.
+This source release is **0.1.50 Preview** (Android version code 51). Download the signed APK and see its actual test results on [GitHub releases](https://github.com/FourWags/wagrise/releases). The compatible [optional orchestra pack](https://github.com/FourWags/wagrise/releases/tag/v0.1.23) is separate.
 
 ## Obtainium
 

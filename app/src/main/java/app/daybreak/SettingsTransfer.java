@@ -63,7 +63,7 @@ public final class SettingsTransfer {
         for(String key:STRINGS)if(settings.has(key)&&!(settings.get(key) instanceof String))throw new IllegalArgumentException("Invalid "+key+" setting.");
         if(settings.has("filter")&&settings.getString("filter").length()>120)throw new IllegalArgumentException("Invalid title filter.");
         if(settings.has("sound")&&!SoundLibrary.allowed(settings.getString("sound"))&&!CustomSounds.id(settings.getString("sound")))throw new IllegalArgumentException("Invalid alarm sound.");
-        if(settings.has("iconDesign")&&!Arrays.asList(Appearance.ICONS).contains(settings.getString("iconDesign")))throw new IllegalArgumentException("Invalid icon design.");
+        if(settings.has("iconDesign")&&!Appearance.validIcon(c,settings.getString("iconDesign")))throw new IllegalArgumentException("Invalid icon design.");
         if(settings.has("dogCompanion")&&!"none".equals(settings.getString("dogCompanion"))&&!DogThemes.has(c,settings.getString("dogCompanion")))throw new IllegalArgumentException("Invalid dog companion.");
         if(settings.has("appearance")){
             String id=settings.getString("appearance");boolean known=false;
@@ -85,6 +85,7 @@ public final class SettingsTransfer {
         for(String key:BOOLEANS)if(settings.has(key)&&!"quietPreset".equals(key))editor.putBoolean(key,settings.getBoolean(key));
         editor.putInt("volume",100).putBoolean("quietPreset",false).remove("previousPlayback");
         for(String key:STRINGS)if(settings.has(key))editor.putString(key,settings.getString(key));
+        if(settings.has("appearance"))editor.putInt(ShibaThemeMigration.MARKER,1);
         if(checked.hasThemes)editor.putString("customThemes",themes.toString());
         if(!editor.commit())throw new IllegalStateException("Could not save settings.");
         if(notify){Appearance.syncLauncher(c);Sync.run(c,false);}

@@ -33,6 +33,11 @@ final class DogThemes {
         }catch(Exception error){catalog=Collections.emptyMap();return catalog;}
     }
     static boolean has(Context context,String id){return id!=null&&id.startsWith("dog_")&&catalog(context).containsKey(id);}
+    static String launcherIcon(Context context,String id){
+        if(!has(context,id))return null;
+        int suffix=id.lastIndexOf('_');
+        return suffix>4?"dog_howl_"+id.substring(4,suffix):null;
+    }
     static Appearance appearance(Context context,String id){
         if(id==null||!id.startsWith("dog_"))return null;
         JSONObject entry=catalog(context).get(id);if(entry==null)return null;

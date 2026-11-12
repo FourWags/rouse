@@ -1,9 +1,9 @@
-# WagRise 0.1.49 — name and description Preview
+# WagRise 0.1.50 — Your dog on the home screen Preview
 
-The app is now **WagRise by Four Wags**. Android's launcher and every selectable icon alias, alarm and notification text, in-app help, restore screens, and sound credits use the new name. The app description now leads with its dogs: choose one of 28 illustrated dogs and mixes, select from 84 coat palettes, and see the companion resting on Snooze and stretching on I’m up. Work calendar alarms, personal alarms, gentle recorded music, nature sounds, and custom audio remain part of the same private app.
+Choose a dog and coat in Appearance, and WagRise now makes that breed's side-profile portrait the **actual Android home-screen icon**. The howling pose and drawn sound marks come from the approved dog concepts. All 28 dogs and mixes have a portrait, including a new Goldendoodle in place of Poodle. The 84 coat choices still color the app and choose its resting and stretching alarm artwork; each breed currently has one home-screen portrait rather than a separate portrait for every coat.
 
-This update preserves the Android package `app.daybreak`, signing certificate, settings, calendar links, scheduled alarms, and saved icon choices. Older move packages and settings files remain readable. The GitHub repository is now `FourWags/wagrise`; existing release links redirect. The APK remains named `petal-wake.apk` so existing Obtainium subscriptions can keep their filename filter.
+The original icon designs remain available below the dog picker. You can switch back without losing your chosen dog, coat colors, or alarm artwork. Existing saved icons stay as they are until you choose a dog. No extra home-screen shortcut is created. The Android package, signing certificate, and stable APK filename remain the same for in-place updates and Obtainium.
 
-This is a personal Preview, not commercial v1 qualification. Live assistive-technology testing of this exact build, a second physical device, long-duration power checks, real phone-to-phone recovery, final name clearance, market-specific recording and artwork rights, and an approved public privacy policy remain open. See `CHECKS.txt` for actual tests and limits.
+This is a personal Preview, not commercial v1 qualification. Live accessibility testing of this exact build, a second physical device, long-duration power checks, real phone-to-phone recovery, final name clearance, market-specific recording and artwork rights, and an approved public privacy policy remain open. See `CHECKS.txt` for actual test results and limits.
 
 Stable APK asset: `petal-wake.apk`. Matching source and notices: `petal-wake-source.zip`. Verify them against `SHA256SUMS`.
