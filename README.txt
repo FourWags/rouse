@@ -1,6 +1,6 @@
-WAGRISE — ANDROID ALARM APP 0.1.51 PREVIEW
+WAGRISE — ANDROID ALARM APP 0.1.52 PREVIEW
 
-Wake up with a dog by your side. WagRise connects a work calendar or lets you set a personal alarm. Choose from 28 illustrated dogs and mixes and 84 coat palettes; your selected companion rests on Snooze and stretches on I’m up. Its side-profile portrait becomes the actual home-screen icon. The Original icon designs and Original color themes open as separate menus, so you can see each full set of cards. Clear appearance choices to use the basic WagRise look until you choose again; saved personal themes remain available. The dog artwork is static, so alarm controls stay responsive and readable.
+Wake up with a dog by your side. WagRise connects a work calendar or lets you set a personal alarm. Choose from 28 illustrated dogs and mixes and 84 coat palettes; your selected companion rests on Snooze and stretches on I’m up. Its side-profile portrait becomes the actual home-screen icon, with the full head framed inside it. The Original icon designs and Original color themes open as separate menus, so you can see each full set of cards. Clear appearance choices to use the basic WagRise look until you choose again; saved personal themes remain available. The dog artwork is static, so alarm controls stay responsive and readable.
 
 INSTALL AND UPDATE
 - Install petal-wake.apk from the GitHub release, or subscribe to https://github.com/FourWags/wagrise in Obtainium. Existing Obtainium APK filters may continue to use ^petal-wake\.apk$.

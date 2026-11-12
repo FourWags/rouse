@@ -1,9 +1,9 @@
-WAGRISE 0.1.51 PREVIEW — VERIFICATION AND LIMITS
+WAGRISE 0.1.52 PREVIEW — VERIFICATION AND LIMITS
 
-Artifact: app.daybreak, version 0.1.51/code 52. Exact signed APK SHA-256 036531bf3deb7f42190045846eaf27078e8d1ac881a866056ee5af6b8a5ea90f. Signing certificate SHA-256 386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4. In-place continuity against 0.1.50 passed.
+Artifact: app.daybreak, version 0.1.52/code 53. Exact signed APK SHA-256 80a6ca78049558d81e76d23bb341013b8d7ce350b5db77407d366e2c17033064. Signing certificate SHA-256 386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4. In-place continuity against 0.1.51 passed.
 
-Fresh offline build and checks: 97 Gradle tasks, 44 JVM tests passed, zero failures/errors/skips; lintDebug zero errors and 69 warnings; lintVitalRelease passed. Exact signed APK on an isolated Android 15 emulator passed the revised dog/appearance picker, 36 appearance checks and 342 launcher/theme combinations, and encrypted move-package recovery with synthetic data. The first appearance run used an updated emulator and failed a fresh-install precondition; it passed after a clean emulator install. See CHECKS.txt for detail.
+Fresh offline build and checks: 97 Gradle tasks, 44 JVM tests passed, zero failures/errors/skips; lintDebug zero errors and 69 warnings; lintVitalRelease passed. Packaged permissions were unchanged. All 28 portraits were visually inspected, 196 generated raster assets were reproduced byte-for-byte, and the exact signed APK passed breed launcher and Appearance picker tests on an isolated Android 15 emulator. See CHECKS.txt for detail.
 
 Physical device: Pixel 11 Pro XL updated in place to this exact APK; original first-install date and exact-alarm permission remained. Installed APK hash matched the tested build. The app was not launched and no audible alarm or live calendar inspection was performed on the Pixel.
 
-Personal Preview limits: live TalkBack/Switch Access and audible alarm on this exact build, a second physical device, prolonged idle/battery/thermal comparison, real phone-to-phone recovery, final name clearance, market-specific rights review, and an approved public privacy policy remain open. Prior release evidence does not qualify this exact artifact.
+Personal Preview limits: the broader 342 original icon/theme combinations and live alarm path were verified on 0.1.51, not this exact build. Live TalkBack/Switch Access, a second physical device, prolonged idle/battery/thermal comparison, real phone-to-phone recovery, final name clearance, market-specific rights review, and an approved public privacy policy remain open. Different Android launchers may mask icons differently; one portrait exists per breed.

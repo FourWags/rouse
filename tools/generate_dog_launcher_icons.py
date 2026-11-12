@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 
 import cairo
 import gi
+from PIL import Image
 
 gi.require_version('Rsvg', '2.0')
 from gi.repository import Rsvg
@@ -57,10 +58,10 @@ def render(svg: bytes, size: int) -> bytes:
 
 
 def portrait_svg(image: bytes, width: int, height: int, columns: int, rows: int,
-                 index: int, foreground: bool) -> bytes:
+                 index: int, foreground: bool, background: str) -> bytes:
     cell_w, cell_h = width / columns, height / rows
     assert cell_w == cell_h, (width, height, columns, rows)
-    margin = (24 if columns == 3 else 20) if columns > 1 else 0
+    margin = 40 if columns == 3 else 60 if columns == 2 else 80
     cell = cell_w - margin * 2
     scale = 108 / cell
     col, row = index % columns, index // columns
@@ -68,10 +69,17 @@ def portrait_svg(image: bytes, width: int, height: int, columns: int, rows: int,
     y = -(row * cell_h + margin) * scale
     image_width, image_height = width * scale, height * scale
     uri = 'data:image/png;base64,' + base64.b64encode(image).decode('ascii')
-    transform = ' transform="translate(8.64 8.64) scale(0.84)"' if foreground else ''
+    # Keep the full head within both the static square and Android's adaptive mask.
+    scale_inset = 0.68 if foreground else 0.80
+    inset = (108 - 108 * scale_inset) / 2
+    transform = f' transform="translate({inset:.5f} {inset:.5f}) scale({scale_inset:.5f})"'
+    backing = '' if foreground else f'<rect width="108" height="108" rx="24" fill="{background}"/>'
     svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108">'
-           f'<defs><clipPath id="edge"><rect width="108" height="108" rx="24"/></clipPath></defs>'
-           f'<g{transform} clip-path="url(#edge)">'
+           f'<defs><clipPath id="edge"><rect width="108" height="108" rx="24"/></clipPath>'
+           f'<filter id="soft"><feGaussianBlur stdDeviation="5"/></filter>'
+           f'<mask id="fade"><rect x="3" y="3" width="102" height="102" rx="20" fill="white" filter="url(#soft)"/></mask></defs>'
+           f'{backing}'
+           f'<g{transform} clip-path="url(#edge)" mask="url(#fade)">'
            f'<image href="{uri}" x="{x:.5f}" y="{y:.5f}" width="{image_width:.5f}" height="{image_height:.5f}"/>'
            '</g></svg>')
     return svg.encode('utf-8')
@@ -87,6 +95,7 @@ def main() -> None:
     aliases = []
     for sheet, (columns, rows, breeds) in SHEETS.items():
         image = (SOURCE / sheet).read_bytes()
+        pixels = Image.open(io.BytesIO(image)).convert('RGB')
         # Read-only dimensions via PNG header; the source is retained unchanged.
         width = int.from_bytes(image[16:20], 'big')
         height = int.from_bytes(image[20:24], 'big')
@@ -95,8 +104,11 @@ def main() -> None:
             if breed is None:
                 continue
             assert breed in first, breed
-            svg = portrait_svg(image, width, height, columns, rows, index, False)
-            fg = portrait_svg(image, width, height, columns, rows, index, True)
+            col, row = index % columns, index // columns
+            sample = pixels.getpixel((int((col + .86) * width / columns), int((row + .56) * height / rows)))
+            background = '#%02x%02x%02x' % sample
+            svg = portrait_svg(image, width, height, columns, rows, index, False, background)
+            fg = portrait_svg(image, width, height, columns, rows, index, True, background)
             save(ASSETS / f'{breed}.png', render(svg, 144))
             save(RES / 'drawable-nodpi' / f'dog_howl_{breed}_foreground.png', render(fg, 432))
             for density, size in DENSITIES.items():
