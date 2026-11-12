@@ -12,7 +12,7 @@ import java.util.Set;
 /** Portable preferences only. Calendar URLs, events, alarms, and history never leave the app. */
 public final class SettingsTransfer {
     private static final String[] INTS={"lead","snooze","volume","fade","riseStartPercent","allDayMinutes","earlyBefore","earlyLead","lateAfter","lateLead","eveningMinutes","fallbackMinutes","maxRingMinutes"};
-    private static final String[] BOOLEANS={"vibrate","allDayEnabled","shiftRulesEnabled","eveningCheck","syncAlerts","quietPreset","privateLockScreen"};
+    private static final String[] BOOLEANS={"vibrate","allDayEnabled","shiftRulesEnabled","eveningCheck","syncAlerts","quietPreset","privateLockScreen","appearanceCleared"};
     private static final String[] STRINGS={"appearance","dogCompanion","iconDesign","sound","filter"};
 
     public static String exportJson(Context c)throws Exception{
@@ -65,6 +65,7 @@ public final class SettingsTransfer {
         if(settings.has("sound")&&!SoundLibrary.allowed(settings.getString("sound"))&&!CustomSounds.id(settings.getString("sound")))throw new IllegalArgumentException("Invalid alarm sound.");
         if(settings.has("iconDesign")&&!Appearance.validIcon(c,settings.getString("iconDesign")))throw new IllegalArgumentException("Invalid icon design.");
         if(settings.has("dogCompanion")&&!"none".equals(settings.getString("dogCompanion"))&&!DogThemes.has(c,settings.getString("dogCompanion")))throw new IllegalArgumentException("Invalid dog companion.");
+        if(settings.optBoolean("appearanceCleared",false)&&!("navy".equals(settings.optString("appearance"))&&"wr_s2".equals(settings.optString("iconDesign"))&&"none".equals(settings.optString("dogCompanion"))))throw new IllegalArgumentException("Invalid basic appearance.");
         if(settings.has("appearance")){
             String id=settings.getString("appearance");boolean known=false;
             for(Appearance theme:Appearance.ALL)if(theme.id.equals(id))known=true;
@@ -83,6 +84,7 @@ public final class SettingsTransfer {
         SharedPreferences.Editor editor=Store.p(c).edit();
         for(String key:INTS)if(settings.has(key)){int value=exactInt(settings.get(key),key);if(!"volume".equals(key))editor.putInt(key,value);}
         for(String key:BOOLEANS)if(settings.has(key)&&!"quietPreset".equals(key))editor.putBoolean(key,settings.getBoolean(key));
+        if(!settings.has("appearanceCleared"))editor.putBoolean("appearanceCleared",false);
         editor.putInt("volume",100).putBoolean("quietPreset",false).remove("previousPlayback");
         for(String key:STRINGS)if(settings.has(key))editor.putString(key,settings.getString(key));
         if(settings.has("appearance"))editor.putInt(ShibaThemeMigration.MARKER,1);

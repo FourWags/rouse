@@ -75,7 +75,7 @@ public final class Appearance {
         JSONArray saved=Store.array(c,"customThemes");String id=raw.optString("id","");boolean editing=!id.isEmpty();if(!editing)id="custom:"+UUID.randomUUID();raw.put("id",id);Appearance p=custom(raw);JSONArray next=new JSONArray();boolean found=false;
         for(int n=0;n<saved.length();n++){JSONObject item=saved.getJSONObject(n);if(id.equals(item.optString("id"))){next.put(p.customJson());found=true;}else next.put(item);}
         if(editing&&!found)throw new IllegalArgumentException("That custom theme no longer exists.");if(!editing){if(next.length()>=50)throw new IllegalArgumentException("Keep up to 50 custom themes. Edit or remove one first.");next.put(p.customJson());}
-        String old=saved.toString();Store.put(c,"customThemes",next);try{save(c,id,icon(c),false);}catch(RuntimeException e){Store.p(c).edit().putString("customThemes",old).commit();throw e;}
+        String old=saved.toString();Store.put(c,"customThemes",next);try{save(c,id,icon(c),false,false);}catch(RuntimeException e){Store.p(c).edit().putString("customThemes",old).commit();throw e;}
     }
     public static void deleteCustom(Context c,String id)throws JSONException {
         JSONArray saved=Store.array(c,"customThemes"),next=new JSONArray();boolean found=false;for(int n=0;n<saved.length();n++){JSONObject item=saved.getJSONObject(n);if(id.equals(item.optString("id")))found=true;else next.put(item);}if(!found)throw new IllegalArgumentException("That custom theme no longer exists.");
@@ -145,15 +145,17 @@ public final class Appearance {
             default:return 0;
         }
     }
-    public static void choose(Context c,String id){if(find(c,id)==null)throw new IllegalArgumentException("Unknown theme.");String dog=DogThemes.launcherIcon(c,id);save(c,id,dog==null?icon(c):dog,true);}
-    public static void chooseIcon(Context c,String shape){if(!validIcon(c,shape))throw new IllegalArgumentException("Unknown icon design.");save(c,current(c).id,shape,false);}
-    private static synchronized void save(Context c,String id,String shape,boolean selectDog){
+    public static void choose(Context c,String id){if(find(c,id)==null)throw new IllegalArgumentException("Unknown theme.");String dog=DogThemes.launcherIcon(c,id);save(c,id,dog==null?icon(c):dog,true,false);}
+    public static void chooseIcon(Context c,String shape){if(!validIcon(c,shape))throw new IllegalArgumentException("Unknown icon design.");save(c,current(c).id,shape,false,false);}
+    public static void clear(Context c){save(c,"navy","wr_s2",false,true);}
+    public static boolean cleared(Context c){return Store.p(c).getBoolean("appearanceCleared",false);}
+    private static synchronized void save(Context c,String id,String shape,boolean selectDog,boolean clear){
         current(c);
         var prefs=Store.p(c);
-        if(prefs.getInt(ShibaThemeMigration.MARKER,0)<1)throw new IllegalStateException("Could not record the one-time theme migration.");String oldTheme=prefs.getString("appearance",null),oldIcon=prefs.getString("iconDesign",null),oldDog=prefs.getString("dogCompanion",null);
-        var change=prefs.edit().putString("appearance",id).putString("iconDesign",shape);if(selectDog&&DogThemes.has(c,id))change.putString("dogCompanion",id);
+        if(prefs.getInt(ShibaThemeMigration.MARKER,0)<1)throw new IllegalStateException("Could not record the one-time theme migration.");String oldTheme=prefs.getString("appearance",null),oldIcon=prefs.getString("iconDesign",null),oldDog=prefs.getString("dogCompanion",null);boolean oldCleared=prefs.getBoolean("appearanceCleared",false),hadCleared=prefs.contains("appearanceCleared");
+        var change=prefs.edit().putString("appearance",id).putString("iconDesign",shape).putBoolean("appearanceCleared",clear);if(clear)change.putString("dogCompanion","none");else if(selectDog&&DogThemes.has(c,id))change.putString("dogCompanion",id);
         if(!change.commit())throw new IllegalStateException("Could not save appearance.");
-        try{syncLauncher(c);}catch(RuntimeException e){var editor=prefs.edit();if(oldTheme==null)editor.remove("appearance");else editor.putString("appearance",oldTheme);if(oldIcon==null)editor.remove("iconDesign");else editor.putString("iconDesign",oldIcon);if(oldDog==null)editor.remove("dogCompanion");else editor.putString("dogCompanion",oldDog);editor.commit();syncLauncher(c);throw e;}
+        try{syncLauncher(c);}catch(RuntimeException e){var editor=prefs.edit();if(oldTheme==null)editor.remove("appearance");else editor.putString("appearance",oldTheme);if(oldIcon==null)editor.remove("iconDesign");else editor.putString("iconDesign",oldIcon);if(oldDog==null)editor.remove("dogCompanion");else editor.putString("dogCompanion",oldDog);if(hadCleared)editor.putBoolean("appearanceCleared",oldCleared);else editor.remove("appearanceCleared");editor.commit();syncLauncher(c);throw e;}
         AlarmService.appearanceChanged();c.sendBroadcast(new Intent(CHANGED).setPackage(c.getPackageName()));
     }
     public static void syncLauncher(Context c){

@@ -42,14 +42,20 @@ function applyAppearance(profile,design){
  const theme=[...appearanceCatalog.themes,...customThemes].find(t=>t.id===profile)||appearanceCatalog.themes.find(t=>t.id==='shiba_black_tan');
  const dogBreed=design?.startsWith('dog_howl_')?dogThemes.find(d=>d.id.startsWith('dog_'+design.slice(9)+'_'))?.breed:null;
  const icon=appearanceCatalog.icons.find(i=>i.id===design)||(dogBreed?{id:design,name:dogBreed+' side profile',dog:true}:legacyIconNames[design]?{id:design,name:legacyIconNames[design],legacy:true}:appearanceCatalog.icons[0]);
+ const cleared=!!st?.settings?.appearanceCleared;
  currentTheme=theme.id;currentIcon=icon.id;document.documentElement.dataset.profile=theme.id;document.documentElement.dataset.tone=theme.dark?'dark':'light';
  Object.keys(customColorMath('#28262D','#D89AAA','#A783A8','#F4EADC').tokens).forEach(key=>document.documentElement.style.removeProperty('--'+key));document.documentElement.style.removeProperty('color-scheme');
  if(theme.tokens){Object.entries(theme.tokens).forEach(([key,value])=>document.documentElement.style.setProperty('--'+key,value));document.documentElement.style.colorScheme=theme.dark?'dark':'light';}
  document.documentElement.dataset.icon=icon.id;$('brandMark').src=iconPath(theme.id,icon.id);
  $('appearancePreview').src=iconPath(theme.id,icon.id);$('appearanceName').textContent=theme.name;$('appearanceIconName').textContent=icon.name+' icon';
- document.querySelectorAll('.theme-option').forEach(button=>{button.setAttribute('aria-pressed',String(button.dataset.profile===theme.id));button.querySelector('img').src=iconPath(button.dataset.profile,icon.id);});
- document.querySelectorAll('.icon-option').forEach(button=>{button.setAttribute('aria-pressed',String(button.dataset.icon===icon.id));button.querySelector('img').src=iconPath(theme.id,button.dataset.icon);});
- $('appearanceStatus').textContent=theme.name+' selected · saves automatically.';$('iconStatus').textContent=icon.dog?icon.name+' is your home-screen icon. Choose an Original design below to switch back.':icon.legacy?icon.name+' is your current older icon. Choose an Original design to use your theme colors.':icon.name+' selected · the app icon uses the closest bundled palette.';
+ document.querySelectorAll('.theme-option').forEach(button=>{button.setAttribute('aria-pressed',String(!cleared&&button.dataset.profile===theme.id));button.querySelector('img').src=iconPath(button.dataset.profile,icon.id);});
+ document.querySelectorAll('.icon-option').forEach(button=>{button.setAttribute('aria-pressed',String(!cleared&&button.dataset.icon===icon.id));button.querySelector('img').src=iconPath(theme.id,button.dataset.icon);});
+ $('appearanceStatus').textContent=cleared?'Basic WagRise colors are active. Choose a theme to personalize them.':theme.name+' selected · saves automatically.';$('iconStatus').textContent=cleared?'Basic WagRise icon is active. Choose an Original design to personalize it.':icon.dog?icon.name+' is your home-screen icon. Choose an Original design to switch back.':icon.legacy?icon.name+' is your current older icon. Choose an Original design to use your theme colors.':icon.name+' selected · the app icon uses the closest bundled palette.';
+ $('originalIconSummaryPreview').src=iconPath(theme.id,icon.id);
+ $('originalIconSummary').textContent=cleared?'Basic WagRise icon':icon.dog?icon.name+' active':icon.name+' selected';
+ $('originalThemeSummary').textContent=cleared?'Basic WagRise colors':theme.dog?theme.name+' coat colors active':theme.name+' selected';
+ $('themeSummaryBackground').style.background=theme.background;$('themeSummaryPrimary').style.background=theme.primary;$('themeSummarySecondary').style.background=theme.secondary;
+ $('clearAppearanceStatus').textContent=cleared?'Basic look active. Your saved personal themes are still available.':'';
  $('customizePreset').hidden=!!theme.custom;$('customizePreset').textContent='Customize '+theme.name;
  $('themeSelect').innerHTML=[...appearanceCatalog.themes,...customThemes].map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');$('themeSelect').value=theme.id;
  renderDogOptions();
@@ -62,6 +68,7 @@ $('dogBreed').onchange=()=>{dogPreviewId=dogThemes.find(d=>d.breed===$('dogBreed
 $('dogOptions').onclick=event=>{const button=event.target.closest('[data-dog]');if(button){dogPreviewId=button.dataset.dog;renderDogOptions();send('appearance',{profile:button.dataset.dog});}};
 $('dogNone').onclick=()=>send('dogCompanion',{id:'none'});
 $('iconOptions').onclick=event=>{const button=event.target.closest('[data-icon]');if(button)send('iconDesign',{design:button.dataset.icon});};
+$('clearAppearance').onclick=()=>confirmAction('Use the basic WagRise look?','This clears your dog, icon, and color selections. Saved personal themes stay available.',()=>send('clearAppearance'), 'Use basic look');
 $('openAppearance').onclick=()=>page('appearance');$('appearanceBack').onclick=()=>{page('settings');showSettingsGroup('appearance');};
  setupCustomThemes();
 function send(action,data={}){if(window.Native?.postMessage)window.Native.postMessage(JSON.stringify({action,...data}));else toast('This preview needs the Android app for calendar connections and alarms.');}

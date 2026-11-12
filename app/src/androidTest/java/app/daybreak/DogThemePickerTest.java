@@ -22,7 +22,7 @@ public final class DogThemePickerTest extends Instrumentation {
     private String js(String script)throws Exception{CountDownLatch latch=new CountDownLatch(1);String[] result={null};runOnMainSync(()->web.evaluateJavascript(script,value->{result[0]=value;latch.countDown();}));if(!latch.await(5,TimeUnit.SECONDS))throw new Exception("WebView timeout");return result[0];}
     @Override public void onStart(){
         Bundle result=new Bundle();Context c=getTargetContext();Activity screen=null;
-        var prefs=Store.p(c);String oldTheme=prefs.getString("appearance",null),oldDog=prefs.getString("dogCompanion",null),oldIcon=prefs.getString("iconDesign",null);
+        var prefs=Store.p(c);String oldTheme=prefs.getString("appearance",null),oldDog=prefs.getString("dogCompanion",null),oldIcon=prefs.getString("iconDesign",null),oldCustom=prefs.getString("customThemes",null);boolean oldCleared=prefs.getBoolean("appearanceCleared",false),hadCleared=prefs.contains("appearanceCleared");
         try{
             FourWagsWakeIcon.skip(c);
             screen=startActivitySync(new Intent(c,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -57,9 +57,37 @@ public final class DogThemePickerTest extends Instrumentation {
             while(System.currentTimeMillis()<end&&!"wr_p1".equals(Appearance.icon(c)))Thread.sleep(100);
             if(!"wr_p1".equals(Appearance.icon(c))||!"none".equals(prefs.getString("dogCompanion","")))throw new Exception("Changing icon re-enabled hidden dog art");
             if(!"true".equals(js("document.querySelectorAll('.theme-option').length===19&&document.querySelector('#appearance .panel').id==='dogThemePanel'")))throw new Exception("Dog chooser is not first or classic colors are unavailable");
-            result.putString("summary","Dog chooser is first; Husky dropdown shows three coats, two large poses, and side-profile icon; coat saves palette and actual launcher choice; classic colors stay available; hide-art survives icon changes");finish(Activity.RESULT_OK,result);
+            if(!"true".equals(js("!$('originalIconsMenu').open&&!$('originalThemesMenu').open&&$('originalIconSummary').textContent.includes('P1 Classic Paw')&&$('originalThemeSummary').textContent.includes('Husky')")))throw new Exception("Separate closed menus did not show current selections");
+            js("$('clearAppearance').scrollIntoView({block:'start'})");Thread.sleep(500);
+            Bitmap appearanceShot=getUiAutomation().takeScreenshot();if(appearanceShot==null)throw new Exception("Could not capture Appearance menus");
+            File appearanceOutput=new File(c.getExternalFilesDir(null),"appearance-menus-synthetic.png");
+            try(FileOutputStream stream=new FileOutputStream(appearanceOutput)){appearanceShot.compress(Bitmap.CompressFormat.PNG,100,stream);}appearanceShot.recycle();
+            js("$('originalIconsMenu').querySelector('summary').click();$('originalThemesMenu').querySelector('summary').click()");
+            if(!"true".equals(js("$('originalIconsMenu').open&&$('originalThemesMenu').open&&document.querySelector('.icon-option').getBoundingClientRect().height>0&&document.querySelector('.theme-option').getBoundingClientRect().height>0")))throw new Exception("Both original card menus cannot remain open together");
+            org.json.JSONObject personal=new org.json.JSONObject().put("id","custom:00000000-0000-0000-0000-000000000001").put("name","Synthetic personal theme").put("background","#243247").put("primary","#A9D9CF").put("secondary","#D7BCAB").put("preferredText","#FFFFFF");
+            if(!prefs.edit().putString("customThemes",new org.json.JSONArray().put(personal).toString()).commit())throw new Exception("Could not prepare synthetic personal theme");
+            js("$('clearAppearance').click();$('yesConfirm').click()");
+            end=System.currentTimeMillis()+5000;
+            while(System.currentTimeMillis()<end&&!Appearance.cleared(c))Thread.sleep(100);
+            if(!Appearance.cleared(c)||!"navy".equals(Appearance.current(c).id)||!"wr_s2".equals(Appearance.icon(c))||!"none".equals(prefs.getString("dogCompanion","")))throw new Exception("Clear did not restore the basic look and hide dog artwork");
+            if(Appearance.customThemes(c).length()!=1||!"true".equals(js("$('customThemeList').textContent.includes('Synthetic personal theme')")))throw new Exception("Clearing deleted a saved personal theme");
+            if(!"true".equals(js("document.querySelectorAll('.theme-option[aria-pressed=true],.icon-option[aria-pressed=true]').length===0&&$('originalIconSummary').textContent.includes('Basic')&&$('originalThemeSummary').textContent.includes('Basic')")))throw new Exception("Cleared choices still look selected");
+            org.json.JSONObject exported=new org.json.JSONObject(SettingsTransfer.exportJson(c));
+            if(!exported.getJSONObject("settings").getBoolean("appearanceCleared"))throw new Exception("Basic appearance was not included in portable settings");
+            exported.getJSONObject("settings").put("appearance","rose");boolean invalidAccepted=false;
+            try{SettingsTransfer.validateJson(c,exported.toString());invalidAccepted=true;}catch(IllegalArgumentException expected){}
+            if(invalidAccepted)throw new Exception("Inconsistent basic appearance was accepted from a settings file");
+            js("document.querySelector('[data-profile=rose]').click()");
+            end=System.currentTimeMillis()+5000;
+            while(System.currentTimeMillis()<end&&Appearance.cleared(c))Thread.sleep(100);
+            if(Appearance.cleared(c)||!"rose".equals(Appearance.current(c).id))throw new Exception("Choosing a theme did not leave the basic state");
+            js("document.querySelector('[data-icon=wr_h3]').click()");
+            end=System.currentTimeMillis()+5000;
+            while(System.currentTimeMillis()<end&&!"wr_h3".equals(Appearance.icon(c)))Thread.sleep(100);
+            if(!"wr_h3".equals(Appearance.icon(c))||Appearance.cleared(c))throw new Exception("Original icon choice did not save after clearing");
+            result.putString("summary","Dog picker and 28 breed icons remain; original icon and color menus open independently with all cards visible; clearing restores the basic look without deleting personal themes; subsequent original choices save");finish(Activity.RESULT_OK,result);
         }catch(Throwable error){result.putString("error",error.toString());finish(Activity.RESULT_CANCELED,result);}
         finally{if(screen!=null&&!screen.isFinishing()){Activity finalScreen=screen;runOnMainSync(finalScreen::finish);}
-            var edit=prefs.edit();if(oldTheme==null)edit.remove("appearance");else edit.putString("appearance",oldTheme);if(oldDog==null)edit.remove("dogCompanion");else edit.putString("dogCompanion",oldDog);if(oldIcon==null)edit.remove("iconDesign");else edit.putString("iconDesign",oldIcon);edit.commit();Appearance.syncLauncher(c);}
+            var edit=prefs.edit();if(oldTheme==null)edit.remove("appearance");else edit.putString("appearance",oldTheme);if(oldDog==null)edit.remove("dogCompanion");else edit.putString("dogCompanion",oldDog);if(oldIcon==null)edit.remove("iconDesign");else edit.putString("iconDesign",oldIcon);if(oldCustom==null)edit.remove("customThemes");else edit.putString("customThemes",oldCustom);if(hadCleared)edit.putBoolean("appearanceCleared",oldCleared);else edit.remove("appearanceCleared");edit.commit();Appearance.syncLauncher(c);}
     }
 }
