@@ -1,8 +1,10 @@
-// Offline contract: 84 UI choices match the packaged Android catalog and artwork.
+// Offline contract: every dog choice has three coats and both alarm poses.
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
 const assets=path.join(__dirname,'../app/src/main/assets');
 const rows=JSON.parse(fs.readFileSync(path.join(assets,'dog-themes.json'),'utf8'));
-assert.equal(rows.length,84);assert.equal(new Set(rows.map(x=>x.id)).size,84);
+assert.equal(rows.length,240);assert.equal(new Set(rows.map(x=>x.id)).size,240);
+assert.equal(new Set(rows.filter(x=>x.kind==='breed').map(x=>x.breed)).size,50);
+assert.equal(new Set(rows.filter(x=>x.kind==='mix').map(x=>x.breed)).size,30);
 assert(rows.some(row=>row.breed==='Goldendoodle'));
 assert(!rows.some(row=>row.breed==='Poodle'));
 for(const breed of new Set(rows.map(row=>row.breed))){
@@ -27,8 +29,13 @@ for(const file of ['appearance.js','dog-themes.js','icon-templates.js','custom-t
 assert.equal(JSON.stringify(rows),JSON.stringify(context.window.DOG_THEMES));
 const app=fs.readFileSync(path.join(assets,'app.js'),'utf8');vm.runInContext(app.slice(0,app.indexOf('renderAppearanceOptions();applyAppearance')),context);
 vm.runInContext('renderAppearanceOptions();st={settings:{dogCompanion:"dog_shiba_0"}};applyAppearance("dog_shiba_0","wr_s2")',context);
-assert.equal(get('themeSelect').value,'dog_shiba_0');
-assert.equal((get('dogBreed').innerHTML.match(/<option /g)||[]).length,29);
+assert.equal(get('themeSelect').value,'');
+assert(!get('themeSelect').innerHTML.includes('dog_shiba_0'));
+assert.equal(vm.runInContext('dogBreeds[0]',context),'Shiba Inu');
+assert.equal(vm.runInContext('dogBreeds[1]',context),'French Bulldog');
+assert.equal((get('dogBreed').innerHTML.match(/<option /g)||[]).length,81);
+assert(get('dogBreed').innerHTML.includes('Named dogs · 50'));
+assert(get('dogBreed').innerHTML.includes('Mixed companions · 30'));
 assert.equal(get('dogBreed').value,'Shiba Inu');
 assert.equal(get('dogSnoozePreview').src,'dog-poses/dog_shiba_0-curl.webp');
 assert.equal(get('dogAwakePreview').src,'dog-poses/dog_shiba_0-yawn.webp');
@@ -38,11 +45,14 @@ assert(get('dogOptions').innerHTML.includes('data-dog="dog_shiba_0" aria-pressed
 assert.equal((get('themeOptions').innerHTML.match(/class="theme-option"/g)||[]).length,19);
 for(const row of rows){
  vm.runInContext(`st={settings:{dogCompanion:${JSON.stringify(row.id)}}};applyAppearance(${JSON.stringify(row.id)},'wr_s2')`,context);
- assert.equal(get('themeSelect').value,row.id);assert.equal(tokens['--paper'],row.bg);
+ assert.equal(get('themeSelect').value,'');assert.equal(tokens['--paper'],row.bg);
  assert(get('dogOptions').innerHTML.includes(`data-dog="${row.id}" aria-pressed="true"`));
  assert.equal(get('dogBreed').value,row.breed);
  assert.equal(get('dogSnoozePreview').src,`dog-poses/${row.id}-curl.webp`);
 }
 vm.runInContext("dogPreviewId='dog_husky_0';renderDogOptions()",context);
 assert.equal((get('dogOptions').innerHTML.match(/class="dog-option"/g)||[]).length,3);
-console.log('PASS: 28-breed dropdown, 84 coat choices, 168 offline poses, large pose previews, 19 classic palettes, and saved selection UI');
+get('dogSearch').value='pomeranian';vm.runInContext('renderDogOptions()',context);
+assert(get('dogBreed').innerHTML.includes('Pomeranian'));
+assert(!get('dogBreed').innerHTML.includes('Golden Retriever'));
+console.log('PASS: 50 named dogs, 30 mutts, 240 coat choices, 480 offline poses, searchable picker, saved selection UI');

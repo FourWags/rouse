@@ -14,16 +14,19 @@ import xml.etree.ElementTree as ET
 
 import cairo
 import gi
-from PIL import Image
+from PIL import Image, ImageChops, ImageDraw, ImageOps
 
 gi.require_version('Rsvg', '2.0')
 from gi.repository import Rsvg
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'tools/dog_howl_source'
+NEW_SOURCE = ROOT / 'tools/dog_catalog_80_source'
+PLAN = ROOT / 'tools/dog_catalog_80_plan.json'
 RES = ROOT / 'app/src/main/res'
 ASSETS = ROOT / 'app/src/main/assets/dog-icons'
 MANIFEST = ROOT / 'app/src/main/AndroidManifest.xml'
+APPEARANCE = ROOT / 'app/src/main/java/app/daybreak/Appearance.java'
 DENSITIES = {'mdpi': 48, 'hdpi': 72, 'xhdpi': 96, 'xxhdpi': 144, 'xxxhdpi': 192}
 BEGIN = '<!-- BEGIN GENERATED DOG HOWL ICON ALIASES -->'
 END = '<!-- END GENERATED DOG HOWL ICON ALIASES -->'
@@ -37,6 +40,13 @@ SHEETS = {
     'mixed-one.png': (2, 2, ['floppy_mix', 'pointy_mix', 'shaggy_mix', 'patchwork_mix']),
     'mixed-two.png': (2, 2, ['velvet_mix', 'copper_mix', 'silver_mix', 'cream_mix']),
     'goldendoodle.png': (1, 1, ['goldendoodle']),
+}
+FULL_BODY_HEAD_CROPS = {
+    'big_ear_mix', 'sable_saddle_mix', 'spotted_hound_mix',
+    'tiny_scruff_mix', 'plush_tail_mix', 'broad_chest_mix',
+    'long_nose_mix', 'silky_ear_mix', 'button_ear_mix',
+    'snow_patch_mix', 'copper_brindle_mix', 'salt_pepper_mix',
+    'tri_flop_mix', 'round_muzzle_mix',
 }
 
 
@@ -85,13 +95,42 @@ def portrait_svg(image: bytes, width: int, height: int, columns: int, rows: int,
     return svg.encode('utf-8')
 
 
+def new_portrait(sheet: Image.Image, size: int, background: str | None, head_crop: bool) -> bytes:
+    head = sheet.crop((0, 0, 490, 1024//3)).convert('RGBA')
+    if head_crop:
+        head = head.crop((200, 0, 490, 235))
+    alpha = head.getchannel('A').point(lambda value: min(255, max(0, round((value-80)*255/170))))
+    if head_crop:
+        width, height = head.size
+        edge = Image.new('L', (width, height))
+        pixels = edge.load()
+        for y in range(height):
+            for x in range(width):
+                pixels[x, y] = round(255*min(1, x/75)*min(1, (height-1-y)/55))
+        alpha = ImageChops.multiply(alpha, edge)
+    head.putalpha(alpha)
+    box = alpha.getbbox()
+    assert box is not None
+    head = head.crop(box)
+    canvas = Image.new('RGBA', (size, size))
+    if background is not None:
+        draw = ImageDraw.Draw(canvas)
+        draw.rounded_rectangle((0, 0, size-1, size-1), radius=round(size*.22), fill=background)
+    inset = .94 if head_crop else .80
+    portrait = ImageOps.contain(head, (round(size*inset), round(size*inset)), Image.Resampling.LANCZOS)
+    canvas.alpha_composite(portrait, ((size-portrait.width)//2, (size-portrait.height)//2))
+    output = io.BytesIO()
+    canvas.save(output, 'PNG', optimize=True)
+    return output.getvalue()
+
+
 def main() -> None:
     catalog = json.loads((ROOT / 'app/src/main/assets/dog-themes.json').read_text())
     first = {}
     for entry in catalog:
         key = entry['id'].rsplit('_', 1)[0].removeprefix('dog_')
         first.setdefault(key, entry)
-    assert len(first) == 28, len(first)
+    assert len(first) == 80, len(first)
     aliases = []
     for sheet, (columns, rows, breeds) in SHEETS.items():
         image = (SOURCE / sheet).read_bytes()
@@ -120,7 +159,26 @@ def main() -> None:
             for version in ('v26', 'v33'):
                 save(RES / f'mipmap-anydpi-{version}' / f'wag_howl_{breed}.xml', adaptive)
             aliases.append((breed, first[breed]['bg']))
-    assert len(aliases) == 28 and len({key for key, _ in aliases}) == 28
+    plan = json.loads(PLAN.read_text())
+    assert len(plan['newEntries']) == 52
+    for entry in plan['newEntries']:
+        breed = entry['slug']
+        assert breed in first and breed not in {key for key, _ in aliases}
+        with Image.open(NEW_SOURCE / f'{breed}.webp') as sheet:
+            background = entry['iconBg']
+            head_crop = breed in FULL_BODY_HEAD_CROPS
+            save(ASSETS / f'{breed}.png', new_portrait(sheet, 144, background, head_crop))
+            save(RES / 'drawable-nodpi' / f'dog_howl_{breed}_foreground.png', new_portrait(sheet, 432, None, head_crop))
+            for density, size in DENSITIES.items():
+                save(RES / f'mipmap-{density}' / f'wag_howl_{breed}.png', new_portrait(sheet, size, background, head_crop))
+            adaptive = (f'<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">'
+                        f'<background android:drawable="@color/dog_howl_bg_{breed}"/>'
+                        f'<foreground android:drawable="@drawable/dog_howl_{breed}_foreground"/>'
+                        '</adaptive-icon>\n').encode()
+            for version in ('v26', 'v33'):
+                save(RES / f'mipmap-anydpi-{version}' / f'wag_howl_{breed}.xml', adaptive)
+        aliases.append((breed, background))
+    assert len(aliases) == 80 and len({key for key, _ in aliases}) == 80
     colors = ['<?xml version="1.0" encoding="utf-8"?>', '<resources>']
     for breed, color in aliases:
         colors.append(f'    <color name="dog_howl_bg_{breed}">{color}</color>')
@@ -147,7 +205,18 @@ def main() -> None:
         manifest = manifest.replace(marker, '\n'.join(block) + '\n        ' + marker, 1)
     ET.fromstring(manifest)
     save(MANIFEST, manifest.encode())
-    print(f'Generated {len(aliases)} approved breed launcher portraits and aliases.')
+    begin = '// BEGIN GENERATED ADDITIONAL DOG ICON CASES'
+    end = '// END GENERATED ADDITIONAL DOG ICON CASES'
+    java = APPEARANCE.read_text()
+    assert begin in java and end in java
+    cases = [begin]
+    for entry in plan['newEntries']:
+        breed = entry['slug']
+        cases.append(f'            case "dog_howl_{breed}":return R.mipmap.wag_howl_{breed};')
+    cases.append('            ' + end)
+    java = java[:java.index(begin)] + '\n'.join(cases) + java[java.index(end)+len(end):]
+    save(APPEARANCE, java.encode())
+    print(f'Generated {len(aliases)} breed launcher portraits and aliases.')
 
 
 if __name__ == '__main__':

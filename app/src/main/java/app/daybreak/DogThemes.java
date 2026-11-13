@@ -23,7 +23,7 @@ final class DogThemes {
             while((count=stream.read(chunk))!=-1)buffer.write(chunk,0,count);
             byte[] bytes=buffer.toByteArray();
             JSONArray items=new JSONArray(new String(bytes,StandardCharsets.UTF_8));
-            if(items.length()!=84)throw new IllegalStateException("Dog theme catalog incomplete");
+            if(items.length()!=240)throw new IllegalStateException("Dog theme catalog incomplete");
             Map<String,JSONObject> found=new HashMap<>();
             for(int i=0;i<items.length();i++){
                 JSONObject entry=items.getJSONObject(i);String id=entry.getString("id");

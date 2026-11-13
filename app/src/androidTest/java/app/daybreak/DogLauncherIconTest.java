@@ -30,7 +30,7 @@ public final class DogLauncherIconTest extends Instrumentation {
                 if(icon==null||!Appearance.validIcon(c,icon))throw new AssertionError("Invalid breed icon mapping: "+id);
                 breeds.putIfAbsent(icon,id);
             }
-            if(catalog.length()!=84||breeds.size()!=28)throw new AssertionError("Expected 84 coats and 28 breed icons.");
+            if(catalog.length()!=240||breeds.size()!=80)throw new AssertionError("Expected 240 coats and 80 dog icons.");
             PackageManager pm=c.getPackageManager();int checked=0;
             for(var pair:breeds.entrySet()){
                 String icon=pair.getKey(),id=pair.getValue();
@@ -48,7 +48,7 @@ public final class DogLauncherIconTest extends Instrumentation {
             try{pm.getActivityInfo(new ComponentName(c.getPackageName(),"app.daybreak.DogHowl_poodle"),PackageManager.MATCH_DISABLED_COMPONENTS);}
             catch(PackageManager.NameNotFoundException expected){poodlePackaged=false;}
             if(poodlePackaged)throw new AssertionError("Retired Poodle icon is still packaged.");
-            result.putString("summary",checked+" distinct breed launcher icons; 84 coats map to the correct breed; one WagRise launcher remains enabled; Poodle absent");
+            result.putString("summary",checked+" distinct dog launcher icons; 240 coats map to the correct dog; one WagRise launcher remains enabled; Poodle absent");
             finish(Activity.RESULT_OK,result);
         }catch(Throwable error){result.putString("error",error.toString());finish(Activity.RESULT_CANCELED,result);}
         finally{

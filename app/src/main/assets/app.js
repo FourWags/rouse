@@ -9,7 +9,13 @@ const personalGenres=['Orchestral','Piano','Ambient','Nature','Acoustic','Jazz',
 const appearanceCatalog=window.APPEARANCE;
 const legacyIconNames={petal:'Flower Clock',dawn:'Dawn Note',moon:'Moon Chime',bell:'Lavender Bell',baton:'Morning Baton',calendar:'Calendar Song',rouse_a:'Sunrise',rouse_b:'Sunrise Clock',rouse_c:'Shiba Alarm'};
 const dogThemes=window.DOG_THEMES||[];
-const dogBreeds=[...new Set(dogThemes.map(d=>d.breed))];
+const dogKind=new Map(dogThemes.map(d=>[d.breed,d.kind||(/ mix$/i.test(d.breed)?'mix':'breed')]));
+// AKC 2025 U.S. registration ranking, with the owner's Shiba pinned first.
+// Poodle is intentionally absent; Goldendoodle is not AKC-ranked and follows the ranked breeds.
+const rankedDogSlugs=['shiba','frenchie','lab','golden','shepherd','dachshund','beagle','rottweiler','gsp','bulldog','corso','cavalier','yorkie','aussie','doberman','corgi','mini_schnauzer','boxer','pomeranian','bernese','shih_tzu','great_dane','boston_terrier','chihuahua','havanese','border','english_springer','mini_american_shepherd','shetland_sheepdog','husky','brittany','belgian_malinois','cocker_spaniel','basset_hound','english_cocker','vizsla','maltese','pug','collie','mastiff','ridgeback','papillon','portuguese_water','westie','newfoundland','cattle_dog','whippet','bichon','dalmatian','goldendoodle'];
+const rankBySlug=new Map(rankedDogSlugs.map((slug,index)=>[slug,index]));
+const slugByBreed=new Map(dogThemes.map(d=>[d.breed,d.id.slice(4).replace(/_\d+$/,'')]));
+const dogBreeds=[...new Set(dogThemes.map(d=>d.breed))].sort((a,b)=>dogKind.get(a)===dogKind.get(b)?dogKind.get(a)==='breed'?(rankBySlug.get(slugByBreed.get(a))??999)-(rankBySlug.get(slugByBreed.get(b))??999):a.localeCompare(b):dogKind.get(a)==='breed'?-1:1);
 let dogPreviewId='',lastSavedDogId;
 appearanceCatalog.themes.push(...dogThemes.map(d=>({id:d.id,name:d.breed+' · '+d.coat,background:d.bg,primary:d.action,secondary:d.accent,preferredText:d.ink,dog:true})));
 appearanceCatalog.themes=appearanceCatalog.themes.map(t=>({...t,...customColorMath(t.background,t.primary,t.secondary,t.preferredText),...(t.shiba?shibaColors(t.shiba):{}),custom:false}));
@@ -20,8 +26,13 @@ function renderDogOptions(){
  const selected=st?.settings?.dogCompanion;
  if(selected!==lastSavedDogId){lastSavedDogId=selected;dogPreviewId=dogThemes.some(d=>d.id===selected)?selected:'';}
  const preview=dogThemes.find(d=>d.id===dogPreviewId);
- $('dogBreed').innerHTML='<option value="">Choose a dog or mix…</option>'+dogBreeds.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+ const search=($('dogSearch')?.value||'').trim().toLocaleLowerCase();
+ const matches=dogBreeds.filter(b=>b.toLocaleLowerCase().includes(search));
+ const listed=preview&&!matches.includes(preview.breed)?[preview.breed,...matches]:matches;
+ const group=(kind,label)=>{const options=listed.filter(b=>dogKind.get(b)===kind).map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');return options?`<optgroup label="${label}">${options}</optgroup>`:'';};
+ $('dogBreed').innerHTML='<option value="">Choose a dog or mix…</option>'+group('breed','Named dogs · 50')+group('mix','Mixed companions · 30');
  $('dogBreed').value=preview?.breed||'';
+ $('dogSearchCount').textContent=search?`${matches.length} dog${matches.length===1?'':'s'} match “${search}”.`:'Shiba first, then AKC’s 2025 popularity order. Goldendoodle and mixes are unranked.';
  $('dogPreview').hidden=!preview;$('dogOptions').hidden=!preview;$('dogCoatHeading').hidden=!preview;
  if(preview){
   $('dogPreviewName').textContent=preview.breed+' · '+preview.coat;
@@ -57,14 +68,20 @@ function applyAppearance(profile,design){
  $('themeSummaryBackground').style.background=theme.background;$('themeSummaryPrimary').style.background=theme.primary;$('themeSummarySecondary').style.background=theme.secondary;
  $('clearAppearanceStatus').textContent=cleared?'Basic look active. Your saved personal themes are still available.':'';
  $('customizePreset').hidden=!!theme.custom;$('customizePreset').textContent='Customize '+theme.name;
- $('themeSelect').innerHTML=[...appearanceCatalog.themes,...customThemes].map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');$('themeSelect').value=theme.id;
+ const originalColors=appearanceCatalog.themes.filter(t=>!t.dog);
+ const classicOptions=originalColors.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
+ const customOptions=customThemes.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
+ $('themeSelect').innerHTML=(theme.dog?'<option value="" disabled>Dog coat active · choose a classic color to switch</option>':'')+`<optgroup label="Original color themes">${classicOptions}</optgroup>`+(customOptions?`<optgroup label="Your saved colors">${customOptions}</optgroup>`:'');
+ $('themeSelect').value=theme.dog?'':theme.id;
+ $('themeSelectHint').textContent=theme.dog?'Dog coat colors are active. Use Appearance to change the coat, or choose an original color here.':'Dog coats have their own picker in Appearance.';
  renderDogOptions();
  renderCustomThemes();
 }
 renderAppearanceOptions();applyAppearance(...location.hash.slice(1).split('/'));
-$('themeSelect').onchange=()=>send('appearance',{profile:$('themeSelect').value});
+$('themeSelect').onchange=()=>{if($('themeSelect').value)send('appearance',{profile:$('themeSelect').value});};
 $('themeOptions').onclick=event=>{const button=event.target.closest('[data-profile]');if(button)send('appearance',{profile:button.dataset.profile});};
 $('dogBreed').onchange=()=>{dogPreviewId=dogThemes.find(d=>d.breed===$('dogBreed').value)?.id||'';renderDogOptions();};
+$('dogSearch').oninput=()=>renderDogOptions();
 $('dogOptions').onclick=event=>{const button=event.target.closest('[data-dog]');if(button){dogPreviewId=button.dataset.dog;renderDogOptions();send('appearance',{profile:button.dataset.dog});}};
 $('dogNone').onclick=()=>send('dogCompanion',{id:'none'});
 $('iconOptions').onclick=event=>{const button=event.target.closest('[data-icon]');if(button)send('iconDesign',{design:button.dataset.icon});};

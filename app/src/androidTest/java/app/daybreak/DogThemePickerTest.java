@@ -30,6 +30,11 @@ public final class DogThemePickerTest extends Instrumentation {
             long end=System.currentTimeMillis()+15000;
             while(System.currentTimeMillis()<end&&!"true".equals(js("typeof st==='object'&&st!==null&&!!st.settings")))Thread.sleep(100);
             if(!"true".equals(js("typeof st==='object'&&st!==null&&!!st.settings")))throw new Exception("App did not load");
+            if(!"true".equals(js("dogBreeds.length===80&&dogThemes.filter(d=>d.kind==='breed').length===150&&dogThemes.filter(d=>d.kind==='mix').length===90&&dogBreeds[0]==='Shiba Inu'&&dogBreeds[1]==='French Bulldog'&&dogBreeds[49]==='Goldendoodle'")))throw new Exception("Dog catalog groups, counts, or AKC order are wrong");
+            if(!"true".equals(js("!$('themeSelect').querySelector('option[value^=dog_]')")))throw new Exception("Dog coats leaked into original color selector");
+            js("page('appearance');$('dogSearch').value='Pomeranian';$('dogSearch').dispatchEvent(new Event('input',{bubbles:true}))");
+            if(!"true".equals(js("$('dogSearchCount').textContent.includes('1 dog')&&[...$('dogBreed').options].some(option=>option.value==='Pomeranian')&&![...$('dogBreed').options].some(option=>option.value==='Golden Retriever')")))throw new Exception("Dog search did not filter the catalog");
+            js("$('dogSearch').value='';$('dogSearch').dispatchEvent(new Event('input',{bubbles:true}))");
             js("page('appearance');$('dogBreed').value='Goldendoodle';$('dogBreed').dispatchEvent(new Event('change',{bubbles:true}))");
             if(!"\"3\"".equals(js("String(document.querySelectorAll('.dog-option[data-dog^=dog_goldendoodle]').length)")))throw new Exception("Goldendoodle did not replace Poodle with three coats");
             if(!"false".equals(js("[...$('dogBreed').options].some(option=>option.value==='Poodle')")))throw new Exception("Poodle is still selectable");
@@ -43,6 +48,7 @@ public final class DogThemePickerTest extends Instrumentation {
             end=System.currentTimeMillis()+5000;
             while(System.currentTimeMillis()<end&&!"dog_husky_0".equals(prefs.getString("dogCompanion","")))Thread.sleep(100);
             if(!"dog_husky_0".equals(Appearance.current(c).id)||!"dog_husky_0".equals(prefs.getString("dogCompanion",""))||!"dog_howl_husky".equals(Appearance.icon(c)))throw new Exception("Dog, palette and home-screen icon did not save together");
+            if(!"true".equals(js("$('themeSelect').value===''&&!$('themeSelect').querySelector('option[value^=dog_]')")))throw new Exception("Selected dog coat appeared among original colors");
             if(!"true".equals(js("document.querySelector('[data-dog=dog_husky_0]').getAttribute('aria-pressed')==='true'")))throw new Exception("Selected dog not visibly marked");
             js("$('dogPreview').scrollIntoView({block:'center'})");Thread.sleep(5200);
             Bitmap shot=getUiAutomation().takeScreenshot();if(shot==null)throw new Exception("Could not capture picker");
@@ -85,7 +91,7 @@ public final class DogThemePickerTest extends Instrumentation {
             end=System.currentTimeMillis()+5000;
             while(System.currentTimeMillis()<end&&!"wr_h3".equals(Appearance.icon(c)))Thread.sleep(100);
             if(!"wr_h3".equals(Appearance.icon(c))||Appearance.cleared(c))throw new Exception("Original icon choice did not save after clearing");
-            result.putString("summary","Dog picker and 28 breed icons remain; original icon and color menus open independently with all cards visible; clearing restores the basic look without deleting personal themes; subsequent original choices save");finish(Activity.RESULT_OK,result);
+            result.putString("summary","Dog picker and 80 dog icons remain; original icon and color menus open independently with all cards visible; clearing restores the basic look without deleting personal themes; subsequent original choices save");finish(Activity.RESULT_OK,result);
         }catch(Throwable error){result.putString("error",error.toString());finish(Activity.RESULT_CANCELED,result);}
         finally{if(screen!=null&&!screen.isFinishing()){Activity finalScreen=screen;runOnMainSync(finalScreen::finish);}
             var edit=prefs.edit();if(oldTheme==null)edit.remove("appearance");else edit.putString("appearance",oldTheme);if(oldDog==null)edit.remove("dogCompanion");else edit.putString("dogCompanion",oldDog);if(oldIcon==null)edit.remove("iconDesign");else edit.putString("iconDesign",oldIcon);if(oldCustom==null)edit.remove("customThemes");else edit.putString("customThemes",oldCustom);if(hadCleared)edit.putBoolean("appearanceCleared",oldCleared);else edit.remove("appearanceCleared");edit.commit();Appearance.syncLauncher(c);}

@@ -1,0 +1,1 @@
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/dog_howl_bg_great_dane"/><foreground android:drawable="@drawable/dog_howl_great_dane_foreground"/></adaptive-icon>

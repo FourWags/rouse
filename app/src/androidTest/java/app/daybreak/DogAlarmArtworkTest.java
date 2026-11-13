@@ -28,7 +28,7 @@ public final class DogAlarmArtworkTest extends Instrumentation {
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();
             try(InputStream source=c.getAssets().open("dog-themes.json")){byte[] chunk=new byte[4096];int count;while((count=source.read(chunk))!=-1)bytes.write(chunk,0,count);}
             JSONArray rows=new JSONArray(new String(bytes.toByteArray(),java.nio.charset.StandardCharsets.UTF_8));
-            if(rows.length()!=84)throw new Exception("Expected 84 dog coats");
+            if(rows.length()!=240)throw new Exception("Expected 240 dog coats");
             if(!DogThemes.has(c,requested))throw new Exception("Unknown requested dog");
             for(int i=0;i<rows.length();i++){
                 String id=rows.getJSONObject(i).getString("id");
@@ -63,7 +63,7 @@ public final class DogAlarmArtworkTest extends Instrumentation {
             if(shot==null)throw new Exception("Could not capture synthetic alarm");
             File output=new File(c.getExternalFilesDir(null),"dog-alarm-"+requested+".png");
             try(FileOutputStream stream=new FileOutputStream(output)){shot.compress(Bitmap.CompressFormat.PNG,100,stream);}shot.recycle();
-            result.putString("summary",textPriority?"84 palettes and 168 poses decode; 200% text uses uncluttered two-button fallback; move settings valid; synthetic screenshot saved":"84 palettes and 168 poses decode; two large accessible buttons retain art; move settings valid; synthetic screenshot saved");
+            result.putString("summary",textPriority?"240 palettes and 480 poses decode; 200% text uses uncluttered two-button fallback; move settings valid; synthetic screenshot saved":"240 palettes and 480 poses decode; two large accessible buttons retain art; move settings valid; synthetic screenshot saved");
             finish(Activity.RESULT_OK,result);
         }catch(Throwable error){result.putString("error",error.toString());finish(Activity.RESULT_CANCELED,result);}
         finally{

@@ -1,0 +1,633 @@
+{
+  "schema": 1,
+  "targetNamedDogs": 50,
+  "targetMuttStyles": 30,
+  "existingNamedDogs": 20,
+  "existingMuttStyles": 8,
+  "newEntries": [
+    {
+      "slug": "mini_schnauzer",
+      "name": "Miniature Schnauzer",
+      "kind": "breed",
+      "anatomy": "small sturdy terrier, squared beard and eyebrows, folded triangular ears",
+      "coats": [
+        "Salt & pepper",
+        "Black & silver",
+        "Solid black"
+      ],
+      "iconBg": "#46565A"
+    },
+    {
+      "slug": "boxer",
+      "name": "Boxer",
+      "kind": "breed",
+      "anatomy": "muscular compact body, short muzzle, natural folded ears, short tail",
+      "coats": [
+        "Fawn & white",
+        "Dark brindle",
+        "Mahogany & white"
+      ],
+      "iconBg": "#405D69"
+    },
+    {
+      "slug": "pomeranian",
+      "name": "Pomeranian",
+      "kind": "breed",
+      "anatomy": "tiny foxlike face, erect ears, profuse fluffy coat and curled tail",
+      "coats": [
+        "Orange",
+        "Cream",
+        "Black & tan"
+      ],
+      "iconBg": "#3C5068"
+    },
+    {
+      "slug": "bernese",
+      "name": "Bernese Mountain Dog",
+      "kind": "breed",
+      "anatomy": "large long-haired mountain dog, floppy ears, wide white muzzle blaze, black rust white tricolor",
+      "coats": [
+        "Classic tricolor",
+        "Soft rust tricolor",
+        "Deep rust tricolor"
+      ],
+      "iconBg": "#3B5465"
+    },
+    {
+      "slug": "shih_tzu",
+      "name": "Shih Tzu",
+      "kind": "breed",
+      "anatomy": "small long-coated dog, round face, short muzzle, floppy hair-covered ears, plumed tail",
+      "coats": [
+        "Gold & white",
+        "Black & white",
+        "Brindle & white"
+      ],
+      "iconBg": "#5A6E70"
+    },
+    {
+      "slug": "great_dane",
+      "name": "Great Dane",
+      "kind": "breed",
+      "anatomy": "very tall elegant giant, long rectangular muzzle, natural folded ears, lean legs",
+      "coats": [
+        "Fawn & black mask",
+        "Brindle",
+        "Harlequin"
+      ],
+      "iconBg": "#455A72"
+    },
+    {
+      "slug": "boston_terrier",
+      "name": "Boston Terrier",
+      "kind": "breed",
+      "anatomy": "small tuxedo terrier, erect ears, compact body, short muzzle",
+      "coats": [
+        "Black & white",
+        "Brindle & white",
+        "Seal & white"
+      ],
+      "iconBg": "#506C67"
+    },
+    {
+      "slug": "chihuahua",
+      "name": "Chihuahua",
+      "kind": "breed",
+      "anatomy": "tiny alert dog, apple-shaped head, very large upright ears, dainty body",
+      "coats": [
+        "Fawn",
+        "Black & tan",
+        "Cream"
+      ],
+      "iconBg": "#546477"
+    },
+    {
+      "slug": "havanese",
+      "name": "Havanese",
+      "kind": "breed",
+      "anatomy": "small silky wavy-coated companion, floppy ears, plumed tail",
+      "coats": [
+        "Chocolate",
+        "Sable",
+        "Black & white"
+      ],
+      "iconBg": "#52675B"
+    },
+    {
+      "slug": "english_springer",
+      "name": "English Springer Spaniel",
+      "kind": "breed",
+      "anatomy": "medium athletic spaniel, feathered long ears and legs, gentle broad muzzle",
+      "coats": [
+        "Liver & white",
+        "Black & white",
+        "Liver roan"
+      ],
+      "iconBg": "#415A6B"
+    },
+    {
+      "slug": "mini_american_shepherd",
+      "name": "Miniature American Shepherd",
+      "kind": "breed",
+      "anatomy": "small athletic shepherd, triangular ears, fluffy ruff and compact build",
+      "coats": [
+        "Blue merle",
+        "Black tricolor",
+        "Red merle"
+      ],
+      "iconBg": "#334E69"
+    },
+    {
+      "slug": "shetland_sheepdog",
+      "name": "Shetland Sheepdog",
+      "kind": "breed",
+      "anatomy": "small long-haired collie shape, narrow muzzle, folded ear tips, thick mane",
+      "coats": [
+        "Sable & white",
+        "Blue merle",
+        "Tricolor"
+      ],
+      "iconBg": "#3E5268"
+    },
+    {
+      "slug": "brittany",
+      "name": "Brittany",
+      "kind": "breed",
+      "anatomy": "medium athletic spaniel, short tail, feathered ears, bright face",
+      "coats": [
+        "Orange & white",
+        "Liver & white",
+        "Orange roan"
+      ],
+      "iconBg": "#567177"
+    },
+    {
+      "slug": "belgian_malinois",
+      "name": "Belgian Malinois",
+      "kind": "breed",
+      "anatomy": "lean athletic shepherd, upright ears, black facial mask, short coat",
+      "coats": [
+        "Fawn & black mask",
+        "Mahogany & black mask",
+        "Red sable"
+      ],
+      "iconBg": "#42645D"
+    },
+    {
+      "slug": "cocker_spaniel",
+      "name": "Cocker Spaniel",
+      "kind": "breed",
+      "anatomy": "compact American cocker, domed forehead, very long silky ears and feathered legs",
+      "coats": [
+        "Black",
+        "Buff",
+        "Black & white parti"
+      ],
+      "iconBg": "#4E5871"
+    },
+    {
+      "slug": "basset_hound",
+      "name": "Basset Hound",
+      "kind": "breed",
+      "anatomy": "low long body, very long floppy ears, droopy eyes, heavy paws",
+      "coats": [
+        "Tricolor",
+        "Lemon & white",
+        "Red & white"
+      ],
+      "iconBg": "#5D6B59"
+    },
+    {
+      "slug": "english_cocker",
+      "name": "English Cocker Spaniel",
+      "kind": "breed",
+      "anatomy": "medium sporting spaniel, long feathered ears, soft eyes, balanced muzzle",
+      "coats": [
+        "Blue roan",
+        "Orange roan",
+        "Black & tan"
+      ],
+      "iconBg": "#51646A"
+    },
+    {
+      "slug": "vizsla",
+      "name": "Vizsla",
+      "kind": "breed",
+      "anatomy": "sleek athletic pointer, long graceful muzzle, floppy ears, short coat",
+      "coats": [
+        "Golden rust",
+        "Deep rust",
+        "Light rust"
+      ],
+      "iconBg": "#3F5D6D"
+    },
+    {
+      "slug": "maltese",
+      "name": "Maltese",
+      "kind": "breed",
+      "anatomy": "tiny white silky-coated dog, black nose, floppy ears hidden in long fur",
+      "coats": [
+        "Pure white",
+        "White & lemon",
+        "White & tan"
+      ],
+      "iconBg": "#324F66"
+    },
+    {
+      "slug": "pug",
+      "name": "Pug",
+      "kind": "breed",
+      "anatomy": "small compact dog, wrinkled round face, short muzzle, curled tail",
+      "coats": [
+        "Fawn & black mask",
+        "Solid black",
+        "Silver fawn"
+      ],
+      "iconBg": "#46685E"
+    },
+    {
+      "slug": "collie",
+      "name": "Collie",
+      "kind": "breed",
+      "anatomy": "long elegant herding dog, very long narrow muzzle, thick mane, folded ear tips",
+      "coats": [
+        "Sable & white",
+        "Blue merle",
+        "Tricolor"
+      ],
+      "iconBg": "#415B70"
+    },
+    {
+      "slug": "mastiff",
+      "name": "Mastiff",
+      "kind": "breed",
+      "anatomy": "massive broad-headed giant, loose jowls, natural folded ears, short coat",
+      "coats": [
+        "Fawn & black mask",
+        "Apricot & black mask",
+        "Brindle"
+      ],
+      "iconBg": "#49616A"
+    },
+    {
+      "slug": "ridgeback",
+      "name": "Rhodesian Ridgeback",
+      "kind": "breed",
+      "anatomy": "large sleek athletic hound, floppy ears, long muzzle, visible ridge along back",
+      "coats": [
+        "Light wheaten",
+        "Red wheaten",
+        "Dark wheaten"
+      ],
+      "iconBg": "#3B5E67"
+    },
+    {
+      "slug": "papillon",
+      "name": "Papillon",
+      "kind": "breed",
+      "anatomy": "tiny fine-boned toy dog, huge upright fringed butterfly ears, silky tail",
+      "coats": [
+        "White & sable",
+        "White & black",
+        "White & red"
+      ],
+      "iconBg": "#50627C"
+    },
+    {
+      "slug": "portuguese_water",
+      "name": "Portuguese Water Dog",
+      "kind": "breed",
+      "anatomy": "medium muscular water dog, curly or wavy coat, long tail and broad muzzle",
+      "coats": [
+        "Black",
+        "Brown",
+        "Black & white"
+      ],
+      "iconBg": "#47617C"
+    },
+    {
+      "slug": "westie",
+      "name": "West Highland White Terrier",
+      "kind": "breed",
+      "anatomy": "small sturdy white terrier, erect triangular ears, round furry face",
+      "coats": [
+        "Bright white",
+        "Warm white",
+        "Cream white"
+      ],
+      "iconBg": "#34586A"
+    },
+    {
+      "slug": "newfoundland",
+      "name": "Newfoundland",
+      "kind": "breed",
+      "anatomy": "very large fluffy water dog, wide head, drooping ears, thick coat",
+      "coats": [
+        "Black",
+        "Brown",
+        "Landseer black & white"
+      ],
+      "iconBg": "#4C5F70"
+    },
+    {
+      "slug": "cattle_dog",
+      "name": "Australian Cattle Dog",
+      "kind": "breed",
+      "anatomy": "compact athletic herder, upright ears, short dense coat, pointed muzzle",
+      "coats": [
+        "Blue speckled",
+        "Blue mottled",
+        "Red speckled"
+      ],
+      "iconBg": "#476878"
+    },
+    {
+      "slug": "whippet",
+      "name": "Whippet",
+      "kind": "breed",
+      "anatomy": "slim sighthound, long narrow muzzle, rose ears, deep chest and tucked waist",
+      "coats": [
+        "Fawn",
+        "Brindle & white",
+        "Blue & white"
+      ],
+      "iconBg": "#5B6680"
+    },
+    {
+      "slug": "bichon",
+      "name": "Bichon Frise",
+      "kind": "breed",
+      "anatomy": "small rounded fluffy dog, soft curly white coat, black nose and eyes",
+      "coats": [
+        "White",
+        "White & cream",
+        "White & apricot"
+      ],
+      "iconBg": "#405B70"
+    },
+    {
+      "slug": "floppy_scout_mix",
+      "name": "Floppy Scout mix",
+      "kind": "mix",
+      "anatomy": "medium lean rescue dog, asymmetrical floppy ears, long friendly muzzle",
+      "coats": [
+        "Sand & white",
+        "Charcoal & cream",
+        "Rust & white"
+      ],
+      "iconBg": "#4C6670"
+    },
+    {
+      "slug": "foxface_mix",
+      "name": "Foxy Face mix",
+      "kind": "mix",
+      "anatomy": "small athletic mixed dog, pointed foxlike muzzle, upright ears, fluffy curled tail",
+      "coats": [
+        "Red & cream",
+        "Black & tan",
+        "Sable & white"
+      ],
+      "iconBg": "#3D5A66"
+    },
+    {
+      "slug": "teddy_mix",
+      "name": "Teddy Ears mix",
+      "kind": "mix",
+      "anatomy": "medium plush mixed dog, round head, soft button ears, thick fluffy coat",
+      "coats": [
+        "Honey & oat",
+        "Cocoa & cream",
+        "Black & silver"
+      ],
+      "iconBg": "#4A6570"
+    },
+    {
+      "slug": "freckled_mix",
+      "name": "Freckled Nose mix",
+      "kind": "mix",
+      "anatomy": "medium mixed dog, spotted muzzle, one folded ear and one upright ear",
+      "coats": [
+        "White & black spots",
+        "Tan & white freckles",
+        "Blue speckle & cream"
+      ],
+      "iconBg": "#4C6778"
+    },
+    {
+      "slug": "lowrider_mix",
+      "name": "Little Lowrider mix",
+      "kind": "mix",
+      "anatomy": "short-legged long-bodied rescue mix, floppy ears, cheerful long muzzle",
+      "coats": [
+        "Fawn & white",
+        "Chocolate & tan",
+        "Black & cream"
+      ],
+      "iconBg": "#53665E"
+    },
+    {
+      "slug": "curly_coat_mix",
+      "name": "Curly Coat mix",
+      "kind": "mix",
+      "anatomy": "medium mixed dog, loose curly fur, floppy ears, long tail",
+      "coats": [
+        "Apricot curls",
+        "Black curls",
+        "Cream curls"
+      ],
+      "iconBg": "#4A5C78"
+    },
+    {
+      "slug": "bearded_mix",
+      "name": "Bearded Buddy mix",
+      "kind": "mix",
+      "anatomy": "medium mixed dog, shaggy beard and eyebrows, half-upright ears",
+      "coats": [
+        "Salt & pepper",
+        "Copper & cream",
+        "Black & tan"
+      ],
+      "iconBg": "#4A6568"
+    },
+    {
+      "slug": "big_ear_mix",
+      "name": "Big Ears mix",
+      "kind": "mix",
+      "anatomy": "small mixed dog, very large upright ears, narrow muzzle, slim body",
+      "coats": [
+        "Fawn & ivory",
+        "Black & rust",
+        "Sable & white"
+      ],
+      "iconBg": "#4B6873"
+    },
+    {
+      "slug": "sable_saddle_mix",
+      "name": "Sable Saddle mix",
+      "kind": "mix",
+      "anatomy": "medium shepherdlike rescue dog, one folded ear, thick ruff, long tail",
+      "coats": [
+        "Sable & cream",
+        "Black saddle & tan",
+        "Red sable & white"
+      ],
+      "iconBg": "#486277"
+    },
+    {
+      "slug": "spotted_hound_mix",
+      "name": "Spotted Hound mix",
+      "kind": "mix",
+      "anatomy": "medium houndlike rescue dog, long floppy ears, lean legs, spotted coat",
+      "coats": [
+        "White & black patches",
+        "Liver & white spots",
+        "Tan & white ticked"
+      ],
+      "iconBg": "#566879"
+    },
+    {
+      "slug": "tiny_scruff_mix",
+      "name": "Tiny Scruff mix",
+      "kind": "mix",
+      "anatomy": "small wire-haired rescue dog, messy eyebrows, small floppy ears",
+      "coats": [
+        "Wheaten",
+        "Gray & tan",
+        "Black & silver"
+      ],
+      "iconBg": "#526A65"
+    },
+    {
+      "slug": "plush_tail_mix",
+      "name": "Plush Tail mix",
+      "kind": "mix",
+      "anatomy": "medium mixed dog, broad smile, semi-upright ears, large plumed tail",
+      "coats": [
+        "Golden & cream",
+        "Black & white",
+        "Red & ivory"
+      ],
+      "iconBg": "#485C76"
+    },
+    {
+      "slug": "broad_chest_mix",
+      "name": "Broad Chest mix",
+      "kind": "mix",
+      "anatomy": "stocky medium mixed dog, broad chest, folded ears, friendly short muzzle",
+      "coats": [
+        "Fawn & white",
+        "Brindle & white",
+        "Black & copper"
+      ],
+      "iconBg": "#526774"
+    },
+    {
+      "slug": "long_nose_mix",
+      "name": "Long Nose mix",
+      "kind": "mix",
+      "anatomy": "slim mixed dog, long graceful muzzle, rose ears, tucked waist",
+      "coats": [
+        "Cream & tan",
+        "Blue & white",
+        "Red & white"
+      ],
+      "iconBg": "#506B71"
+    },
+    {
+      "slug": "silky_ear_mix",
+      "name": "Silky Ears mix",
+      "kind": "mix",
+      "anatomy": "small-to-medium mixed dog, long silky floppy ears, gentle face",
+      "coats": [
+        "Caramel & white",
+        "Black & tan",
+        "Silver & cream"
+      ],
+      "iconBg": "#4F6476"
+    },
+    {
+      "slug": "button_ear_mix",
+      "name": "Button Ears mix",
+      "kind": "mix",
+      "anatomy": "small athletic rescue dog, short folded button ears, compact body",
+      "coats": [
+        "Honey & white",
+        "Black & ivory",
+        "Brindle & tan"
+      ],
+      "iconBg": "#49695C"
+    },
+    {
+      "slug": "snow_patch_mix",
+      "name": "Snow Patch mix",
+      "kind": "mix",
+      "anatomy": "medium mixed dog, fluffy coat, white chest blaze and paws, half-floppy ears",
+      "coats": [
+        "Black & snow",
+        "Gray & ivory",
+        "Copper & white"
+      ],
+      "iconBg": "#435F78"
+    },
+    {
+      "slug": "copper_brindle_mix",
+      "name": "Copper Brindle mix",
+      "kind": "mix",
+      "anatomy": "medium muscular rescue dog, brindled short coat, folded ears",
+      "coats": [
+        "Copper brindle",
+        "Black brindle & cream",
+        "Red brindle & white"
+      ],
+      "iconBg": "#4A626D"
+    },
+    {
+      "slug": "salt_pepper_mix",
+      "name": "Salt Pepper mix",
+      "kind": "mix",
+      "anatomy": "medium scruffy rescue dog, silver muzzle, coarse coat, folded ears",
+      "coats": [
+        "Salt & pepper",
+        "Charcoal & white",
+        "Warm gray & tan"
+      ],
+      "iconBg": "#4C6572"
+    },
+    {
+      "slug": "tri_flop_mix",
+      "name": "Tri Flop mix",
+      "kind": "mix",
+      "anatomy": "medium floppy-eared mixed dog, tricolor face, long tail",
+      "coats": [
+        "Black tan & white",
+        "Chocolate tan & white",
+        "Blue tan & cream"
+      ],
+      "iconBg": "#4B6770"
+    },
+    {
+      "slug": "blue_patch_mix",
+      "name": "Blue Patch mix",
+      "kind": "mix",
+      "anatomy": "medium mixed dog, one upright ear, patched merle-like coat, expressive eyes",
+      "coats": [
+        "Blue patches & white",
+        "Red patches & cream",
+        "Black patches & tan"
+      ],
+      "iconBg": "#4D6079"
+    },
+    {
+      "slug": "round_muzzle_mix",
+      "name": "Round Muzzle mix",
+      "kind": "mix",
+      "anatomy": "small fluffy mixed dog, rounded muzzle, soft folded ears, curled tail",
+      "coats": [
+        "Oat & cream",
+        "Cocoa & ivory",
+        "Black & rust"
+      ],
+      "iconBg": "#526678"
+    }
+  ]
+}

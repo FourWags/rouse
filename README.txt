@@ -1,6 +1,6 @@
-WAGRISE — ANDROID ALARM APP 0.1.52 PREVIEW
+WAGRISE — ANDROID ALARM APP 0.1.53 PREVIEW
 
-Wake up with a dog by your side. WagRise connects a work calendar or lets you set a personal alarm. Choose from 28 illustrated dogs and mixes and 84 coat palettes; your selected companion rests on Snooze and stretches on I’m up. Its side-profile portrait becomes the actual home-screen icon, with the full head framed inside it. The Original icon designs and Original color themes open as separate menus, so you can see each full set of cards. Clear appearance choices to use the basic WagRise look until you choose again; saved personal themes remain available. The dog artwork is static, so alarm controls stay responsive and readable.
+Wake up with a dog by your side. WagRise connects a work calendar or lets you set a personal alarm. Choose from 80 illustrated dogs (50 named dogs and 30 mixes), each with three coat palettes. Your selected companion rests on Snooze and stretches on I’m up. Its side-profile portrait becomes the actual home-screen icon, with the full head framed inside it. Shiba Inu appears first; the other recognized breeds follow the AKC's 2025 U.S. registration ranking (https://www.akc.org/expert-advice/news/most-popular-dog-breeds-2025/). Goldendoodle and mixes are unranked. Original color themes have their own list and do not appear among dog coats. Clear appearance choices to use the basic WagRise look until you choose again; saved personal themes remain available. The dog artwork is static, so alarm controls stay responsive and readable.
 
 INSTALL AND UPDATE
 - Install petal-wake.apk from the GitHub release, or subscribe to https://github.com/FourWags/wagrise in Obtainium. Existing Obtainium APK filters may continue to use ^petal-wake\.apk$.
@@ -18,7 +18,7 @@ SOUNDS AND ALARM CONTROL
 - Snooze and I’m up are the two large ringing controls. I’m up requires a deliberate hold or repeated accessible selection. A snoozed alarm can be stopped from the app's active-snooze control.
 
 APPEARANCE
-- Appearance opens with dogs first. Choose a dog, view its side-profile home-screen icon and sleeping and waking artwork, then select an illustrated coat. The breed sets the actual Android launcher icon; the coat's palette colors the interface. You can hide the alarm-button art while keeping its colors and icon. There is one side-profile portrait per breed; the 84 coat variants do not recolor that portrait.
+- Appearance opens with dogs first. Search or open the grouped list: Shiba Inu is pinned first, followed by AKC-ranked breeds, then unranked Goldendoodle and mixes. Choose a dog, view its side-profile home-screen icon and sleeping and waking artwork, then select an illustrated coat. The dog sets the actual Android launcher icon; the coat's palette colors the interface. The original color-theme selector is separate and contains no dog coats. You can hide the alarm-button art while keeping its colors and icon. There is one side-profile portrait per dog choice; the 240 coat variants do not recolor that portrait.
 - Original designs provide 18 launcher icon choices and 19 classic color themes. Existing saved choices carry forward until a dog is selected. Choosing an Original icon afterward switches the launcher back without changing the dog artwork or its coat palette. New launcher labels say WagRise; older internal icon IDs remain so saved selections still resolve.
 
 MOVE TO A NEW PHONE
