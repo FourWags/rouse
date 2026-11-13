@@ -1,9 +1,9 @@
-WagRise 0.1.54 / code 55 — signed personal Preview
+WagRise 0.1.55 / code 56 — signed personal Preview
 Prepared 2026-11-12
 
-APK SHA-256: cbdaf07a0df0db47dd46c9eb63caa1bc66e1a90441f728c788783531df436f09
+APK SHA-256: 99fc5e000a187c730ea2e8aee0b5a626c21e9f24c66becc54025314905c1c26e
 Signing certificate SHA-256: 386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4
-Package: app.daybreak. Version code rose from 54 to 55. Same-package/signer update continuity against verified 0.1.53 passed. The release variant is non-debuggable. Packaged permissions match 0.1.53 (13 uses-permission entries).
+Package: app.daybreak. Version code rose from 55 to 56 so Obtainium can offer the final wording build to a Pixel that received an earlier code-55 candidate. Same-package/signer update continuity against verified 0.1.54 passed. The release variant is non-debuggable. Packaged permissions match 0.1.54 (13 uses-permission entries).
 
 Fresh offline Gradle run: 97 tasks executed; 44 JVM tests passed with zero failures, errors, or skips. Release and Android-test APKs, lintDebug, and lintVitalRelease built successfully. lintDebug reported zero errors and 69 warnings, matching the prior count; individual warning equivalence was not established.
 

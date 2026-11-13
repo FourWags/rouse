@@ -1,6 +1,6 @@
-WAGRISE 0.1.54 PREVIEW — VERIFICATION AND LIMITS
+WAGRISE 0.1.55 PREVIEW — VERIFICATION AND LIMITS
 
-Artifact: app.daybreak, version 0.1.54/code 55. Exact signed APK SHA-256 cbdaf07a0df0db47dd46c9eb63caa1bc66e1a90441f728c788783531df436f09. Signing certificate SHA-256 386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4. In-place update continuity against 0.1.53 passed.
+Artifact: app.daybreak, version 0.1.55/code 56. Exact signed APK SHA-256 99fc5e000a187c730ea2e8aee0b5a626c21e9f24c66becc54025314905c1c26e. Signing certificate SHA-256 386f097ea7de3749f0b0cc87e433d0f8a8a70cebb1848d7e7cb4bd5f60cff2b4. In-place update continuity against 0.1.54 passed.
 
 Fresh offline build and checks: 97 Gradle tasks, 44 JVM tests passed, zero failures/errors/skips; lintDebug zero errors and 69 warnings; lintVitalRelease passed. Packaged permissions were unchanged. The exact signed APK passed the dog picker, 80 launcher aliases, 240 palette mappings, 480 pose decodes, and large two-button alarm checks on an isolated Android 15 emulator. See CHECKS.txt for details.
 
