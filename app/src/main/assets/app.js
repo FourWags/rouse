@@ -30,7 +30,7 @@ function renderDogOptions(){
  const matches=dogBreeds.filter(b=>b.toLocaleLowerCase().includes(search));
  const listed=preview&&!matches.includes(preview.breed)?[preview.breed,...matches]:matches;
  const group=(kind,label)=>{const options=listed.filter(b=>dogKind.get(b)===kind).map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');return options?`<optgroup label="${label}">${options}</optgroup>`:'';};
- $('dogBreed').innerHTML='<option value="">Choose a dog or mix…</option>'+group('breed','Named dogs · 50')+group('mix','Mixed companions · 30');
+ $('dogBreed').innerHTML='<option value="">Select…</option>'+group('breed','Named dogs · 50')+group('mix','Mixed companions · 30');
  $('dogBreed').value=preview?.breed||'';
  $('dogSearchCount').textContent=search?`${matches.length} dog${matches.length===1?'':'s'} match “${search}”.`:'Shiba first, then AKC’s 2025 popularity order. Goldendoodle and mixes are unranked.';
  $('dogPreview').hidden=!preview;$('dogOptions').hidden=!preview;$('dogCoatHeading').hidden=!preview;
@@ -43,7 +43,7 @@ function renderDogOptions(){
  }else{$('dogPreviewName').textContent='';$('dogLauncherPreview').removeAttribute('src');$('dogSnoozePreview').removeAttribute('src');$('dogAwakePreview').removeAttribute('src');$('dogOptions').innerHTML='';}
  $('dogNone').hidden=selected==='none';
  const dogIconActive=preview&&st?.settings?.iconDesign===`dog_howl_${preview.id.slice(4).replace(/_\d+$/,'')}`;
- $('dogStatus').textContent=preview?(selected===preview.id?`${preview.breed} · ${preview.coat} selected. Its colors and alarm pictures are active. ${dogIconActive?'Its side-profile home-screen icon is active.':'Your other home-screen icon is active.'}`:`Previewing ${preview.breed} · ${preview.coat}. Choose a coat to use its colors, alarm pictures, and home-screen icon.`):selected==='none'?'Dog artwork is hidden. Choose a breed to use it again.':'Choose a breed or mix to preview its alarm pictures.';
+ $('dogStatus').textContent=preview?(selected===preview.id?`${preview.breed} · ${preview.coat} selected. Its colors and alarm pictures are active. ${dogIconActive?'Its side-profile home-screen icon is active.':'Your other home-screen icon is active.'}`:`Previewing ${preview.breed} · ${preview.coat}. Choose a coat to use its colors, alarm pictures, and home-screen icon.`):selected==='none'?'Dog artwork is hidden. Choose a breed to use it again.':'Select above to see coats and alarm artwork.';
 }
 function renderAppearanceOptions(){
  $('themeOptions').innerHTML=appearanceCatalog.themes.filter(theme=>!theme.dog).map(theme=>`<button type="button" class="theme-option" id="profile${theme.id==='navy'?'Navy':theme.id==='rose'?'Rose':theme.id}" data-profile="${theme.id}" aria-pressed="false"><img src="${iconPath(theme.id,currentIcon)}" alt=""><strong>${esc(theme.name)}</strong><span class="theme-swatches" aria-hidden="true"><span style="background:${theme.background}"></span><span style="background:${theme.primary}"></span><span style="background:${theme.secondary}"></span></span><small>${theme.dark?'Night palette':'Day palette'}</small><span class="profile-check" aria-hidden="true">✓</span></button>`).join('');
